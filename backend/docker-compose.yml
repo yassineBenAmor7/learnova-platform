@@ -1,0 +1,32 @@
+services:
+
+  postgres:
+
+    image: postgres:16
+
+    container_name: learnova-postgres
+
+    restart: always
+
+    environment:
+
+      POSTGRES_USER: postgres
+
+      POSTGRES_PASSWORD: postgres
+
+      POSTGRES_DB: learnova
+
+
+    ports:
+
+      - "5432:5432"
+
+
+    volumes:
+
+      - postgres_data:/var/lib/postgresql/data
+
+
+volumes:
+
+  postgres_data:

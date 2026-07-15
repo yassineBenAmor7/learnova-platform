@@ -1,0 +1,153 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Role {
+  id    Int      @id @default(autoincrement())
+  name  RoleName @unique
+  users User[]
+}
+
+model User {
+  id           Int           @id @default(autoincrement())
+  firstName    String
+  lastName     String
+  email        String        @unique
+  password     String
+  roleId       Int
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  certificates Certificate[]
+  courses      Course[]
+  enrollments  Enrollment[]
+  quizAttempts QuizAttempt[]
+  role         Role          @relation(fields: [roleId], references: [id])
+}
+
+model Course {
+  id           Int           @id @default(autoincrement())
+  title        String
+  description  String
+  thumbnail    String?
+  creatorId    Int
+  createdAt    DateTime      @default(now())
+  certificates Certificate[]
+  creator      User          @relation(fields: [creatorId], references: [id])
+  enrollments  Enrollment[]
+  quizzes      Quiz[]
+  sessions     Session[]
+}
+
+model Session {
+  id          Int     @id @default(autoincrement())
+  title       String
+  description String?
+  orderNumber Int
+  courseId    Int
+  course      Course  @relation(fields: [courseId], references: [id])
+  videos      Video[]
+}
+
+model Video {
+  id          Int     @id @default(autoincrement())
+  title       String
+  url         String
+  duration    Int?
+  orderNumber Int
+  sessionId   Int
+  session     Session @relation(fields: [sessionId], references: [id])
+}
+
+model Enrollment {
+  id         Int       @id @default(autoincrement())
+  userId     Int
+  courseId   Int
+  enrolledAt DateTime  @default(now())
+  course     Course    @relation(fields: [courseId], references: [id])
+  user       User      @relation(fields: [userId], references: [id])
+  progress   Progress?
+}
+
+model Progress {
+  id                Int        @id @default(autoincrement())
+  enrollmentId      Int        @unique
+  completedSessions Int        @default(0)
+  completedVideos   Int        @default(0)
+  percentage        Float      @default(0)
+  lastAccess        DateTime   @default(now())
+  enrollment        Enrollment @relation(fields: [enrollmentId], references: [id])
+}
+
+model Quiz {
+  id          Int           @id @default(autoincrement())
+  title       String
+  description String?
+  courseId    Int
+  createdAt   DateTime      @default(now())
+  questions   Question[]
+  course      Course        @relation(fields: [courseId], references: [id])
+  attempts    QuizAttempt[]
+}
+
+model Question {
+  id      Int              @id @default(autoincrement())
+  text    String
+  quizId  Int
+  quiz    Quiz             @relation(fields: [quizId], references: [id])
+  options QuestionOption[]
+  answers QuizAnswer[]
+}
+
+model QuestionOption {
+  id          Int          @id @default(autoincrement())
+  text        String
+  isCorrect   Boolean      @default(false)
+  questionId  Int
+  question    Question     @relation(fields: [questionId], references: [id])
+  quizAnswers QuizAnswer[]
+}
+
+model QuizAttempt {
+  id         Int          @id @default(autoincrement())
+  userId     Int
+  quizId     Int
+  score      Float
+  passed     Boolean      @default(false)
+  startedAt  DateTime     @default(now())
+  finishedAt DateTime?
+  answers    QuizAnswer[]
+  quiz       Quiz         @relation(fields: [quizId], references: [id])
+  user       User         @relation(fields: [userId], references: [id])
+}
+
+model QuizAnswer {
+  id         Int            @id @default(autoincrement())
+  attemptId  Int
+  questionId Int
+  optionId   Int
+  isCorrect  Boolean
+  attempt    QuizAttempt    @relation(fields: [attemptId], references: [id])
+  option     QuestionOption @relation(fields: [optionId], references: [id])
+  question   Question       @relation(fields: [questionId], references: [id])
+}
+
+model Certificate {
+  id                Int      @id @default(autoincrement())
+  userId            Int
+  courseId          Int
+  certificateNumber String   @unique
+  qrCode            String   @unique
+  issuedAt          DateTime @default(now())
+  course            Course   @relation(fields: [courseId], references: [id])
+  user              User     @relation(fields: [userId], references: [id])
+}
+
+enum RoleName {
+  ADMIN
+  LEARNER
+}
