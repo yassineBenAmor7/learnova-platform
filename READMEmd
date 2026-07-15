@@ -1,0 +1,42 @@
+# Learnova
+
+AI-powered e-learning platform.
+
+## Description
+
+Learnova is an intelligent learning platform allowing users
+to follow courses, complete quizzes and obtain certificates.
+
+## Technologies
+
+Frontend:
+- React.js
+
+Backend:
+- NestJS
+
+Database:
+- PostgreSQL
+
+ORM:
+- Prisma
+
+AI:
+- Recommendation system
+- Chatbot
+- Quiz generation
+
+
+## Architecture
+
+Frontend → Backend API → Database
+
+## Features
+
+- Authentication
+- Course management
+- Video learning
+- Quiz evaluation
+- Certificates
+- Gamification
+- AI assistance
