@@ -10,6 +10,8 @@ import { AuthController } from './auth.controller';
 
 import { UsersModule } from '../users/users.module';
 
+import { JwtStrategy } from './strategies/jwt.strategy';
+
 @Module({
   imports: [
     UsersModule,
@@ -18,10 +20,13 @@ import { UsersModule } from '../users/users.module';
 
     JwtModule.register({
       secret: process.env.JWT_SECRET,
+      signOptions: {
+        expiresIn: '7d',
+      },
     }),
   ],
 
-  providers: [AuthService],
+  providers: [AuthService, JwtStrategy],
 
   controllers: [AuthController],
 

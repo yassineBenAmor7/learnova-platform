@@ -14,6 +14,8 @@ interface RegisterData {
   roleId?: number;
 }
 
+const BCRYPT_SALT_ROUNDS = 10;
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -29,7 +31,7 @@ export class AuthService {
       throw new Error('Email already exists');
     }
 
-    const hashedPassword = await bcrypt.hash(data.password, 10);
+    const hashedPassword = await bcrypt.hash(data.password, BCRYPT_SALT_ROUNDS);
 
     const user = await this.usersService.create({
       ...data,
@@ -37,10 +39,13 @@ export class AuthService {
       password: hashedPassword,
     });
 
+    // Remove password from response for security
+    const { password: _, ...userWithoutPassword } = user;
+
     return {
       message: 'User created',
 
-      user,
+      user: userWithoutPassword,
     };
   }
 
