@@ -115,7 +115,7 @@ export class GamificationService {
   }
 
   private getBadgesForLevel(level: number): string[] {
-    const badges = [];
+    const badges: string[] = [];
     if (level >= 1) badges.push('Beginner');
     if (level >= 5) badges.push('Intermediate');
     if (level >= 10) badges.push('Advanced');

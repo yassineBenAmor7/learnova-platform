@@ -5,7 +5,7 @@ export class CreateQuestionDto {
   @IsString()
   text: string;
 
-  @IsArrayNotEmpty()
+  @ArrayNotEmpty()
   @ValidateNested({ each: true })
   @Type(() => CreateQuestionOptionDto)
   options: CreateQuestionOptionDto[];
@@ -32,7 +32,7 @@ export class CreateQuizDto {
   @Min(1)
   courseId: number;
 
-  @IsArrayNotEmpty()
+  @ArrayNotEmpty()
   @ValidateNested({ each: true })
   @Type(() => CreateQuestionDto)
   questions: CreateQuestionDto[];

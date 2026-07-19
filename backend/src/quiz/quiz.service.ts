@@ -8,8 +8,23 @@ export class QuizService {
   constructor(private prisma: PrismaService) {}
 
   async create(createQuizDto: CreateQuizDto) {
-    return this.prisma.client.quiz.create({
-      data: createQuizDto,
+    const { questions, ...quizData } = createQuizDto;
+    
+    const quiz = await this.prisma.client.quiz.create({
+      data: {
+        ...quizData,
+        questions: {
+          create: questions.map(q => ({
+            text: q.text,
+            options: {
+              create: q.options.map(o => ({
+                text: o.text,
+                isCorrect: o.isCorrect === 1,
+              })),
+            },
+          })),
+        },
+      },
       include: {
         course: true,
         questions: {
@@ -19,6 +34,8 @@ export class QuizService {
         },
       },
     });
+
+    return quiz;
   }
 
   async findAll() {
@@ -76,9 +93,11 @@ export class QuizService {
       throw new NotFoundException(`Quiz with ID ${id} not found`);
     }
 
+    const { questions, ...quizData } = updateQuizDto;
+    
     return this.prisma.client.quiz.update({
       where: { id },
-      data: updateQuizDto,
+      data: quizData,
       include: {
         course: true,
         questions: {

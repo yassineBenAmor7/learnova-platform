@@ -139,12 +139,10 @@ export class ProgressService {
     }
 
     const totalSessions = course.sessions.length;
-    const enrollment = await this.prisma.client.enrollment.findUnique({
+    const enrollment = await this.prisma.client.enrollment.findFirst({
       where: {
-        userId_courseId: {
-          userId,
-          courseId,
-        },
+        userId,
+        courseId,
       },
       include: {
         progress: true,
