@@ -1,0 +1,171 @@
+.navbar-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--nav-height);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-bottom: 1px solid var(--border-color);
+  z-index: 1000;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+}
+
+.navbar-content {
+  max-width: 1400px;
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.navbar-logo {
+  font-family: var(--font-heading);
+  font-size: 1.8rem;
+  font-weight: 800;
+  letter-spacing: -1px;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+}
+
+.logo-dot {
+  color: var(--primary);
+}
+
+.navbar-menu {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.navbar-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-heading);
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.navbar-link:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.admin-link {
+  color: var(--accent);
+}
+
+.admin-link:hover {
+  color: #fff;
+  background: rgba(325, 85%, 60%, 0.1);
+}
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+}
+
+.auth-buttons {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.btn-sm-nav {
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+}
+
+.navbar-user-section {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color);
+  padding: 0.4rem 0.8rem;
+  border-radius: 50px;
+}
+
+.navbar-gamification {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  border-right: 1px solid var(--border-color);
+  padding-right: 0.8rem;
+}
+
+.gamification-item {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: var(--font-heading);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.icon-streak {
+  color: var(--warning);
+  filter: drop-shadow(0 0 2px rgba(239, 137, 10, 0.3));
+}
+
+.icon-points {
+  color: var(--secondary);
+  filter: drop-shadow(0 0 2px rgba(10, 190, 239, 0.3));
+}
+
+.navbar-user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.user-icon {
+  color: var(--primary);
+}
+
+.btn-logout {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: color var(--transition-fast);
+}
+
+.btn-logout:hover {
+  color: var(--danger);
+}
+
+.tooltip {
+  position: relative;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .navbar-content {
+    padding: 0 1rem;
+  }
+  .navbar-menu {
+    display: none; /* In a real product we'd build a mobile drawer, but let's keep it simple or hide it for simplicity on mobile */
+  }
+  .user-name {
+    display: none;
+  }
+  .navbar-gamification {
+    border: none;
+    padding-right: 0;
+  }
+}
