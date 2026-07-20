@@ -1,10 +1,10 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Role {
@@ -71,6 +71,8 @@ model Enrollment {
   course     Course    @relation(fields: [courseId], references: [id])
   user       User      @relation(fields: [userId], references: [id])
   progress   Progress?
+
+  @@unique([userId, courseId])
 }
 
 model Progress {
