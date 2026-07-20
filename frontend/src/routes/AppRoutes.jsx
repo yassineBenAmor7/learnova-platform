@@ -4,7 +4,6 @@ import { useAuth } from '../context/AuthContext';
 // Pages
 import Login from '../pages/Login';
 import Register from '../pages/Register';
-import Dashboard from '../pages/Dashboard';
 
 // Guard components
 const ProtectedRoute = ({ children }) => {
@@ -32,16 +31,6 @@ const AppRoutes = () => {
       <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-
-      {/* Protected Routes */}
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        }
-      />
 
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/login" replace />} />
