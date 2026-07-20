@@ -1,6 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 
 import { UsersService } from '../users/users.service';
+import { PrismaService } from '../prisma/prisma.service';
 
 import * as bcrypt from 'bcrypt';
 
@@ -20,7 +21,7 @@ const BCRYPT_SALT_ROUNDS = 10;
 export class AuthService {
   constructor(
     private usersService: UsersService,
-
+    private prisma: PrismaService,
     private jwtService: JwtService,
   ) {}
 
@@ -33,10 +34,23 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(data.password, BCRYPT_SALT_ROUNDS);
 
+    // Assign default role (LEARNER) if not provided
+    let roleId = data.roleId;
+    if (!roleId) {
+      // Get LEARNER role dynamically
+      const learnerRole = await this.prisma.client.role.findUnique({
+        where: { name: 'LEARNER' },
+      });
+      if (!learnerRole) {
+        throw new Error('LEARNER role not found in database. Please run seed.');
+      }
+      roleId = learnerRole.id;
+    }
+
     const user = await this.usersService.create({
       ...data,
-
       password: hashedPassword,
+      roleId,
     });
 
     // Remove password from response for security
@@ -44,7 +58,6 @@ export class AuthService {
 
     return {
       message: 'User created',
-
       user: userWithoutPassword,
     };
   }

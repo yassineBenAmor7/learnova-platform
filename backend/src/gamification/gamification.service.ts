@@ -67,6 +67,61 @@ export class GamificationService {
     };
   }
 
+  async addPoints(userId: number, points: number, reason: string) {
+    return this.awardPoints(userId, points, reason);
+  }
+
+  async updateStreak(userId: number) {
+    const gamification = await this.prisma.client.userGamification.findUnique({
+      where: { userId },
+    });
+
+    if (!gamification) {
+      await this.prisma.client.userGamification.create({
+        data: {
+          userId,
+          currentStreak: 1,
+          longestStreak: 1,
+          lastActivityDate: new Date(),
+        },
+      });
+      return { currentStreak: 1, longestStreak: 1 };
+    }
+
+    const today = new Date();
+    const lastActivity = gamification.lastActivityDate || new Date(0);
+    const diffDays = Math.floor(
+      (today.getTime() - lastActivity.getTime()) / (1000 * 60 * 60 * 24)
+    );
+
+    let newCurrentStreak = gamification.currentStreak;
+    let newLongestStreak = gamification.longestStreak;
+
+    if (diffDays === 0) {
+      // Same day, no change
+    } else if (diffDays === 1) {
+      // Consecutive day
+      newCurrentStreak++;
+      if (newCurrentStreak > newLongestStreak) {
+        newLongestStreak = newCurrentStreak;
+      }
+    } else {
+      // Streak broken
+      newCurrentStreak = 1;
+    }
+
+    await this.prisma.client.userGamification.update({
+      where: { userId },
+      data: {
+        currentStreak: newCurrentStreak,
+        longestStreak: newLongestStreak,
+        lastActivityDate: today,
+      },
+    });
+
+    return { currentStreak: newCurrentStreak, longestStreak: newLongestStreak };
+  }
+
   async getUserStreak(userId: number) {
     const enrollments = await this.prisma.client.enrollment.findMany({
       where: { userId },
