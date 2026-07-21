@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { authService } from '../services/auth.service';
+import { useAuth } from '../context/AuthContext';
 import './Register.css';
 
 function Register() {
@@ -14,6 +15,7 @@ function Register() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleChange = (e) => {
     setFormData({
@@ -46,7 +48,9 @@ function Register() {
         formData.email,
         formData.password
       );
-      navigate('/login');
+      // Auto login after registration
+      await login(formData.email, formData.password);
+      navigate('/dashboard');
     } catch (err) {
       setError(err.message || 'Erreur lors de l\'inscription');
     } finally {
@@ -142,7 +146,7 @@ function Register() {
         <div className="register-footer">
           <p>
             Déjà un compte ?{' '}
-            <a href="/login">Se connecter</a>
+            <Link to="/login">Se connecter</Link>
           </p>
         </div>
       </div>

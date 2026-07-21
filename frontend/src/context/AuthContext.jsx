@@ -32,8 +32,12 @@ export const AuthProvider = ({ children }) => {
     setError(null);
     try {
       const data = await authService.login(email, password);
-      setUser(data.user);
-      return data.user;
+      let profile = data.user;
+      if (!profile) {
+        profile = await authService.getMe();
+      }
+      setUser(profile);
+      return profile;
     } catch (err) {
       setError(err.message);
       throw err;
