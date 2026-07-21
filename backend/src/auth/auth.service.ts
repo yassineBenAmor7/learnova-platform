@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ConflictException, BadRequestException } from '@nestjs/common';
 
 import { UsersService } from '../users/users.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -29,7 +29,7 @@ export class AuthService {
     const existingUser = await this.usersService.findByEmail(data.email);
 
     if (existingUser) {
-      throw new Error('Email already exists');
+      throw new ConflictException('Cet email est déjà utilisé par un autre compte');
     }
 
     const hashedPassword = await bcrypt.hash(data.password, BCRYPT_SALT_ROUNDS);
@@ -42,7 +42,7 @@ export class AuthService {
         where: { name: 'LEARNER' },
       });
       if (!learnerRole) {
-        throw new Error('LEARNER role not found in database. Please run seed.');
+        throw new BadRequestException('Le rôle LEARNER est introuvable. Veuillez exécuter le seed.');
       }
       roleId = learnerRole.id;
     }
