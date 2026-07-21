@@ -1,0 +1,50 @@
+.progress-bar-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.progress-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: var(--bg-tertiary);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width var(--transition-normal);
+}
+
+.progress-percentage {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-align: right;
+}
+
+.progress-small .progress-bar {
+  height: 4px;
+}
+
+.progress-small .progress-label,
+.progress-small .progress-percentage {
+  font-size: 0.75rem;
+}
+
+.progress-large .progress-bar {
+  height: 12px;
+}
+
+.progress-large .progress-label,
+.progress-large .progress-percentage {
+  font-size: 1rem;
+}
