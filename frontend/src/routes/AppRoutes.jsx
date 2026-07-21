@@ -11,6 +11,7 @@ import LearningPath from '../pages/LearningPath';
 import Quiz from '../pages/Quiz';
 import Exam from '../pages/Exam';
 import Certificates from '../pages/Certificates';
+import VerifyCertificate from '../pages/VerifyCertificate';
 import Profile from '../pages/Profile';
 
 // Guard components
@@ -39,6 +40,7 @@ const AppRoutes = () => {
       <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/certificates/verify/:certificateNumber" element={<VerifyCertificate />} />
 
       {/* Protected Routes */}
       <Route
