@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
 import Dashboard from '../pages/Dashboard';
+import Courses from '../pages/Courses';
 
 // Guard components
 const ProtectedRoute = ({ children }) => {
@@ -39,6 +40,14 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/courses"
+        element={
+          <ProtectedRoute>
+            <Courses />
           </ProtectedRoute>
         }
       />
