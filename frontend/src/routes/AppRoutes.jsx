@@ -8,6 +8,7 @@ import Dashboard from '../pages/Dashboard';
 import Courses from '../pages/Courses';
 import CourseDetails from '../pages/CourseDetails';
 import LearningPath from '../pages/LearningPath';
+import Quiz from '../pages/Quiz';
 
 // Guard components
 const ProtectedRoute = ({ children }) => {
@@ -66,6 +67,14 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <LearningPath />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/quiz/:id"
+        element={
+          <ProtectedRoute>
+            <Quiz />
           </ProtectedRoute>
         }
       />
