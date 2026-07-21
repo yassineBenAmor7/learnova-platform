@@ -11,6 +11,7 @@ import LearningPath from '../pages/LearningPath';
 import Quiz from '../pages/Quiz';
 import Exam from '../pages/Exam';
 import Certificates from '../pages/Certificates';
+import Profile from '../pages/Profile';
 
 // Guard components
 const ProtectedRoute = ({ children }) => {
@@ -93,6 +94,14 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <Certificates />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <Profile />
           </ProtectedRoute>
         }
       />
