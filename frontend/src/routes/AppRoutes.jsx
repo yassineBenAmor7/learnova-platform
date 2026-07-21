@@ -6,6 +6,7 @@ import Login from '../pages/Login';
 import Register from '../pages/Register';
 import Dashboard from '../pages/Dashboard';
 import Courses from '../pages/Courses';
+import CourseDetails from '../pages/CourseDetails';
 
 // Guard components
 const ProtectedRoute = ({ children }) => {
@@ -48,6 +49,14 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <Courses />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/courses/:id"
+        element={
+          <ProtectedRoute>
+            <CourseDetails />
           </ProtectedRoute>
         }
       />
