@@ -17,6 +17,22 @@ export class UsersService {
     });
   }
 
+  async findById(id: number) {
+    const user = await this.prisma.client.user.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        role: true,
+      },
+    });
+
+    if (!user) return null;
+
+    const { password, ...userWithoutPassword } = user;
+    return userWithoutPassword;
+  }
+
   async create(data: any) {
     return this.prisma.client.user.create({
       data,
