@@ -135,8 +135,20 @@
   color: var(--text-primary);
 }
 
-.user-icon {
-  color: var(--primary);
+.user-avatar-mini {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--gradient-primary);
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  letter-spacing: -0.02em;
+  box-shadow: 0 2px 8px var(--primary-glow);
 }
 
 .btn-logout {

@@ -62,8 +62,10 @@ const Navbar = () => {
                 </div>
               )}
               <Link to="/profile" className="navbar-user-info" title="My Profile">
-                <User size={16} className="user-icon" />
-                <span className="user-name">{user?.firstName}</span>
+                <div className="user-avatar-mini">
+                  {user?.firstName?.[0]}{user?.lastName?.[0]}
+                </div>
+                <span className="user-name">{user?.firstName} {user?.lastName}</span>
               </Link>
               <button onClick={handleLogout} className="btn-logout" title="Log Out">
                 <LogOut size={18} />
