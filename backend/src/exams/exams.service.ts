@@ -106,6 +106,7 @@ export class ExamsService {
       data: {
         quizId,
         userId,
+        score: 0,
         isExamMode: true,
         startedAt: new Date(),
         expiresAt,

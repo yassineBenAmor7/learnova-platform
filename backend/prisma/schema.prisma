@@ -14,19 +14,22 @@ model Role {
 }
 
 model User {
-  id           Int           @id @default(autoincrement())
-  firstName    String
-  lastName     String
-  email        String        @unique
-  password     String
-  roleId       Int
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  certificates Certificate[]
-  courses      Course[]
-  enrollments  Enrollment[]
-  quizAttempts QuizAttempt[]
-  role         Role          @relation(fields: [roleId], references: [id])
+  id                 Int                 @id @default(autoincrement())
+  firstName          String
+  lastName           String
+  email              String              @unique
+  password           String
+  roleId             Int
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  certificates       Certificate[]
+  courses            Course[]
+  enrollments        Enrollment[]
+  quizAttempts       QuizAttempt[]
+  role               Role                @relation(fields: [roleId], references: [id])
+  gamification       UserGamification?
+  sessionCompletions SessionCompletion[]
+  videoWatches       VideoWatch[]
 }
 
 model Course {
@@ -44,23 +47,25 @@ model Course {
 }
 
 model Session {
-  id          Int     @id @default(autoincrement())
-  title       String
-  description String?
-  orderNumber Int
-  courseId    Int
-  course      Course  @relation(fields: [courseId], references: [id])
-  videos      Video[]
+  id                 Int                 @id @default(autoincrement())
+  title              String
+  description        String?
+  orderNumber        Int
+  courseId           Int
+  course             Course              @relation(fields: [courseId], references: [id])
+  videos             Video[]
+  sessionCompletions SessionCompletion[]
 }
 
 model Video {
-  id          Int     @id @default(autoincrement())
+  id          Int          @id @default(autoincrement())
   title       String
   url         String
   duration    Int?
   orderNumber Int
   sessionId   Int
-  session     Session @relation(fields: [sessionId], references: [id])
+  session     Session      @relation(fields: [sessionId], references: [id])
+  watches     VideoWatch[]
 }
 
 model Enrollment {
@@ -76,24 +81,28 @@ model Enrollment {
 }
 
 model Progress {
-  id                Int        @id @default(autoincrement())
-  enrollmentId      Int        @unique
-  completedSessions Int        @default(0)
-  completedVideos   Int        @default(0)
-  percentage        Float      @default(0)
-  lastAccess        DateTime   @default(now())
-  enrollment        Enrollment @relation(fields: [enrollmentId], references: [id])
+  id                  Int        @id @default(autoincrement())
+  enrollmentId        Int        @unique
+  completedSessions   Int        @default(0)
+  completedVideos     Int        @default(0)
+  percentage          Float      @default(0)
+  learningTimeSeconds Int        @default(0)
+  lastAccess          DateTime   @default(now())
+  enrollment          Enrollment @relation(fields: [enrollmentId], references: [id])
 }
 
 model Quiz {
-  id          Int           @id @default(autoincrement())
-  title       String
-  description String?
-  courseId    Int
-  createdAt   DateTime      @default(now())
-  questions   Question[]
-  course      Course        @relation(fields: [courseId], references: [id])
-  attempts    QuizAttempt[]
+  id               Int           @id @default(autoincrement())
+  title            String
+  description      String?
+  courseId         Int
+  isExamMode       Boolean       @default(false)
+  timeLimitMinutes Int?
+  passingScore     Float         @default(70.0)
+  createdAt        DateTime      @default(now())
+  questions        Question[]
+  course           Course        @relation(fields: [courseId], references: [id])
+  attempts         QuizAttempt[]
 }
 
 model Question {
@@ -118,10 +127,12 @@ model QuizAttempt {
   id         Int          @id @default(autoincrement())
   userId     Int
   quizId     Int
-  score      Float
+  score      Float        @default(0)
   passed     Boolean      @default(false)
+  isExamMode Boolean      @default(false)
   startedAt  DateTime     @default(now())
   finishedAt DateTime?
+  expiresAt  DateTime?
   answers    QuizAnswer[]
   quiz       Quiz         @relation(fields: [quizId], references: [id])
   user       User         @relation(fields: [userId], references: [id])
@@ -149,7 +160,41 @@ model Certificate {
   user              User     @relation(fields: [userId], references: [id])
 }
 
+model UserGamification {
+  id               Int       @id @default(autoincrement())
+  userId           Int       @unique
+  currentStreak    Int       @default(0)
+  longestStreak    Int       @default(0)
+  lastActivityDate DateTime?
+  user             User      @relation(fields: [userId], references: [id])
+}
+
+model SessionCompletion {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  sessionId   Int
+  completedAt DateTime @default(now())
+  session     Session  @relation(fields: [sessionId], references: [id])
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, sessionId])
+}
+
+model VideoWatch {
+  id             Int      @id @default(autoincrement())
+  userId         Int
+  videoId        Int
+  watchedSeconds Int      @default(0)
+  completed      Boolean  @default(false)
+  lastWatchedAt  DateTime @default(now())
+  user           User     @relation(fields: [userId], references: [id])
+  video          Video    @relation(fields: [videoId], references: [id])
+
+  @@unique([userId, videoId])
+}
+
 enum RoleName {
   ADMIN
   LEARNER
 }
+
