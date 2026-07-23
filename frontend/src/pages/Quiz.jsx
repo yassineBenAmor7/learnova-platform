@@ -1,21 +1,26 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { quizService } from '../services/quiz.service';
+import { useAuth } from '../context/AuthContext';
 import './Quiz.css';
 
 function Quiz() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [quiz, setQuiz] = useState(null);
   const [attempt, setAttempt] = useState(null);
   const [answers, setAnswers] = useState({});
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  const [result, setResult] = useState(null);
 
   useEffect(() => {
-    loadQuiz();
-  }, [id]);
+    if (user?.id) {
+      loadQuiz();
+    }
+  }, [id, user]);
 
   const loadQuiz = async () => {
     try {
@@ -23,11 +28,10 @@ function Quiz() {
       const quizData = await quizService.getForLearner(id);
       setQuiz(quizData);
       
-      // Start attempt
-      const attemptData = await quizService.startAttempt(id);
+      const attemptData = await quizService.startAttempt(id, user.id);
       setAttempt(attemptData);
     } catch (err) {
-      setError('Failed to load quiz');
+      setError(err.message || 'Impossible de charger le quiz');
       console.error(err);
     } finally {
       setLoading(false);
@@ -37,17 +41,22 @@ function Quiz() {
   const handleAnswerChange = (questionId, answerId) => {
     setAnswers(prev => ({
       ...prev,
-      [questionId]: answerId
+      [questionId]: Number(answerId)
     }));
   };
 
   const handleSubmit = async () => {
+    if (!attempt?.id) return;
     try {
       setSubmitting(true);
-      const result = await quizService.submitAttempt(attempt.id, answers);
-      navigate(`/quiz/result/${result.id}`);
+      const payload = Object.entries(answers).map(([questionId, optionId]) => ({
+        questionId: Number(questionId),
+        optionId: Number(optionId),
+      }));
+      const res = await quizService.submitAttempt(attempt.id, payload);
+      setResult(res);
     } catch (err) {
-      setError('Failed to submit quiz');
+      setError(err.message || 'Échec de la soumission du quiz');
       console.error(err);
     } finally {
       setSubmitting(false);
@@ -75,10 +84,22 @@ function Quiz() {
     );
   }
 
-  if (!quiz) {
+  if (result) {
     return (
-      <div className="quiz-container">
-        <div className="alert alert-warning">Quiz not found</div>
+      <div className="quiz-container" style={{ padding: '2rem' }}>
+        <div className="card" style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center', padding: '2rem' }}>
+          <h2>{result.passed ? '🎉 Félicitations !' : '❌ Dommage !'}</h2>
+          <p className="subtitle">
+            {result.passed ? 'Vous avez réussi ce quiz avec succès.' : 'Vous n\'avez pas atteint le score minimum.'}
+          </p>
+          <div style={{ fontSize: '3rem', fontWeight: 'bold', margin: '1.5rem 0', color: result.passed ? '#10b981' : '#ef4444' }}>
+            {Math.round(result.score)}%
+          </div>
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+            <Link to="/courses" className="btn btn-secondary">Retour aux cours</Link>
+            {result.passed && <Link to="/certificates" className="btn btn-primary">Voir mes certificats</Link>}
+          </div>
+        </div>
       </div>
     );
   }

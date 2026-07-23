@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { quizService } from '../services/quiz.service';
+import { useAuth } from '../context/AuthContext';
 import './Exam.css';
 
 function Exam() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [quiz, setQuiz] = useState(null);
   const [attempt, setAttempt] = useState(null);
   const [answers, setAnswers] = useState({});
@@ -14,6 +16,7 @@ function Exam() {
   const [error, setError] = useState(null);
   const [timeLeft, setTimeLeft] = useState(0);
   const [examStarted, setExamStarted] = useState(false);
+  const [result, setResult] = useState(null);
 
   useEffect(() => {
     loadExam();
@@ -21,7 +24,7 @@ function Exam() {
 
   useEffect(() => {
     let timer;
-    if (examStarted && timeLeft > 0) {
+    if (examStarted && timeLeft > 0 && !result) {
       timer = setInterval(() => {
         setTimeLeft(prev => {
           if (prev <= 1) {
@@ -33,7 +36,7 @@ function Exam() {
       }, 1000);
     }
     return () => clearInterval(timer);
-  }, [examStarted, timeLeft]);
+  }, [examStarted, timeLeft, result]);
 
   const loadExam = async () => {
     try {
@@ -45,7 +48,7 @@ function Exam() {
         setTimeLeft(quizData.timeLimitMinutes * 60);
       }
     } catch (err) {
-      setError('Failed to load exam');
+      setError(err.message || 'Impossible de charger l\'examen');
       console.error(err);
     } finally {
       setLoading(false);
@@ -53,18 +56,18 @@ function Exam() {
   };
 
   const startExam = async () => {
+    if (!user?.id) return;
     try {
       setLoading(true);
-      const attemptData = await quizService.startAttempt(id);
+      const attemptData = await quizService.startAttempt(id, user.id);
       setAttempt(attemptData);
       setExamStarted(true);
       
-      // Request fullscreen for exam mode
       if (document.documentElement.requestFullscreen) {
-        document.documentElement.requestFullscreen();
+        document.documentElement.requestFullscreen().catch(() => {});
       }
     } catch (err) {
-      setError('Failed to start exam');
+      setError(err.message || 'Échec du démarrage de l\'examen');
       console.error(err);
     } finally {
       setLoading(false);
@@ -74,25 +77,28 @@ function Exam() {
   const handleAnswerChange = (questionId, answerId) => {
     setAnswers(prev => ({
       ...prev,
-      [questionId]: answerId
+      [questionId]: Number(answerId)
     }));
   };
 
   const handleSubmit = async () => {
-    if (!attempt) return;
+    if (!attempt?.id) return;
     
     try {
       setSubmitting(true);
-      const result = await quizService.submitAttempt(attempt.id, answers);
+      const payload = Object.entries(answers).map(([questionId, optionId]) => ({
+        questionId: Number(questionId),
+        optionId: Number(optionId),
+      }));
+      const res = await quizService.submitAttempt(attempt.id, payload);
       
-      // Exit fullscreen
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
+      if (document.exitFullscreen && document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
       }
       
-      navigate(`/exam/result/${result.id}`);
+      setResult(res);
     } catch (err) {
-      setError('Failed to submit exam');
+      setError(err.message || 'Échec de la soumission de l\'examen');
       console.error(err);
     } finally {
       setSubmitting(false);
@@ -126,10 +132,22 @@ function Exam() {
     );
   }
 
-  if (!quiz) {
+  if (result) {
     return (
-      <div className="exam-container">
-        <div className="alert alert-warning">Exam not found</div>
+      <div className="exam-container" style={{ padding: '2rem' }}>
+        <div className="card" style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center', padding: '2rem' }}>
+          <h2>{result.passed ? '🎉 Examen Réussi !' : '❌ Examen Non Validé'}</h2>
+          <p className="subtitle">
+            {result.passed ? 'Félicitations, vous avez obtenu la note minimale requise pour valider cet examen.' : 'Votre score est inférieur au seuil de réussite.'}
+          </p>
+          <div style={{ fontSize: '3.5rem', fontWeight: 'bold', margin: '1.5rem 0', color: result.passed ? '#10b981' : '#ef4444' }}>
+            {Math.round(result.score)}%
+          </div>
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+            <Link to="/courses" className="btn btn-secondary">Retour aux cours</Link>
+            {result.passed && <Link to="/certificates" className="btn btn-primary">Obtenir mon certificat</Link>}
+          </div>
+        </div>
       </div>
     );
   }

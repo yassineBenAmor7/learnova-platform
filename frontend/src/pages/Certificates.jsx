@@ -32,8 +32,7 @@ function Certificates() {
   };
 
   const handleVerify = (certificate) => {
-    // Navigate to verification page
-    window.open(`/verify/${certificate.certificateNumber}`, '_blank');
+    window.open(`/certificates/verify/${certificate.certificateNumber}`, '_blank');
   };
 
   if (loading) {

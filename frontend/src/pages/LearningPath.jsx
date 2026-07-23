@@ -1,16 +1,15 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { courseService } from '../services/course.service';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { learningPathService } from '../services/learningPath.service';
 import Sidebar from '../components/Sidebar/Sidebar';
+import { Award, CheckCircle, HelpCircle, Clock } from 'lucide-react';
 import './LearningPath.css';
 
 function LearningPath() {
   const { id } = useParams();
-  const [course, setCourse] = useState(null);
-  const [sessions, setSessions] = useState([]);
-  const [currentSession, setCurrentSession] = useState(null);
-  const [progress, setProgress] = useState(0);
+  const navigate = useNavigate();
+  const [pathData, setPathData] = useState(null);
+  const [currentSessionId, setCurrentSessionId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -21,65 +20,52 @@ function LearningPath() {
   const loadLearningPath = async () => {
     try {
       setLoading(true);
-      const [courseData, sessionsData, progressData] = await Promise.all([
-        courseService.getById(id),
-        learningPathService.getSessions(id),
-        learningPathService.getProgress(id)
-      ]);
-      setCourse(courseData);
-      setSessions(sessionsData);
-      setProgress(progressData.progress || 0);
-      
-      // Set first unlocked session as current
-      const firstUnlocked = sessionsData.find(s => !s.locked);
-      if (firstUnlocked) {
-        setCurrentSession(firstUnlocked);
+      const data = await learningPathService.getCoursePath(id);
+      setPathData(data);
+
+      if (data.sessions && data.sessions.length > 0) {
+        const firstAccessible = data.sessions.find(s => s.canAccess || !s.isLocked) || data.sessions[0];
+        setCurrentSessionId(firstAccessible.id);
       }
     } catch (err) {
-      setError('Failed to load learning path');
+      setError(err.message || 'Impossible de charger le parcours d\'apprentissage');
       console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSessionSelect = (session) => {
-    if (!session.locked) {
-      setCurrentSession(session);
-    }
+  const handleSessionSelect = (sessionId) => {
+    setCurrentSessionId(sessionId);
   };
 
   const handleCompleteSession = async (sessionId) => {
     try {
       await learningPathService.completeSession(sessionId);
-      // Reload to update progress
-      loadLearningPath();
+      await loadLearningPath();
     } catch (err) {
-      setError('Failed to complete session');
-      console.error(err);
+      alert(err.message || 'Erreur lors de la validation de la session');
     }
   };
+
+  const currentSession = pathData?.sessions?.find(s => s.id === currentSessionId);
+  const progressPercentage = Math.round(pathData?.enrollment?.progress?.percentage || 0);
+  const courseTitle = pathData?.enrollment?.course?.title || 'Formation';
+  const quizzes = pathData?.quizzes || pathData?.enrollment?.course?.quizzes || [];
 
   if (loading) {
     return (
       <div className="learning-path-container">
-        <div className="loading">Loading learning path...</div>
+        <div className="loading">Chargement du parcours d'apprentissage...</div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="learning-path-container">
+      <div className="learning-path-container" style={{ padding: '2rem' }}>
         <div className="alert alert-danger">{error}</div>
-      </div>
-    );
-  }
-
-  if (!course) {
-    return (
-      <div className="learning-path-container">
-        <div className="alert alert-warning">Course not found</div>
+        <Link to="/courses" className="btn btn-secondary">Retour aux formations</Link>
       </div>
     );
   }
@@ -87,62 +73,112 @@ function LearningPath() {
   return (
     <div className="learning-path-container">
       <Sidebar 
-        sessions={sessions}
-        currentSession={currentSession}
+        sessions={pathData?.sessions || []}
+        activeSessionId={currentSessionId}
         onSessionSelect={handleSessionSelect}
       />
       
       <div className="learning-path-content">
         <div className="learning-path-header">
           <Link to="/courses" className="back-link">
-            ← Back to Courses
+            ← Retour aux cours
           </Link>
-          <h1 className="course-title">{course.title}</h1>
+          <h1 className="course-title">{courseTitle}</h1>
           <div className="progress-bar-container">
             <div className="progress-bar">
               <div 
                 className="progress-fill" 
-                style={{ width: `${progress}%` }}
+                style={{ width: `${progressPercentage}%` }}
               ></div>
             </div>
-            <span className="progress-text">{progress}% Complete</span>
+            <span className="progress-text">{progressPercentage}% Complété</span>
           </div>
         </div>
 
         {currentSession ? (
           <div className="session-content">
             <h2 className="session-title">{currentSession.title}</h2>
-            <p className="session-description">{currentSession.description}</p>
+            <p className="session-description">{currentSession.description || 'Pas de description pour cette session.'}</p>
             
             {currentSession.videos && currentSession.videos.length > 0 && (
               <div className="videos-section">
-                <h3>Session Videos</h3>
+                <h3>Vidéos de la session</h3>
                 <div className="videos-list">
                   {currentSession.videos.map((video) => (
-                    <div key={video.id} className="video-item">
+                    <div key={video.id} className="video-item card">
                       <h4 className="video-title">{video.title}</h4>
-                      <p className="video-description">{video.description}</p>
-                      <button className="btn btn-secondary">
-                        Watch Video
-                      </button>
+                      {video.url && (
+                        <div className="video-wrapper" style={{ margin: '1rem 0' }}>
+                          <iframe
+                            src={video.url.replace('watch?v=', 'embed/')}
+                            title={video.title}
+                            width="100%"
+                            height="315"
+                            frameBorder="0"
+                            allowFullScreen
+                          ></iframe>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
               </div>
             )}
 
-            <div className="session-actions">
-              <button
-                onClick={() => handleCompleteSession(currentSession.id)}
-                className="btn btn-primary"
-              >
-                Mark as Complete
-              </button>
+            <div className="session-actions" style={{ marginTop: '2rem' }}>
+              {currentSession.isCompleted ? (
+                <div className="tag tag-success" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem' }}>
+                  <CheckCircle size={18} /> Session terminée
+                </div>
+              ) : (
+                <button
+                  onClick={() => handleCompleteSession(currentSession.id)}
+                  className="btn btn-primary"
+                >
+                  Marquer la session comme terminée (+10 XP)
+                </button>
+              )}
             </div>
           </div>
         ) : (
           <div className="no-session">
-            <p>Select a session from the sidebar to begin</p>
+            <p>Sélectionnez une session dans le menu pour commencer.</p>
+          </div>
+        )}
+
+        {/* Section Quiz / Examens */}
+        {quizzes && quizzes.length > 0 && (
+          <div className="quiz-section card" style={{ marginTop: '2rem', padding: '1.5rem' }}>
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Award size={20} /> Évaluations & Examens
+            </h3>
+            {!pathData?.quizUnlocked && (
+              <p className="alert alert-warning" style={{ margin: '1rem 0' }}>
+                Terminez toutes les sessions pour débloquer les quiz et l'examen final !
+              </p>
+            )}
+            <div className="quiz-list" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
+              {quizzes.map((quiz) => (
+                <div key={quiz.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc', padding: '1rem', borderRadius: '8px' }}>
+                  <div>
+                    <h4 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      {quiz.isExamMode ? <Clock size={16} color="#e11d48" /> : <HelpCircle size={16} color="#2563eb" />}
+                      {quiz.title}
+                    </h4>
+                    <small style={{ color: '#64748b' }}>
+                      {quiz.isExamMode ? `Examen chronométré (${quiz.timeLimitMinutes || 30} min)` : 'Quiz de contrôle'}
+                    </small>
+                  </div>
+                  <button
+                    disabled={!pathData?.quizUnlocked}
+                    onClick={() => navigate(quiz.isExamMode ? `/exam/${quiz.id}` : `/quiz/${quiz.id}`)}
+                    className={`btn ${quiz.isExamMode ? 'btn-primary' : 'btn-secondary'} btn-sm`}
+                  >
+                    {quiz.isExamMode ? 'Passer l\'Examen' : 'Commencer le Quiz'}
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>
@@ -151,3 +187,4 @@ function LearningPath() {
 }
 
 export default LearningPath;
+

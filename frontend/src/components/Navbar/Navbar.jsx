@@ -30,6 +30,10 @@ const Navbar = () => {
                 <LayoutDashboard size={18} />
                 <span>Dashboard</span>
               </Link>
+              <Link to="/certificates" className="navbar-link">
+                <Award size={18} />
+                <span>Certificats</span>
+              </Link>
               {isAdmin && (
                 <Link to="/admin" className="navbar-link admin-link">
                   <Shield size={18} />
@@ -45,7 +49,7 @@ const Navbar = () => {
         <div className="navbar-actions">
           {isAuthenticated ? (
             <div className="navbar-user-section">
-              {user.gamification && (
+              {user?.gamification && (
                 <div className="navbar-gamification">
                   <div className="gamification-item tooltip" title="Jours consécutifs d'apprentissage">
                     <Flame size={18} className="icon-streak" />
@@ -57,10 +61,10 @@ const Navbar = () => {
                   </div>
                 </div>
               )}
-              <div className="navbar-user-info">
+              <Link to="/profile" className="navbar-user-info" title="Mon profil">
                 <User size={16} className="user-icon" />
-                <span className="user-name">{user.firstName}</span>
-              </div>
+                <span className="user-name">{user?.firstName}</span>
+              </Link>
               <button onClick={handleLogout} className="btn-logout" title="Se déconnecter">
                 <LogOut size={18} />
               </button>
