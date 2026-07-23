@@ -30,7 +30,7 @@ function Login() {
       await login(formData.email, formData.password);
       navigate('/dashboard');
     } catch (err) {
-      setError(err.message || 'Erreur lors de la connexion');
+      setError(err.message || 'Failed to log in');
     } finally {
       setLoading(false);
     }
@@ -40,8 +40,8 @@ function Login() {
     <div className="login-container">
       <div className="login-card">
         <div className="login-header">
-          <h1>Connexion</h1>
-          <p>Bienvenue sur Learnova</p>
+          <h1>Log In</h1>
+          <p>Welcome back to Learnova</p>
         </div>
 
         {error && <div className="error-message">{error}</div>}
@@ -56,12 +56,12 @@ function Login() {
               value={formData.email}
               onChange={handleChange}
               required
-              placeholder="votre@email.com"
+              placeholder="your@email.com"
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">Mot de passe</label>
+            <label htmlFor="password">Password</label>
             <input
               type="password"
               id="password"
@@ -74,14 +74,14 @@ function Login() {
           </div>
 
           <button type="submit" className="login-button" disabled={loading}>
-            {loading ? 'Connexion...' : 'Se connecter'}
+            {loading ? 'Logging in...' : 'Log In'}
           </button>
         </form>
 
         <div className="login-footer">
           <p>
-            Pas encore de compte ?{' '}
-            <Link to="/register">S'inscrire</Link>
+            Don't have an account?{' '}
+            <Link to="/register">Sign Up</Link>
           </p>
         </div>
       </div>

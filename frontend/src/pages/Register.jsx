@@ -30,12 +30,12 @@ function Register() {
     setError('');
 
     if (formData.password !== formData.confirmPassword) {
-      setError('Les mots de passe ne correspondent pas');
+      setError('Passwords do not match');
       return;
     }
 
     if (formData.password.length < 8) {
-      setError('Le mot de passe doit contenir au moins 8 caractères');
+      setError('Password must be at least 8 characters long');
       return;
     }
 
@@ -52,7 +52,7 @@ function Register() {
       await login(formData.email, formData.password);
       navigate('/dashboard');
     } catch (err) {
-      setError(err.message || 'Erreur lors de l\'inscription');
+      setError(err.message || 'Failed to register');
     } finally {
       setLoading(false);
     }
@@ -62,8 +62,8 @@ function Register() {
     <div className="register-container">
       <div className="register-card">
         <div className="register-header">
-          <h1>Inscription</h1>
-          <p>Créez votre compte Learnova</p>
+          <h1>Sign Up</h1>
+          <p>Create your Learnova account</p>
         </div>
 
         {error && <div className="error-message">{error}</div>}
@@ -71,7 +71,7 @@ function Register() {
         <form onSubmit={handleSubmit} className="register-form">
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="firstName">Prénom</label>
+              <label htmlFor="firstName">First Name</label>
               <input
                 type="text"
                 id="firstName"
@@ -79,12 +79,12 @@ function Register() {
                 value={formData.firstName}
                 onChange={handleChange}
                 required
-                placeholder="Jean"
+                placeholder="John"
               />
             </div>
 
             <div className="form-group">
-              <label htmlFor="lastName">Nom</label>
+              <label htmlFor="lastName">Last Name</label>
               <input
                 type="text"
                 id="lastName"
@@ -92,7 +92,7 @@ function Register() {
                 value={formData.lastName}
                 onChange={handleChange}
                 required
-                placeholder="Dupont"
+                placeholder="Doe"
               />
             </div>
           </div>
@@ -106,12 +106,12 @@ function Register() {
               value={formData.email}
               onChange={handleChange}
               required
-              placeholder="votre@email.com"
+              placeholder="your@email.com"
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">Mot de passe</label>
+            <label htmlFor="password">Password</label>
             <input
               type="password"
               id="password"
@@ -125,7 +125,7 @@ function Register() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="confirmPassword">Confirmer le mot de passe</label>
+            <label htmlFor="confirmPassword">Confirm Password</label>
             <input
               type="password"
               id="confirmPassword"
@@ -139,14 +139,14 @@ function Register() {
           </div>
 
           <button type="submit" className="register-button" disabled={loading}>
-            {loading ? 'Inscription...' : 'S\'inscrire'}
+            {loading ? 'Signing up...' : 'Sign Up'}
           </button>
         </form>
 
         <div className="register-footer">
           <p>
-            Déjà un compte ?{' '}
-            <Link to="/login">Se connecter</Link>
+            Already have an account?{' '}
+            <Link to="/login">Log In</Link>
           </p>
         </div>
       </div>

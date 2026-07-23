@@ -28,7 +28,7 @@ function LearningPath() {
         setCurrentSessionId(firstAccessible.id);
       }
     } catch (err) {
-      setError(err.message || 'Impossible de charger le parcours d\'apprentissage');
+      setError(err.message || 'Failed to load learning path');
       console.error(err);
     } finally {
       setLoading(false);
@@ -44,19 +44,19 @@ function LearningPath() {
       await learningPathService.completeSession(sessionId);
       await loadLearningPath();
     } catch (err) {
-      alert(err.message || 'Erreur lors de la validation de la session');
+      alert(err.message || 'Error completing session');
     }
   };
 
   const currentSession = pathData?.sessions?.find(s => s.id === currentSessionId);
   const progressPercentage = Math.round(pathData?.enrollment?.progress?.percentage || 0);
-  const courseTitle = pathData?.enrollment?.course?.title || 'Formation';
+  const courseTitle = pathData?.enrollment?.course?.title || 'Course';
   const quizzes = pathData?.quizzes || pathData?.enrollment?.course?.quizzes || [];
 
   if (loading) {
     return (
       <div className="learning-path-container">
-        <div className="loading">Chargement du parcours d'apprentissage...</div>
+        <div className="loading">Loading learning path...</div>
       </div>
     );
   }
@@ -65,7 +65,7 @@ function LearningPath() {
     return (
       <div className="learning-path-container" style={{ padding: '2rem' }}>
         <div className="alert alert-danger">{error}</div>
-        <Link to="/courses" className="btn btn-secondary">Retour aux formations</Link>
+        <Link to="/courses" className="btn btn-secondary">Back to courses</Link>
       </div>
     );
   }
@@ -81,7 +81,7 @@ function LearningPath() {
       <div className="learning-path-content">
         <div className="learning-path-header">
           <Link to="/courses" className="back-link">
-            ← Retour aux cours
+            ← Back to courses
           </Link>
           <h1 className="course-title">{courseTitle}</h1>
           <div className="progress-bar-container">
@@ -91,18 +91,18 @@ function LearningPath() {
                 style={{ width: `${progressPercentage}%` }}
               ></div>
             </div>
-            <span className="progress-text">{progressPercentage}% Complété</span>
+            <span className="progress-text">{progressPercentage}% Complete</span>
           </div>
         </div>
 
         {currentSession ? (
           <div className="session-content">
             <h2 className="session-title">{currentSession.title}</h2>
-            <p className="session-description">{currentSession.description || 'Pas de description pour cette session.'}</p>
+            <p className="session-description">{currentSession.description || 'No description available for this session.'}</p>
             
             {currentSession.videos && currentSession.videos.length > 0 && (
               <div className="videos-section">
-                <h3>Vidéos de la session</h3>
+                <h3>Session Videos</h3>
                 <div className="videos-list">
                   {currentSession.videos.map((video) => (
                     <div key={video.id} className="video-item card">
@@ -128,21 +128,21 @@ function LearningPath() {
             <div className="session-actions" style={{ marginTop: '2rem' }}>
               {currentSession.isCompleted ? (
                 <div className="tag tag-success" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem' }}>
-                  <CheckCircle size={18} /> Session terminée
+                  <CheckCircle size={18} /> Session Completed
                 </div>
               ) : (
                 <button
                   onClick={() => handleCompleteSession(currentSession.id)}
                   className="btn btn-primary"
                 >
-                  Marquer la session comme terminée (+10 XP)
+                  Mark session as complete (+10 XP)
                 </button>
               )}
             </div>
           </div>
         ) : (
           <div className="no-session">
-            <p>Sélectionnez une session dans le menu pour commencer.</p>
+            <p>Select a session from the sidebar to begin.</p>
           </div>
         )}
 
@@ -150,11 +150,11 @@ function LearningPath() {
         {quizzes && quizzes.length > 0 && (
           <div className="quiz-section card" style={{ marginTop: '2rem', padding: '1.5rem' }}>
             <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Award size={20} /> Évaluations & Examens
+              <Award size={20} /> Evaluations & Exams
             </h3>
             {!pathData?.quizUnlocked && (
               <p className="alert alert-warning" style={{ margin: '1rem 0' }}>
-                Terminez toutes les sessions pour débloquer les quiz et l'examen final !
+                Complete all sessions to unlock quizzes and the final exam!
               </p>
             )}
             <div className="quiz-list" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
@@ -166,7 +166,7 @@ function LearningPath() {
                       {quiz.title}
                     </h4>
                     <small style={{ color: '#64748b' }}>
-                      {quiz.isExamMode ? `Examen chronométré (${quiz.timeLimitMinutes || 30} min)` : 'Quiz de contrôle'}
+                      {quiz.isExamMode ? `Timed Exam (${quiz.timeLimitMinutes || 30} mins)` : 'Practice Quiz'}
                     </small>
                   </div>
                   <button
@@ -174,7 +174,7 @@ function LearningPath() {
                     onClick={() => navigate(quiz.isExamMode ? `/exam/${quiz.id}` : `/quiz/${quiz.id}`)}
                     className={`btn ${quiz.isExamMode ? 'btn-primary' : 'btn-secondary'} btn-sm`}
                   >
-                    {quiz.isExamMode ? 'Passer l\'Examen' : 'Commencer le Quiz'}
+                    {quiz.isExamMode ? 'Take Exam' : 'Start Quiz'}
                   </button>
                 </div>
               ))}

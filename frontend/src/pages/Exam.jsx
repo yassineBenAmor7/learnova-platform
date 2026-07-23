@@ -48,7 +48,7 @@ function Exam() {
         setTimeLeft(quizData.timeLimitMinutes * 60);
       }
     } catch (err) {
-      setError(err.message || 'Impossible de charger l\'examen');
+      setError(err.message || 'Failed to load exam');
       console.error(err);
     } finally {
       setLoading(false);
@@ -67,7 +67,7 @@ function Exam() {
         document.documentElement.requestFullscreen().catch(() => {});
       }
     } catch (err) {
-      setError(err.message || 'Échec du démarrage de l\'examen');
+      setError(err.message || 'Failed to start exam');
       console.error(err);
     } finally {
       setLoading(false);
@@ -98,7 +98,7 @@ function Exam() {
       
       setResult(res);
     } catch (err) {
-      setError(err.message || 'Échec de la soumission de l\'examen');
+      setError(err.message || 'Failed to submit exam');
       console.error(err);
     } finally {
       setSubmitting(false);
@@ -136,16 +136,16 @@ function Exam() {
     return (
       <div className="exam-container" style={{ padding: '2rem' }}>
         <div className="card" style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center', padding: '2rem' }}>
-          <h2>{result.passed ? '🎉 Examen Réussi !' : '❌ Examen Non Validé'}</h2>
+          <h2>{result.passed ? '🎉 Exam Passed!' : '❌ Exam Not Passed'}</h2>
           <p className="subtitle">
-            {result.passed ? 'Félicitations, vous avez obtenu la note minimale requise pour valider cet examen.' : 'Votre score est inférieur au seuil de réussite.'}
+            {result.passed ? 'Congratulations! You reached the passing score for this exam.' : 'Your score is below the passing threshold.'}
           </p>
           <div style={{ fontSize: '3.5rem', fontWeight: 'bold', margin: '1.5rem 0', color: result.passed ? '#10b981' : '#ef4444' }}>
             {Math.round(result.score)}%
           </div>
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
-            <Link to="/courses" className="btn btn-secondary">Retour aux cours</Link>
-            {result.passed && <Link to="/certificates" className="btn btn-primary">Obtenir mon certificat</Link>}
+            <Link to="/courses" className="btn btn-secondary">Back to courses</Link>
+            {result.passed && <Link to="/certificates" className="btn btn-primary">Get my certificate</Link>}
           </div>
         </div>
       </div>

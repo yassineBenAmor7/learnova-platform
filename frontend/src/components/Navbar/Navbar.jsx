@@ -24,7 +24,7 @@ const Navbar = () => {
             <>
               <Link to="/courses" className="navbar-link">
                 <BookOpen size={18} />
-                <span>Formations</span>
+                <span>Courses</span>
               </Link>
               <Link to="/dashboard" className="navbar-link">
                 <LayoutDashboard size={18} />
@@ -32,7 +32,7 @@ const Navbar = () => {
               </Link>
               <Link to="/certificates" className="navbar-link">
                 <Award size={18} />
-                <span>Certificats</span>
+                <span>Certificates</span>
               </Link>
               {isAdmin && (
                 <Link to="/admin" className="navbar-link admin-link">
@@ -42,7 +42,7 @@ const Navbar = () => {
               )}
             </>
           ) : (
-            <Link to="/" className="navbar-link">Accueil</Link>
+            <Link to="/" className="navbar-link">Home</Link>
           )}
         </div>
 
@@ -51,28 +51,28 @@ const Navbar = () => {
             <div className="navbar-user-section">
               {user?.gamification && (
                 <div className="navbar-gamification">
-                  <div className="gamification-item tooltip" title="Jours consécutifs d'apprentissage">
+                  <div className="gamification-item tooltip" title="Consecutive learning days">
                     <Flame size={18} className="icon-streak" />
                     <span>{user.gamification.currentStreak || 0}d</span>
                   </div>
-                  <div className="gamification-item tooltip" title="Niveau actuel (XP)">
+                  <div className="gamification-item tooltip" title="Current level (XP)">
                     <Award size={18} className="icon-points" />
-                    <span>Niv. {user.gamification.level || 1}</span>
+                    <span>Lvl. {user.gamification.level || 1}</span>
                   </div>
                 </div>
               )}
-              <Link to="/profile" className="navbar-user-info" title="Mon profil">
+              <Link to="/profile" className="navbar-user-info" title="My Profile">
                 <User size={16} className="user-icon" />
                 <span className="user-name">{user?.firstName}</span>
               </Link>
-              <button onClick={handleLogout} className="btn-logout" title="Se déconnecter">
+              <button onClick={handleLogout} className="btn-logout" title="Log Out">
                 <LogOut size={18} />
               </button>
             </div>
           ) : (
             <div className="auth-buttons">
-              <Link to="/login" className="btn btn-secondary btn-sm-nav">Connexion</Link>
-              <Link to="/register" className="btn btn-primary btn-sm-nav">S'inscrire</Link>
+              <Link to="/login" className="btn btn-secondary btn-sm-nav">Log In</Link>
+              <Link to="/register" className="btn btn-primary btn-sm-nav">Sign Up</Link>
             </div>
           )}
         </div>

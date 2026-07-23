@@ -29,7 +29,7 @@ function Dashboard() {
   };
 
   if (loading) {
-    return <div className="loading">Chargement...</div>;
+    return <div className="loading">Loading...</div>;
   }
 
   return (
@@ -38,9 +38,9 @@ function Dashboard() {
         <div className="header-content">
           <h1>Learnova</h1>
           <div className="user-info">
-            <span>Bonjour, {user?.firstName} {user?.lastName}</span>
+            <span>Hello, {user?.firstName} {user?.lastName}</span>
             <button onClick={handleLogout} className="logout-button">
-              Déconnexion
+              Log Out
             </button>
           </div>
         </div>
@@ -48,23 +48,23 @@ function Dashboard() {
 
       <main className="dashboard-main">
         <div className="welcome-section">
-          <h2>Bienvenue sur votre Dashboard</h2>
-          <p>Continuez votre apprentissage avec Learnova</p>
+          <h2>Welcome to your Dashboard</h2>
+          <p>Continue your learning journey with Learnova</p>
         </div>
 
         <div className="stats-grid">
           <div className="stat-card">
             <div className="stat-icon">📚</div>
             <div className="stat-info">
-              <h3>Formations</h3>
-              <p className="stat-value">0</p>
+              <h3>Courses</h3>
+              <p className="stat-value">{user?.enrollments?.length || 0}</p>
             </div>
           </div>
 
           <div className="stat-card">
             <div className="stat-icon">✅</div>
             <div className="stat-info">
-              <h3>Complétées</h3>
+              <h3>Completed</h3>
               <p className="stat-value">0</p>
             </div>
           </div>
@@ -72,23 +72,23 @@ function Dashboard() {
           <div className="stat-card">
             <div className="stat-icon">🎯</div>
             <div className="stat-info">
-              <h3>Quiz réussis</h3>
-              <p className="stat-value">0</p>
+              <h3>Quizzes Passed</h3>
+              <p className="stat-value">{user?.quizAttempts?.filter(q => q.passed)?.length || 0}</p>
             </div>
           </div>
 
           <div className="stat-card">
             <div className="stat-icon">🏆</div>
             <div className="stat-info">
-              <h3>Certificats</h3>
-              <p className="stat-value">0</p>
+              <h3>Certificates</h3>
+              <p className="stat-value">{user?.certificates?.length || 0}</p>
             </div>
           </div>
         </div>
 
         <div className="recent-activity">
-          <h3>Activité récente</h3>
-          <p className="no-activity">Aucune activité récente</p>
+          <h3>Recent Activity</h3>
+          <p className="no-activity">No recent activity</p>
         </div>
       </main>
     </div>

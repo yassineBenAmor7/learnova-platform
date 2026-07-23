@@ -31,7 +31,7 @@ function Quiz() {
       const attemptData = await quizService.startAttempt(id, user.id);
       setAttempt(attemptData);
     } catch (err) {
-      setError(err.message || 'Impossible de charger le quiz');
+      setError(err.message || 'Failed to load quiz');
       console.error(err);
     } finally {
       setLoading(false);
@@ -56,7 +56,7 @@ function Quiz() {
       const res = await quizService.submitAttempt(attempt.id, payload);
       setResult(res);
     } catch (err) {
-      setError(err.message || 'Échec de la soumission du quiz');
+      setError(err.message || 'Failed to submit quiz');
       console.error(err);
     } finally {
       setSubmitting(false);
@@ -88,16 +88,16 @@ function Quiz() {
     return (
       <div className="quiz-container" style={{ padding: '2rem' }}>
         <div className="card" style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center', padding: '2rem' }}>
-          <h2>{result.passed ? '🎉 Félicitations !' : '❌ Dommage !'}</h2>
+          <h2>{result.passed ? '🎉 Congratulations!' : '❌ Quiz Not Passed'}</h2>
           <p className="subtitle">
-            {result.passed ? 'Vous avez réussi ce quiz avec succès.' : 'Vous n\'avez pas atteint le score minimum.'}
+            {result.passed ? 'You have successfully passed this quiz.' : 'You did not reach the minimum passing score.'}
           </p>
           <div style={{ fontSize: '3rem', fontWeight: 'bold', margin: '1.5rem 0', color: result.passed ? '#10b981' : '#ef4444' }}>
             {Math.round(result.score)}%
           </div>
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
-            <Link to="/courses" className="btn btn-secondary">Retour aux cours</Link>
-            {result.passed && <Link to="/certificates" className="btn btn-primary">Voir mes certificats</Link>}
+            <Link to="/courses" className="btn btn-secondary">Back to courses</Link>
+            {result.passed && <Link to="/certificates" className="btn btn-primary">View my certificates</Link>}
           </div>
         </div>
       </div>

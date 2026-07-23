@@ -5,7 +5,7 @@ const Sidebar = ({ sessions, activeSessionId, onSessionSelect }) => {
   return (
     <aside className="sidebar-container">
       <div className="sidebar-header">
-        <h3 className="sidebar-title">Parcours d'Apprentissage</h3>
+        <h3 className="sidebar-title">Learning Path</h3>
       </div>
       <div className="sidebar-sessions">
         {sessions.map((session, index) => {

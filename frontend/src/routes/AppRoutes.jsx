@@ -21,7 +21,7 @@ const ProtectedRoute = ({ children }) => {
   if (loading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#f5f7fa', color: '#333' }}>
-        Chargement de la session...
+        Loading session...
       </div>
     );
   }
