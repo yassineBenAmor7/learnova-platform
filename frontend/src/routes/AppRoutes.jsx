@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 // Pages
 import Login from '../pages/Login';
 import Register from '../pages/Register';
+import Home from '../pages/Home';
 import Dashboard from '../pages/Dashboard';
 import Courses from '../pages/Courses';
 import CourseDetails from '../pages/CourseDetails';
@@ -34,12 +35,14 @@ const ProtectedRoute = ({ children }) => {
 };
 
 const AppRoutes = () => {
+  const { isAuthenticated } = useAuth();
+
   return (
     <Routes>
       {/* Public Routes */}
-      <Route path="/" element={<Navigate to="/login" replace />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+      <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Home />} />
+      <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />} />
+      <Route path="/register" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Register />} />
       <Route path="/certificates/verify/:certificateNumber" element={<VerifyCertificate />} />
 
       {/* Protected Routes */}
