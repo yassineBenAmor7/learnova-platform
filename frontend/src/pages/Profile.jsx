@@ -46,7 +46,7 @@ function Profile() {
       setEditing(false);
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
-      setError('Failed to update profile');
+      setError(err.message || 'Failed to update profile');
       console.error(err);
     } finally {
       setLoading(false);
