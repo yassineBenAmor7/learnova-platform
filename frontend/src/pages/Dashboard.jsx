@@ -44,7 +44,6 @@ function Dashboard() {
       <div className="dashboard-hero">
         <div className="hero-content">
           <div className="hero-greeting">
-            <div className="greeting-icon">👋</div>
             <div>
               <h1 className="hero-title">
                 Hello, <span className="hero-name">{user?.firstName} {user?.lastName}</span>
@@ -78,10 +77,7 @@ function Dashboard() {
         </div>
 
         <div className="stats-grid">
-          <div className="stat-card stat-card--courses">
-            <div className="stat-icon-wrap">
-              <span className="stat-emoji">📚</span>
-            </div>
+          <div className="stat-card">
             <div className="stat-info">
               <p className="stat-label">Courses Enrolled</p>
               <h3 className="stat-value">{enrollments}</h3>
@@ -89,10 +85,7 @@ function Dashboard() {
             </div>
           </div>
 
-          <div className="stat-card stat-card--completed">
-            <div className="stat-icon-wrap">
-              <span className="stat-emoji">✅</span>
-            </div>
+          <div className="stat-card">
             <div className="stat-info">
               <p className="stat-label">Completed</p>
               <h3 className="stat-value">{completed}</h3>
@@ -100,10 +93,7 @@ function Dashboard() {
             </div>
           </div>
 
-          <div className="stat-card stat-card--quizzes">
-            <div className="stat-icon-wrap">
-              <span className="stat-emoji">🎯</span>
-            </div>
+          <div className="stat-card">
             <div className="stat-info">
               <p className="stat-label">Quizzes Passed</p>
               <h3 className="stat-value">{quizzesPassed}</h3>
@@ -111,10 +101,7 @@ function Dashboard() {
             </div>
           </div>
 
-          <div className="stat-card stat-card--certs">
-            <div className="stat-icon-wrap">
-              <span className="stat-emoji">🏆</span>
-            </div>
+          <div className="stat-card">
             <div className="stat-info">
               <p className="stat-label">Certificates</p>
               <h3 className="stat-value">{certificates}</h3>
@@ -130,7 +117,6 @@ function Dashboard() {
             <Link to="/courses" className="activity-link">View all courses →</Link>
           </div>
           <div className="activity-empty">
-            <div className="activity-empty-icon">🚀</div>
             <h4>Start your learning journey</h4>
             <p>Enroll in a course to see your activity here</p>
             <Link to="/courses" className="btn btn-primary">
