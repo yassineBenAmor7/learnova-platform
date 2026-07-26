@@ -61,7 +61,6 @@ function Certificates() {
       <div className="certificates-grid">
         {certificates.length === 0 ? (
           <div className="no-certificates">
-            <div className="no-certificates-icon">🎓</div>
             <h3>No Certificates Yet</h3>
             <p>Complete courses and pass quizzes to earn certificates</p>
             <Link to="/courses" className="btn btn-primary">
@@ -72,7 +71,6 @@ function Certificates() {
           certificates.map((certificate) => (
             <div key={certificate.id} className="certificate-card card card-interactive">
               <div className="certificate-header">
-                <div className="certificate-icon">🏆</div>
                 <div className="certificate-status">
                   <span className="tag tag-success">Verified</span>
                 </div>
