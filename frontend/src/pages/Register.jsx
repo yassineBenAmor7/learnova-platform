@@ -50,7 +50,7 @@ function Register() {
       );
       // Auto login after registration
       await login(formData.email, formData.password);
-      navigate('/dashboard');
+      navigate('/dashboard', { replace: true });
     } catch (err) {
       setError(err.message || 'Failed to register');
     } finally {
