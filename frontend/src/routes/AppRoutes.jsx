@@ -14,6 +14,10 @@ import Exam from '../pages/Exam';
 import Certificates from '../pages/Certificates';
 import VerifyCertificate from '../pages/VerifyCertificate';
 import Profile from '../pages/Profile';
+import Help from '../pages/Help';
+import Contact from '../pages/Contact';
+import FAQ from '../pages/FAQ';
+import Terms from '../pages/Terms';
 
 // Guard components
 const ProtectedRoute = ({ children }) => {
@@ -43,6 +47,10 @@ const AppRoutes = () => {
       <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Home />} />
       <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />} />
       <Route path="/register" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Register />} />
+      <Route path="/help" element={<Help />} />
+      <Route path="/contact" element={<Contact />} />
+      <Route path="/faq" element={<FAQ />} />
+      <Route path="/terms" element={<Terms />} />
       <Route path="/certificates/verify/:certificateNumber" element={<VerifyCertificate />} />
 
       {/* Protected Routes */}
