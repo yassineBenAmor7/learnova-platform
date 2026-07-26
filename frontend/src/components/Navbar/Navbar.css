@@ -36,8 +36,13 @@
   color: var(--primary);
 }
 
-.logo-dot {
+.navbar-logo:hover .logo-dot {
   color: var(--primary);
+}
+
+.logo-dot {
+  color: #000;
+  transition: color var(--transition-fast);
 }
 
 .navbar-menu {
