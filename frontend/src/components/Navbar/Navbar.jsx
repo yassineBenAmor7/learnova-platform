@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { LogOut, BookOpen, LayoutDashboard, Shield, Award, Flame, User } from 'lucide-react';
+import { LogOut, Award, Flame } from 'lucide-react';
 import './Navbar.css';
 
 const Navbar = () => {
@@ -15,7 +15,7 @@ const Navbar = () => {
   return (
     <nav className="navbar-container">
       <div className="navbar-content">
-        <Link to="/" className="navbar-logo">
+        <Link to={isAuthenticated ? '/dashboard' : '/'} className="navbar-logo">
           Learnova<span className="logo-dot">.</span>
         </Link>
 
@@ -23,20 +23,16 @@ const Navbar = () => {
           {isAuthenticated ? (
             <>
               <Link to="/courses" className="navbar-link">
-                <BookOpen size={18} />
                 <span>Courses</span>
               </Link>
               <Link to="/dashboard" className="navbar-link">
-                <LayoutDashboard size={18} />
                 <span>Dashboard</span>
               </Link>
               <Link to="/certificates" className="navbar-link">
-                <Award size={18} />
                 <span>Certificates</span>
               </Link>
               {isAdmin && (
                 <Link to="/admin" className="navbar-link admin-link">
-                  <Shield size={18} />
                   <span>Admin</span>
                 </Link>
               )}

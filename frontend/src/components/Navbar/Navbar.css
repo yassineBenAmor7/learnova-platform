@@ -25,10 +25,15 @@
   font-size: 1.75rem;
   font-weight: 800;
   letter-spacing: -0.03em;
-  color: var(--text-primary);
+  color: #000;
   display: flex;
   align-items: center;
   gap: 0.25rem;
+  transition: color var(--transition-fast);
+}
+
+.navbar-logo:hover {
+  color: var(--primary);
 }
 
 .logo-dot {
@@ -62,7 +67,7 @@
 
 .navbar-link.active {
   color: var(--primary);
-  background: rgba(99, 102, 241, 0.1);
+  background: rgba(29, 78, 216, 0.1);
 }
 
 .admin-link {
