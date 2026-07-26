@@ -17,6 +17,10 @@ export const authService = {
     return api.get('/users/me');
   },
 
+  async updateProfile(profileData) {
+    return api.put('/users/me', profileData);
+  },
+
   logout() {
     localStorage.removeItem('learnova_token');
   },

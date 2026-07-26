@@ -38,4 +38,17 @@ export class UsersService {
       data,
     });
   }
+
+  async update(id: number, data: any) {
+    const updatedUser = await this.prisma.client.user.update({
+      where: { id },
+      data,
+      include: {
+        role: true,
+      },
+    });
+
+    const { password, ...userWithoutPassword } = updatedUser;
+    return userWithoutPassword;
+  }
 }

@@ -1,7 +1,8 @@
-import { Controller, Get, NotFoundException, UseGuards } from '@nestjs/common';
+import { Controller, Get, Put, Body, NotFoundException, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Controller('users')
 export class UsersController {
@@ -15,5 +16,18 @@ export class UsersController {
       throw new NotFoundException('Utilisateur introuvable');
     }
     return profile;
+  }
+
+  @Put('me')
+  @UseGuards(JwtAuthGuard)
+  async updateProfile(
+    @CurrentUser() user: { id: number },
+    @Body() updateProfileDto: UpdateProfileDto,
+  ) {
+    const profile = await this.usersService.findById(user.id);
+    if (!profile) {
+      throw new NotFoundException('Utilisateur introuvable');
+    }
+    return this.usersService.update(user.id, updateProfileDto);
   }
 }
