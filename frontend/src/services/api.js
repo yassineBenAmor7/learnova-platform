@@ -16,7 +16,7 @@ export async function request(endpoint, options = {}) {
     headers,
   };
   
-  if (config.body && typeof config.body === 'object') {
+  if (config.body && typeof config.body === 'object' && !(config.body instanceof FormData)) {
     config.body = JSON.stringify(config.body);
   }
   
