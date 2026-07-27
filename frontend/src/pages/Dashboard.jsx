@@ -73,8 +73,8 @@ function Dashboard() {
       <div className="dashboard-main">
         <div className="section-header">
           <h2 className="section-title">Your Progress Overview</h2>
-          <p className="section-subtitle">Track your learning achievements at a glance</p>
         </div>
+        <p className="section-subtitle">Track your learning achievements at a glance</p>
 
         <div className="stats-grid">
           <div className="stat-card">
