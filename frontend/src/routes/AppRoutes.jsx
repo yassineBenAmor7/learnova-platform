@@ -18,6 +18,7 @@ import Help from '../pages/Help';
 import Contact from '../pages/Contact';
 import FAQ from '../pages/FAQ';
 import Terms from '../pages/Terms';
+import Admin from '../pages/Admin';
 
 // Guard components
 const ProtectedRoute = ({ children }) => {
@@ -33,6 +34,28 @@ const ProtectedRoute = ({ children }) => {
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
+  }
+
+  return children;
+};
+
+const AdminRoute = ({ children }) => {
+  const { isAuthenticated, isAdmin, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#f5f7fa', color: '#333' }}>
+        Loading session...
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (!isAdmin) {
+    return <Navigate to="/dashboard" replace />;
   }
 
   return children;
@@ -116,6 +139,14 @@ const AppRoutes = () => {
           <ProtectedRoute>
             <Profile />
           </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin"
+        element={
+          <AdminRoute>
+            <Admin />
+          </AdminRoute>
         }
       />
 
