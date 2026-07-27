@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -40,9 +41,43 @@ export class UsersService {
   }
 
   async update(id: number, data: any) {
+    const { currentPassword, newPassword, ...updateData } = data;
+
+    if (updateData.email) {
+      const existingUser = await this.prisma.client.user.findUnique({
+        where: { email: updateData.email },
+      });
+
+      if (existingUser && existingUser.id !== id) {
+        throw new BadRequestException('Cet email est déjà utilisé par un autre compte');
+      }
+    }
+
+    if (newPassword) {
+      if (!currentPassword) {
+        throw new BadRequestException('Le mot de passe actuel est requis pour changer de mot de passe');
+      }
+
+      const user = await this.prisma.client.user.findUnique({
+        where: { id },
+      });
+
+      if (!user) {
+        throw new BadRequestException('Utilisateur introuvable');
+      }
+
+      const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+      if (!isPasswordValid) {
+        throw new BadRequestException('Le mot de passe actuel est incorrect');
+      }
+
+      const BCRYPT_SALT_ROUNDS = 10;
+      updateData.password = await bcrypt.hash(newPassword, BCRYPT_SALT_ROUNDS);
+    }
+
     const updatedUser = await this.prisma.client.user.update({
       where: { id },
-      data,
+      data: updateData,
       include: {
         role: true,
       },

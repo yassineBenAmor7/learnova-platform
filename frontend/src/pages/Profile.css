@@ -212,3 +212,14 @@
     width: 100%;
   }
 }
+
+.form-divider {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--border-light);
+  letter-spacing: -0.01em;
+}

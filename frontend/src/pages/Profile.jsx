@@ -10,6 +10,9 @@ function Profile() {
     firstName: '',
     lastName: '',
     email: '',
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -21,6 +24,9 @@ function Profile() {
         firstName: user.firstName || '',
         lastName: user.lastName || '',
         email: user.email || '',
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: '',
       });
     }
   }, [user]);
@@ -34,16 +40,41 @@ function Profile() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (formData.newPassword) {
+      if (!formData.currentPassword) {
+        setError('Current password is required to change password');
+        return;
+      }
+      if (formData.newPassword !== formData.confirmPassword) {
+        setError('New passwords do not match');
+        return;
+      }
+    }
+
     try {
       setLoading(true);
       setError(null);
       setSuccess(false);
-      
-      await authService.updateProfile(formData);
+
+      const { confirmPassword, ...submitData } = formData;
+
+      if (!submitData.newPassword) {
+        delete submitData.currentPassword;
+        delete submitData.newPassword;
+      }
+
+      await authService.updateProfile(submitData);
       await refreshUser();
-      
+
       setSuccess(true);
       setEditing(false);
+      setFormData(prev => ({
+        ...prev,
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+      }));
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
       setError(err.message || 'Failed to update profile');
@@ -58,6 +89,9 @@ function Profile() {
       firstName: user.firstName || '',
       lastName: user.lastName || '',
       email: user.email || '',
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: '',
     });
     setEditing(false);
     setError(null);
@@ -140,6 +174,48 @@ function Profile() {
                 className="form-control"
               />
             </div>
+
+            {editing && (
+              <>
+                <div className="form-divider">Change Password (Optional)</div>
+
+                <div className="form-group">
+                  <label className="form-label">Current Password</label>
+                  <input
+                    type="password"
+                    name="currentPassword"
+                    value={formData.currentPassword}
+                    onChange={handleChange}
+                    className="form-control"
+                    placeholder="Enter current password"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">New Password</label>
+                  <input
+                    type="password"
+                    name="newPassword"
+                    value={formData.newPassword}
+                    onChange={handleChange}
+                    className="form-control"
+                    placeholder="Enter new password"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Confirm New Password</label>
+                  <input
+                    type="password"
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    className="form-control"
+                    placeholder="Confirm new password"
+                  />
+                </div>
+              </>
+            )}
 
             <div className="profile-actions">
               {!editing ? (
