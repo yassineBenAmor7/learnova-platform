@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { adminService } from '../services/admin.service';
 import { 
   Users, BookOpen, FileText, Award, TrendingUp, 
   Activity, Settings, LogOut, Search, Plus, 
@@ -11,31 +12,31 @@ const Admin = () => {
   const { user, isAdmin, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [loading, setLoading] = useState(true);
-
-  // Mock data - replace with actual API calls
-  const stats = {
-    totalUsers: 1234,
-    totalCourses: 45,
-    totalQuizzes: 89,
-    totalCertificates: 567,
-    activeUsers: 234,
-    revenue: 45678
-  };
-
-  const recentUsers = [
-    { id: 1, name: 'John Doe', email: 'john@example.com', role: 'LEARNER', joined: '2026-07-20', status: 'active' },
-    { id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'LEARNER', joined: '2026-07-19', status: 'active' },
-    { id: 3, name: 'Bob Johnson', email: 'bob@example.com', role: 'ADMIN', joined: '2026-07-18', status: 'active' },
-  ];
-
-  const courses = [
-    { id: 1, title: 'Advanced Web Development', instructor: 'Dr. Sarah Johnson', students: 234, status: 'published' },
-    { id: 2, title: 'Machine Learning Basics', instructor: 'Prof. Michael Chen', students: 189, status: 'published' },
-    { id: 3, title: 'Data Science Fundamentals', instructor: 'Dr. Emily Brown', students: 156, status: 'draft' },
-  ];
+  const [error, setError] = useState(null);
+  const [stats, setStats] = useState(null);
+  const [recentUsers, setRecentUsers] = useState([]);
+  const [courses, setCourses] = useState([]);
 
   useEffect(() => {
-    setLoading(false);
+    const loadAdminData = async () => {
+      try {
+        setLoading(true);
+        const [statsData, usersData, coursesData] = await Promise.all([
+          adminService.getDashboardStats(),
+          adminService.getRecentUsers(10),
+          adminService.getAllCourses(),
+        ]);
+        setStats(statsData);
+        setRecentUsers(usersData);
+        setCourses(coursesData);
+      } catch (err) {
+        setError('Failed to load admin data');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadAdminData();
   }, []);
 
   if (!isAdmin) {
@@ -51,7 +52,16 @@ const Admin = () => {
     return (
       <div className="admin-loading">
         <div className="loading-spinner"></div>
-        <p>Loading admin dashboard...</p>
+        <span>Loading admin dashboard...</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="admin-error">
+        <h2>Error</h2>
+        <p>{error}</p>
       </div>
     );
   }
