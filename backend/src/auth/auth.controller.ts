@@ -22,4 +22,15 @@ export class AuthController {
     return this.authService.login(data.email, data.password);
   }
 
+  @Throttle({ default: { limit: 3, ttl: 60000 } }) // 3 requests per minute for forgot password
+  @Post('forgot-password')
+  forgotPassword(@Body() data: { email: string }) {
+    return this.authService.forgotPassword(data.email);
+  }
+
+  @Post('reset-password')
+  resetPassword(@Body() data: { token: string; password: string }) {
+    return this.authService.resetPassword(data.token, data.password);
+  }
+
 }

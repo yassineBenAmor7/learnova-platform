@@ -90,4 +90,63 @@ export class AuthService {
       user: userWithoutPassword,
     };
   }
+
+  async forgotPassword(email: string) {
+    const user = await this.usersService.findByEmail(email);
+
+    if (!user) {
+      // For security, don't reveal if email exists or not
+      // For development, still generate a token so the flow can be tested
+      const resetToken = this.jwtService.sign(
+        { sub: 'test', email: email },
+        { expiresIn: '1h' }
+      );
+      return {
+        message: 'If the email exists, a reset link has been sent',
+        // For development only - remove in production
+        resetToken: resetToken,
+        resetLink: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password?token=${resetToken}`
+      };
+    }
+
+    // Generate a reset token (in production, this should be a proper JWT with expiration)
+    const resetToken = this.jwtService.sign(
+      { sub: user.id, email: user.email },
+      { expiresIn: '1h' }
+    );
+
+    // TODO: Send email with reset link
+    // For now, just return the token (this should be sent via email in production)
+    return {
+      message: 'If the email exists, a reset link has been sent',
+      // For development only - remove in production
+      resetToken: resetToken,
+      resetLink: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password?token=${resetToken}`
+    };
+  }
+
+  async resetPassword(token: string, newPassword: string) {
+    try {
+      const payload = this.jwtService.verify(token);
+
+      if (!payload.email) {
+        throw new BadRequestException('Invalid reset token');
+      }
+
+      // Find user by email instead of ID to handle development tokens
+      let user = await this.usersService.findByEmail(payload.email);
+
+      if (!user) {
+        throw new BadRequestException('User not found. Please use an existing account or register first.');
+      }
+
+      const hashedPassword = await bcrypt.hash(newPassword, BCRYPT_SALT_ROUNDS);
+
+      await this.usersService.update(user.id, { password: hashedPassword });
+
+      return { message: 'Password reset successfully' };
+    } catch (error) {
+      throw new BadRequestException('Invalid or expired reset token');
+    }
+  }
 }
