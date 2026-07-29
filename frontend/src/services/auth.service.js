@@ -13,6 +13,14 @@ export const authService = {
     return api.post('/auth/register', { firstName, lastName, email, password });
   },
 
+  async forgotPassword(email) {
+    return api.post('/auth/forgot-password', { email });
+  },
+
+  async resetPassword(token, password) {
+    return api.post('/auth/reset-password', { token, password });
+  },
+
   async getMe() {
     return api.get('/users/me');
   },

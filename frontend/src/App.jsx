@@ -7,7 +7,7 @@ import './App.css';
 
 function AppLayout() {
   const { pathname } = useLocation();
-  const isAuthPage = pathname === '/login' || pathname === '/register';
+  const isAuthPage = pathname === '/login' || pathname === '/register' || pathname === '/forgot-password' || pathname === '/reset-password';
 
   return (
     <div className="app-layout">
