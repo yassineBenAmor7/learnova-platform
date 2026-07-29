@@ -15,10 +15,14 @@ import { GamificationModule } from './gamification/gamification.module';
 import { EnrollmentsModule } from './enrollments/enrollments.module';
 import { LearningPathModule } from './learning-path/learning-path.module';
 import { ExamsModule } from './exams/exams.module';
+import * as path from 'path';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: path.join(process.cwd(), '.env'),
+    }),
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 10 }]),
     PrismaModule,
     AuthModule,
