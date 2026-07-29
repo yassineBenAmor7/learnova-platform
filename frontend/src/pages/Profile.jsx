@@ -94,23 +94,12 @@ function Profile() {
     try {
       const stats = await userService.getStatistics();
       setUserStats(stats);
-      
+
       const activity = await userService.getActivity(10);
       setRecentActivity(activity);
     } catch (err) {
       console.error('Failed to fetch statistics:', err);
-      // Fallback to mock data if API fails
-      setUserStats({
-        totalCourses: 0,
-        completedCourses: 0,
-        totalHours: 0,
-        certificates: 0,
-        quizzesPassed: 0,
-        currentStreak: 0,
-        totalPoints: 0,
-        level: 1,
-      });
-      setRecentActivity([]);
+      setError('Failed to load profile data');
     } finally {
       setStatsLoading(false);
     }
@@ -203,28 +192,8 @@ function Profile() {
   const handleDownloadData = async () => {
     try {
       setError(null);
-      let data;
-      
-      try {
-        data = await userService.downloadUserData();
-      } catch (apiErr) {
-        console.log('API not available, using mock data');
-        // Fallback to mock data if API fails
-        data = {
-          user: {
-            firstName: user.firstName,
-            lastName: user.lastName,
-            email: user.email,
-            createdAt: user.createdAt,
-          },
-          preferences: preferences,
-          notifications: notifications,
-          statistics: userStats,
-          activity: recentActivity,
-          exportDate: new Date().toISOString(),
-        };
-      }
-      
+      const data = await userService.downloadUserData();
+
       // Create a blob and download the file
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
       const url = window.URL.createObjectURL(blob);
@@ -235,7 +204,7 @@ function Profile() {
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-      
+
       setSuccess('Data downloaded successfully!');
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
