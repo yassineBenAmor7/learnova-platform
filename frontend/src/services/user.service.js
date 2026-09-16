@@ -39,5 +39,15 @@ export const userService = {
 
   async deleteAccount(password) {
     return api.post('/users/delete-account', { password });
+  },
+
+  async uploadAvatar(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    return api.post('/users/upload-avatar', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
   }
 };

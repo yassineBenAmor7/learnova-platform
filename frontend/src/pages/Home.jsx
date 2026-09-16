@@ -14,7 +14,7 @@ function Home() {
         const data = await dashboardService.getPublicOverview();
         setOverview(data);
       } catch (err) {
-        setOverviewError(err.message || 'Impossible de charger les statistiques.');
+        setOverviewError(err.message || 'Unable to load statistics.');
       } finally {
         setLoadingOverview(false);
       }
@@ -27,17 +27,17 @@ function Home() {
     <main className="home-page page-wrapper">
       <section className="home-hero">
         <div className="home-hero-copy">
-          <span className="home-eyebrow">Learnova</span>
-          <h1>Apprenez mieux. Avancez plus vite. Certifiez votre réussite.</h1>
+          <span className="home-eyebrow">Learnova Platform</span>
+          <h1>Learn Smarter. Advance Faster. Certify Your Success.</h1>
           <p>
-            Learnova est la plateforme d’apprentissage professionnelle qui réunit cours, quiz, suivi de progression et certificats officiels dans une interface moderne et intuitive.
+            Learnova is the professional e-learning platform combining interactive masterclasses, practice quizzes, real-time progress tracking, and official Coursera/Udemy-level certificates in a modern interface.
           </p>
           <div className="home-actions">
             <Link to="/login" className="btn btn-primary">
-              Se connecter
+              Log In
             </Link>
             <Link to="/register" className="btn btn-secondary">
-              Créer un compte
+              Create Free Account
             </Link>
           </div>
         </div>
@@ -45,50 +45,50 @@ function Home() {
         <div className="home-hero-visual">
           <div className="hero-card">
             <div className="hero-card-top">
-              <span className="hero-badge">Tableau de bord</span>
-              <span className="hero-status">Nouveauté</span>
+              <span className="hero-badge">Learning Dashboard</span>
+              <span className="hero-status">Live Stats</span>
             </div>
             <div className="hero-card-body">
               <div className="hero-metric">
                 <strong>{loadingOverview ? '...' : overview?.totalCourses ?? '0'}</strong>
-                <span>Courses disponibles</span>
+                <span>Available Courses</span>
               </div>
               <div className="hero-metric">
                 <strong>{loadingOverview ? '...' : overview?.totalEnrollments ?? '0'}</strong>
-                <span>Inscriptions totales</span>
+                <span>Total Enrollments</span>
               </div>
               <div className="hero-metric">
                 <strong>{loadingOverview ? '...' : overview?.totalCertificates ?? '0'}</strong>
-                <span>Certificats délivrés</span>
+                <span>Certificates Issued</span>
               </div>
             </div>
             <div className="hero-card-footer">
               {overviewError
-                ? 'Statistiques disponibles pour le moment.'
-                : 'Suivez vos progrès, accédez à vos cours et gagnez des certificats rapidement.'}
+                ? 'Statistics available in real-time.'
+                : 'Track your progress, access top masterclasses, and earn verified certificates.'}
             </div>
           </div>
         </div>
       </section>
 
       <section className="home-features">
-        <h2>Une expérience e-learning conçue pour l’excellence</h2>
+        <h2>An E-Learning Experience Designed for Excellence</h2>
         <div className="feature-grid">
           <article className="feature-card">
-            <h3>Parcours personnalisés</h3>
-            <p>Des recommandations de cours adaptées à votre profil et à votre rythme d’apprentissage.</p>
+            <h3>Personalized Learning Paths</h3>
+            <p>Tailored course recommendations adapted to your career goals, skill level, and learning pace.</p>
           </article>
           <article className="feature-card">
-            <h3>Progression visible</h3>
-            <p>Visualisez vos progrès, vos compétences acquises et vos objectifs en un seul endroit.</p>
+            <h3>Real-Time Progress Tracking</h3>
+            <p>Track your completed lectures, acquired skills, and milestone goals in one unified dashboard.</p>
           </article>
           <article className="feature-card">
-            <h3>Évaluations engageantes</h3>
-            <p>Des quiz et examens interactifs qui valident vos connaissances et vous préparent au succès.</p>
+            <h3>Interactive Quizzes & Final Exams</h3>
+            <p>Session practice quizzes and timed final certification exams that validate your knowledge.</p>
           </article>
           <article className="feature-card">
-            <h3>Certificats officiels</h3>
-            <p>Recevez des certificats modernes et partageables pour valoriser votre réussite.</p>
+            <h3>Verified Official Certificates</h3>
+            <p>Earn shareable, printable Coursera & Udemy level certificates with unique verification IDs.</p>
           </article>
         </div>
       </section>
@@ -96,11 +96,11 @@ function Home() {
       <section className="home-cta-block">
         <div className="home-cta-card">
           <div>
-            <h2>Commencez votre parcours Learnova dès maintenant</h2>
-            <p>Rejoignez une expérience d’apprentissage fiable pensée pour les apprenants sérieux et les équipes performantes.</p>
+            <h2>Start Your Learnova Journey Today</h2>
+            <p>Join thousands of learners mastering in-demand skills with interactive courses and instant certifications.</p>
           </div>
           <Link to="/register" className="btn btn-primary btn-large">
-            Créer mon compte
+            Create Your Free Account
           </Link>
         </div>
       </section>

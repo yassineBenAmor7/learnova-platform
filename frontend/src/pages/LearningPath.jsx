@@ -1,31 +1,290 @@
-import { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useCallback } from 'react';
+import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { learningPathService } from '../services/learningPath.service';
+import { courseService } from '../services/course.service';
+import { videoService } from '../services/video.service';
+import { quizService } from '../services/quiz.service';
+import { useAuth } from '../context/AuthContext';
+import { useToast } from '../contexts/ToastContext';
+import VideoPlayer from '../components/VideoPlayer/VideoPlayer';
+import YouTubePlayer from '../components/YouTubePlayer/YouTubePlayer';
 import Sidebar from '../components/Sidebar/Sidebar';
-import { Award, CheckCircle, HelpCircle, Clock } from 'lucide-react';
+import { Award, CheckCircle, HelpCircle, Clock, Lock, PlayCircle, BookOpen, Info } from 'lucide-react';
 import './LearningPath.css';
+
+// Helper to extract clean embeddable URLs for YouTube and Vimeo
+const getEmbedUrl = (url) => {
+  if (!url) return '';
+  
+  // YouTube matches: youtube.com/watch?v=ID, youtu.be/ID, youtube.com/embed/ID, youtube.com/shorts/ID
+  const ytRegex = /(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]+)/i;
+  const ytMatch = url.match(ytRegex);
+  
+  if (ytMatch && ytMatch[1]) {
+    return `https://www.youtube.com/embed/${ytMatch[1]}?autoplay=0&rel=0`;
+  }
+  
+  // Vimeo matches: vimeo.com/ID or player.vimeo.com/video/ID
+  const vimeoRegex = /(?:vimeo\.com\/|player\.vimeo\.com\/video\/)([0-9]+)/i;
+  const vimeoMatch = url.match(vimeoRegex);
+  if (vimeoMatch && vimeoMatch[1]) {
+    return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+  }
+  
+  return url;
+};
+
+// Helper to check if a URL is an embeddable external link (YouTube or Vimeo)
+const isEmbeddableVideo = (url) => {
+  if (!url) return false;
+  return url.includes('youtube.com') || url.includes('youtu.be') || url.includes('vimeo.com');
+};
+
+// Helper to calculate session duration (videos + reading time)
+const getSessionDuration = (session) => {
+  if (!session) return null;
+  
+  // Calculate video duration
+  const videoSeconds = (session.videos || []).reduce((sum, video) => {
+    return sum + (video.duration || 0);
+  }, 0);
+  
+  // Estimate reading time for session content (500 chars per minute)
+  const sessionContentLength = (session.content || '').length;
+  const sessionReadingMinutes = Math.ceil(sessionContentLength / 500);
+  
+  // Estimate reading time for video content (500 chars per minute)
+  const videoContentMinutes = (session.videos || []).reduce((sum, video) => {
+    const contentLength = (video.content || '').length;
+    return sum + Math.ceil(contentLength / 500);
+  }, 0);
+  
+  // Total time in minutes
+  const totalMinutes = Math.round(videoSeconds / 60) + sessionReadingMinutes + videoContentMinutes;
+  
+  if (totalMinutes < 60) {
+    return `${totalMinutes} min`;
+  } else {
+    const hours = Math.floor(totalMinutes / 60);
+    const mins = totalMinutes % 60;
+    return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+  }
+};
+
+// Custom lightweight markdown-to-HTML parser for session reading materials
+const renderMarkdown = (markdown) => {
+  if (!markdown) return '';
+
+  let html = markdown;
+
+  // 1. Code blocks: ```lang ... ```
+  html = html.replace(/```(\w*)\n([\s\S]*?)```/g, (match, lang, code) => {
+    return `<pre class="markdown-code-block"><code class="language-${lang}">${code.trim()}</code></pre>`;
+  });
+
+  // 2. Inline code: `code`
+  html = html.replace(/`([^`\n]+)`/g, '<code class="markdown-inline-code">$1</code>');
+
+  // 3. Headings
+  html = html.replace(/^### (.*?)$/gm, '<h4 class="markdown-h4">$1</h4>');
+  html = html.replace(/^## (.*?)$/gm, '<h3 class="markdown-h3">$1</h3>');
+  html = html.replace(/^# (.*?)$/gm, '<h2 class="markdown-h2">$1</h2>');
+
+  // 4. Bold text: **text**
+  html = html.replace(/\*\*([\s\S]*?)\*\*/g, '<strong class="markdown-strong">$1</strong>');
+
+  // 5. Lists (bullet points)
+  html = html.replace(/^[-*]\s+(.*?)$/gm, '<li class="markdown-li">$1</li>');
+  html = html.replace(/(<li class="markdown-li">[\s\S]*?<\/li>)+/g, '<ul class="markdown-ul">$1</ul>');
+
+  // 6. Blockquotes
+  html = html.replace(/^>\s+(.*?)$/gm, '<blockquote class="markdown-blockquote">$1</blockquote>');
+
+  // 7. Paragraphs & Linebreaks
+  const lines = html.split(/\n\n+/);
+  const processedLines = lines.map(line => {
+    const trimmed = line.trim();
+    if (!trimmed) return '';
+    if (trimmed.startsWith('<h') || trimmed.startsWith('<ul') || trimmed.startsWith('<pre') || trimmed.startsWith('<blockquote')) {
+      return trimmed;
+    }
+    return `<p class="markdown-p">${trimmed.replace(/\n/g, '<br />')}</p>`;
+  });
+
+  return processedLines.join('');
+};
+
+// Active Video Details Section Component (Video Description & Detailed Markdown Notes)
+const ActiveVideoDetails = ({ video }) => {
+  if (!video) return null;
+  return (
+    <div className="active-video-details-card">
+      {video.description && (
+        <div className="active-video-description-container">
+          <p className="active-video-description-text">{video.description}</p>
+        </div>
+      )}
+      {video.content && (
+        <div className="video-notes-section">
+          <div className="video-notes-header">
+            <BookOpen size={18} className="notes-icon" aria-hidden="true" />
+            <h4 className="video-notes-title">Lecture Study Guide & Notes</h4>
+          </div>
+          <div
+            className="markdown-body video-markdown-content"
+            dangerouslySetInnerHTML={{ __html: renderMarkdown(video.content) }}
+          />
+        </div>
+      )}
+    </div>
+  );
+};
 
 function LearningPath() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const toast = useToast();
+  const [searchParams] = useSearchParams();
   const [pathData, setPathData] = useState(null);
   const [currentSessionId, setCurrentSessionId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [finalExamPassed, setFinalExamPassed] = useState(false);
+  const [previewMode, setPreviewMode] = useState(false);
+  const [enrolling, setEnrolling] = useState(false);
+  const [userAttempts, setUserAttempts] = useState([]);
+  const [readingMarked, setReadingMarked] = useState(false);
+  const [completedVideoIds, setCompletedVideoIds] = useState(new Set());
+  const { user } = useAuth();
 
-  useEffect(() => {
-    loadLearningPath();
-  }, [id]);
+  // Tabbed Workspace states
+  const [activeTab, setActiveTab] = useState('video'); // 'video' | 'text' | 'quiz' | 'overview'
+  const [activeVideoId, setActiveVideoId] = useState(null);
 
-  const loadLearningPath = async () => {
+  const selectSession = useCallback((sessions, sessionParam) => {
+    if (!sessions?.length) {
+      setCurrentSessionId(null);
+      return;
+    }
+
+    if (sessionParam) {
+      const sessionId = parseInt(sessionParam, 10);
+      const matchedSession = sessions.find((session) => session.id === sessionId);
+      if (matchedSession) {
+        setCurrentSessionId(matchedSession.id);
+        return;
+      }
+    }
+
+    const firstAccessible = sessions.find((session) => session.canAccess || !session.isLocked) || sessions[0];
+    setCurrentSessionId(firstAccessible.id);
+  }, []);
+
+  const loadPreviewPath = useCallback(async (sessionParam) => {
+    const course = await courseService.getById(id);
+    const sessions = [...(course.sessions || [])]
+      .sort((a, b) => a.orderNumber - b.orderNumber)
+      .map((session) => ({
+        ...session,
+        isCompleted: false,
+        isLocked: false,
+        canAccess: true,
+      }));
+
+    setPathData({
+      enrollment: {
+        course,
+        progress: { percentage: 0 },
+      },
+      sessions,
+      quizUnlocked: false,
+      quizzes: course.quizzes || [],
+    });
+    setPreviewMode(true);
+    selectSession(sessions, sessionParam);
+  }, [id, selectSession]);
+
+  const loadLearningPath = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await learningPathService.getCoursePath(id);
-      setPathData(data);
+      setError(null);
+      const sessionParam = searchParams.get('session');
 
-      if (data.sessions && data.sessions.length > 0) {
-        const firstAccessible = data.sessions.find(s => s.canAccess || !s.isLocked) || data.sessions[0];
-        setCurrentSessionId(firstAccessible.id);
+      try {
+        const data = await learningPathService.getCoursePath(id);
+        setPathData(data);
+        setPreviewMode(false);
+        
+        // Initialize completedVideoIds from backend data
+        const completedIds = new Set();
+        data.sessions?.forEach(session => {
+          session.videos?.forEach(video => {
+            if (video.isCompleted) {
+              completedIds.add(video.id);
+            }
+          });
+        });
+        setCompletedVideoIds(completedIds);
+
+        // Check if final exam has been passed
+        const finalExam = data.quizzes?.find(q => q.isExamMode);
+        if (finalExam && userAttempts.length > 0) {
+          const finalExamAttempt = userAttempts.find(attempt => attempt.quizId === finalExam.id);
+          setFinalExamPassed(finalExamAttempt?.passed || false);
+        }
+
+        // Set initial session from URL params or first session
+        const sessionParam = searchParams.get('session');
+        const nextParam = searchParams.get('next');
+        const finalExamParam = searchParams.get('finalExam');
+        
+        if (finalExamParam === 'true') {
+          // Navigate to final exam
+          const finalExam = data.quizzes?.find(q => q.isExamMode);
+          if (finalExam) {
+            window.location.href = `/exam/${finalExam.id}`;
+            return;
+          } else {
+            // No final exam, go to first session
+            setCurrentSessionId(data.sessions?.[0]?.id || null);
+          }
+        } else if (nextParam === 'true') {
+          // Navigate to next session in order or first incomplete session
+          if (sessionParam) {
+            const currentIndex = data.sessions?.findIndex(s => s.id === Number(sessionParam));
+            if (currentIndex !== -1 && currentIndex + 1 < data.sessions.length) {
+              window.location.href = `/learning-path/${id}?session=${data.sessions[currentIndex + 1].id}`;
+              return;
+            } else {
+              // No next session, stay on current
+              setCurrentSessionId(Number(sessionParam));
+            }
+          } else {
+            // Find first incomplete session
+            const incompleteSession = data.sessions?.find(session => {
+              return !session.videos?.every(video => video.isCompleted);
+            });
+            
+            if (incompleteSession) {
+              window.location.href = `/learning-path/${id}?session=${incompleteSession.id}`;
+              return;
+            } else {
+              // All sessions completed, go to first session
+              setCurrentSessionId(data.sessions?.[0]?.id || null);
+            }
+          }
+        } else if (sessionParam) {
+          setCurrentSessionId(Number(sessionParam));
+        } else {
+          setCurrentSessionId(data.sessions?.[0]?.id || null);
+        }
+      } catch (err) {
+        const message = err.message?.toLowerCase() || '';
+        if (message.includes('enroll')) {
+          await loadPreviewPath(sessionParam);
+        } else {
+          throw err;
+        }
       }
     } catch (err) {
       setError(err.message || 'Failed to load learning path');
@@ -33,158 +292,778 @@ function LearningPath() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, loadPreviewPath, searchParams, navigate, selectSession]);
+
+  useEffect(() => {
+    loadLearningPath();
+  }, [loadLearningPath]);
 
   const handleSessionSelect = (sessionId) => {
     setCurrentSessionId(sessionId);
+    navigate(`/learning-path/${id}?session=${sessionId}`, { replace: true });
+  };
+
+  const handleQuizTabClick = () => {
+    if (!canOpenPracticeQuiz()) {
+      toast.error('Complete the entire session (100% progress) before attempting the practice quiz.');
+      return;
+    }
+    setActiveTab('quiz');
+  };
+
+  const handleEnroll = async () => {
+    try {
+      setEnrolling(true);
+      await courseService.enroll(id);
+      setPreviewMode(false);
+      await loadLearningPath();
+    } catch (err) {
+      toast.error(err.message || 'Failed to enroll in course. Please try again.');
+    } finally {
+      setEnrolling(false);
+    }
+  };
+
+  const areAllVideosCompleted = () => {
+    if (!currentSession?.videos || currentSession.videos.length === 0) return true;
+    return currentSession.videos.every(video => video.isCompleted || completedVideoIds.has(video.id));
+  };
+
+  const hasWatchedEnoughVideo = () => {
+    if (!currentSession?.videos || currentSession.videos.length === 0) return true;
+    const completedCount = currentSession.videos.filter(video => video.isCompleted || completedVideoIds.has(video.id)).length;
+    return completedCount >= Math.ceil(currentSession.videos.length * 0.8);
   };
 
   const handleCompleteSession = async (sessionId) => {
+    if (previewMode) {
+      handleEnroll();
+      return;
+    }
+
     try {
       await learningPathService.completeSession(sessionId);
       await loadLearningPath();
     } catch (err) {
-      alert(err.message || 'Error completing session');
+      toast.error(err.message || 'Error completing session');
     }
   };
 
-  const currentSession = pathData?.sessions?.find(s => s.id === currentSessionId);
+  const handleVideoProgress = async () => {
+    if (!activeVideoId || previewMode) return;
+    try {
+      await videoService.updateWatchProgress(activeVideoId, 0, false);
+    } catch (err) {
+      console.error('Failed to update watch progress:', err);
+    }
+  };
+
+  const handleVideoEnded = async () => {
+    if (!activeVideoId || previewMode) return;
+
+    try {
+      await videoService.updateWatchProgress(
+        activeVideoId,
+        Math.max(Math.round(activeVideo?.duration || 0), 1),
+        true,
+      );
+      setCompletedVideoIds((prev) => new Set([...prev, activeVideoId]));
+      const result = await learningPathService.tryAutoComplete(currentSessionId);
+      await loadLearningPath();
+
+      // Check if this is the last video in the current session
+      const currentVideoIndex = currentSession?.videos?.findIndex(v => v.id === activeVideoId);
+      const isLastVideo = currentVideoIndex === (currentSession?.videos?.length - 1);
+      const allVideosCompleted = areAllVideosCompleted();
+
+      if (hasWatchedEnoughVideo() && !currentSession?.readingCompleted && currentSession?.content) {
+        toast.info('Great! Now read the session notes to complete this chapter and earn XP.');
+        setActiveTab('text');
+      } else if (result?.autoCompleted) {
+        toast.success('Chapter completed! +10 XP earned.');
+        
+        // Auto-advance to next chapter/session
+        if (isLastVideo && allVideosCompleted) {
+          // This was the last video of the session
+          if (nextSession && nextSession.id) {
+            // Move to next session
+            setTimeout(() => {
+              window.location.href = `/learning-path/${id}?session=${nextSession.id}`;
+            }, 1500);
+          } else {
+            // No more sessions - course complete
+            toast.success('🎉 Congratulations! You have completed this course!');
+          }
+        } else if (nextSession && nextSession.id) {
+          // Move to next session
+          setTimeout(() => {
+            window.location.href = `/learning-path/${id}?session=${nextSession.id}`;
+          }, 1500);
+        }
+      } else if (hasWatchedEnoughVideo() && canOpenPracticeQuiz()) {
+        setActiveTab('quiz');
+        toast.success('All content completed! You can now take the practice quiz.');
+      }
+    } catch (err) {
+      console.error('Failed to mark video as completed:', err);
+    }
+  };
+
+  const handleReadingScroll = async (e) => {
+    if (previewMode || !currentSessionId || readingMarked || currentSession?.readingCompleted) {
+      return;
+    }
+    const el = e.target;
+    const scrolledRatio = (el.scrollTop + el.clientHeight) / el.scrollHeight;
+    if (scrolledRatio >= 0.75) {
+      setReadingMarked(true);
+      try {
+        await learningPathService.trackReadingComplete(currentSessionId);
+        await loadLearningPath();
+        
+        // Check if session is now complete and should unlock next session
+        const sessionComplete = hasWatchedEnoughVideo() && currentSession?.readingCompleted;
+        
+        if (canOpenPracticeQuiz()) {
+          toast.success('Reading complete! Practice quiz is now available.');
+          setActiveTab('quiz');
+        } else if (sessionComplete && nextSession && nextSession.id) {
+          // Session complete - unlock and move to next session
+          toast.success('Chapter completed! +10 XP earned.');
+          setTimeout(() => {
+            window.location.href = `/learning-path/${id}?session=${nextSession.id}`;
+          }, 1500);
+        } else {
+          toast.success('Reading notes completed!');
+        }
+      } catch (err) {
+        console.error('Failed to track reading completion:', err);
+        setReadingMarked(false);
+      }
+    }
+  };
+
+  const currentSession = pathData?.sessions?.find((session) => session.id === currentSessionId);
+  const currentSessionIndex = pathData?.sessions?.findIndex((s) => s.id === currentSessionId);
+  const nextSession = pathData?.sessions?.[currentSessionIndex + 1];
   const progressPercentage = Math.round(pathData?.enrollment?.progress?.percentage || 0);
   const courseTitle = pathData?.enrollment?.course?.title || 'Course';
   const quizzes = pathData?.quizzes || pathData?.enrollment?.course?.quizzes || [];
+  const orderedCourseQuizzes = [...quizzes].sort((a, b) => new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime());
+  const passedQuizIds = new Set((userAttempts || []).filter((attempt) => attempt.passed).map((attempt) => attempt.quizId));
+
+  const sessionQuiz = currentSession?.sessionQuiz || quizzes.find((quiz) => {
+    if (quiz.isExamMode || !currentSession) return false;
+    if (quiz.sessionId) return quiz.sessionId === currentSession.id;
+    const quizTitle = quiz.title.toLowerCase();
+    const sessionTitle = currentSession.title.toLowerCase();
+    return quizTitle.includes(sessionTitle) ||
+           sessionTitle.includes(quizTitle.replace('quiz', '').trim());
+  });
+
+  const sessionQuizPassed = !sessionQuiz || passedQuizIds.has(sessionQuiz.id);
+
+  const canOpenPracticeQuiz = () => {
+    // Allow access to practice quiz when ALL videos are completed AND reading is completed OR session is marked as completed
+    const allVideosCompleted = areAllVideosCompleted();
+    const readingCompleted = currentSession?.readingCompleted;
+    const sessionCompleted = currentSession?.isCompleted;
+    return (allVideosCompleted && readingCompleted) || sessionCompleted;
+  };
+
+  const canOpenAssessment = (quiz) => {
+    const index = orderedCourseQuizzes.findIndex((item) => item.id === quiz.id);
+    if (index <= 0) return true;
+
+    const previousQuizzes = orderedCourseQuizzes.slice(0, index);
+    return previousQuizzes.every((previousQuiz) => passedQuizIds.has(previousQuiz.id));
+  };
+
+  const fetchAttempts = useCallback(async () => {
+    if (!user?.id) {
+      setUserAttempts([]);
+      return;
+    }
+
+    try {
+      const attempts = await quizService.getMyAttempts(user.id);
+      setUserAttempts(attempts || []);
+    } catch (err) {
+      console.error('Failed to load quiz attempts:', err);
+      setUserAttempts([]);
+    }
+  }, [user?.id]);
+
+  useEffect(() => {
+    fetchAttempts();
+  }, [fetchAttempts]);
+
+  // Reload learning path data when user returns from quiz
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && !loading) {
+        fetchAttempts();
+        loadLearningPath();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [fetchAttempts, loadLearningPath, loading]);
+
+  const hasVideos = currentSession?.videos && currentSession.videos.length > 0;
+  const hasContent = !!currentSession?.content;
+  const hasQuiz = !!sessionQuiz;
+  const activeVideo = currentSession?.videos?.find(v => v.id === activeVideoId) || currentSession?.videos?.[0];
+  const canAccessCurrentSession = !!currentSession && (currentSession.canAccess || currentSession.isCompleted || !currentSession.isLocked);
+  const allVideosWatched = (currentSession?.videos || []).length === 0 || (currentSession?.videos || []).every((video) => video.isCompleted);
+  const canOpenSessionQuiz = hasQuiz && allVideosWatched;
+
+  useEffect(() => {
+    setReadingMarked(!!currentSession?.readingCompleted);
+  }, [currentSessionId, currentSession?.readingCompleted]);
+
+  // Update completedVideoIds when changing sessions to include current session's completed videos
+  useEffect(() => {
+    if (currentSession && currentSession.videos) {
+      setCompletedVideoIds(prev => {
+        const updated = new Set(prev);
+        // Only add completed videos from current session, don't remove others
+        currentSession.videos.forEach(video => {
+          if (video.isCompleted) {
+            updated.add(video.id);
+          }
+        });
+        return updated;
+      });
+    }
+  }, [currentSessionId, currentSession]);
+
+  useEffect(() => {
+    if (currentSession) {
+      if (currentSession.videos && currentSession.videos.length > 0) {
+        setActiveTab('video');
+        setActiveVideoId(currentSession.videos[0].id);
+      } else if (currentSession.content) {
+        setActiveTab('text');
+        setActiveVideoId(null);
+      } else {
+        setActiveTab('overview');
+        setActiveVideoId(null);
+      }
+    }
+  }, [currentSessionId, currentSession, pathData]);
+
+  // Auto-mark reading as complete if content is short when opening text tab
+  useEffect(() => {
+    if (activeTab === 'text' && hasContent && !readingMarked && !currentSession?.readingCompleted) {
+      const contentLength = (currentSession?.content || '').length;
+      // If content is short (less than 500 characters), mark as complete automatically
+      if (contentLength < 500) {
+        setReadingMarked(true);
+        learningPathService.trackReadingComplete(currentSessionId)
+          .then(() => loadLearningPath())
+          .catch(err => {
+            console.error('Failed to mark reading complete:', err);
+            setReadingMarked(false);
+          });
+      }
+    }
+  }, [activeTab, hasContent, currentSession, readingMarked, currentSessionId, loadLearningPath]);
 
   if (loading) {
     return (
       <div className="learning-path-container">
-        <div className="loading">Loading learning path...</div>
+        <div className="loading">
+          <div className="spinner"></div>
+          <span>Loading learning path...</span>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="learning-path-container" style={{ padding: '2rem' }}>
+      <div className="learning-path-container learning-path-error">
         <div className="alert alert-danger">{error}</div>
-        <Link to="/courses" className="btn btn-secondary">Back to courses</Link>
+        <Link to={`/courses/${id}`} className="btn btn-secondary">Back to course</Link>
       </div>
     );
   }
 
   return (
     <div className="learning-path-container">
-      <Sidebar 
+      <Sidebar
         sessions={pathData?.sessions || []}
         activeSessionId={currentSessionId}
+        activeVideoId={activeVideoId}
         onSessionSelect={handleSessionSelect}
+        onVideoSelect={setActiveVideoId}
       />
-      
+
       <div className="learning-path-content">
         <div className="learning-path-header">
-          <Link to="/courses" className="back-link">
-            ← Back to courses
+          <Link to={`/courses/${id}`} className="back-link">
+            ← Back to course
           </Link>
           <h1 className="course-title">{courseTitle}</h1>
-          <div className="progress-bar-container">
-            <div className="progress-bar">
-              <div 
-                className="progress-fill" 
-                style={{ width: `${progressPercentage}%` }}
-              ></div>
+          {!previewMode && (
+            <div className="progress-bar-container">
+              <div className="progress-bar">
+                <div
+                  className="progress-fill"
+                  style={{ width: `${progressPercentage}%` }}
+                />
+              </div>
+              <span className="progress-text">{progressPercentage}% Complete</span>
             </div>
-            <span className="progress-text">{progressPercentage}% Complete</span>
-          </div>
+          )}
         </div>
+
+        {previewMode && (
+          <div className="enroll-banner">
+            <div className="enroll-banner-content">
+              <div className="enroll-banner-icon" aria-hidden="true">
+                <Lock size={20} />
+              </div>
+              <div>
+                <p className="enroll-banner-title">You are previewing this course</p>
+                <p className="enroll-banner-text">
+                  Enroll for free to save your progress, complete sessions, and unlock the certificate.
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              className="btn btn-primary enroll-banner-btn"
+              onClick={handleEnroll}
+              disabled={enrolling}
+            >
+              {enrolling ? 'Enrolling...' : 'Enroll Now — Free'}
+            </button>
+          </div>
+        )}
 
         {currentSession ? (
           <div className="session-content">
             <h2 className="session-title">{currentSession.title}</h2>
-            <p className="session-description">{currentSession.description || 'No description available for this session.'}</p>
             
-            {currentSession.videos && currentSession.videos.length > 0 && (
-              <div className="videos-section">
-                <h3>Session Videos</h3>
-                <div className="videos-list">
-                  {currentSession.videos.map((video) => (
-                    <div key={video.id} className="video-item card">
-                      <h4 className="video-title">{video.title}</h4>
-                      {video.url && (
-                        <div className="video-wrapper" style={{ margin: '1rem 0' }}>
-                          <iframe
-                            src={video.url.replace('watch?v=', 'embed/')}
-                            title={video.title}
-                            width="100%"
-                            height="315"
-                            frameBorder="0"
-                            allowFullScreen
-                          ></iframe>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+            {/* Navigation Tabs (Udemy/Coursera style) */}
+            <div className="session-tabs">
+              {hasVideos && (
+                <button
+                  type="button"
+                  className={`session-tab-btn ${activeTab === 'video' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('video')}
+                >
+                  <PlayCircle size={18} /> Video Lectures
+                </button>
+              )}
+              {hasContent && (
+                <button
+                  type="button"
+                  className={`session-tab-btn ${activeTab === 'text' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('text')}
+                >
+                  <BookOpen size={18} /> Reading Notes
+                </button>
+              )}
+              <button
+                type="button"
+                className={`session-tab-btn ${activeTab === 'quiz' ? 'active' : ''}`}
+                onClick={handleQuizTabClick}
+              >
+                <HelpCircle size={18} /> Practice Quiz
+              </button>
+              <button
+                type="button"
+                className={`session-tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
+                onClick={() => setActiveTab('overview')}
+              >
+                <Info size={18} /> Overview
+              </button>
+            </div>
 
-            <div className="session-actions" style={{ marginTop: '2rem' }}>
-              {currentSession.isCompleted ? (
-                <div className="tag tag-success" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem' }}>
-                  <CheckCircle size={18} /> Session Completed
+            {/* Tab Panes */}
+            <div className="tab-viewport">
+              
+              {/* VIDEO TAB */}
+              {activeTab === 'video' && hasVideos && (
+                <div className="tab-pane-content video-tab-pane">
+                  {currentSession.videos.length > 1 ? (
+                    <div className="multi-video-layout">
+                      <div className="main-video-viewport">
+                        <div className="active-video-header">
+                          <h4 className="active-video-title">{activeVideo?.title}</h4>
+                        </div>
+                        {activeVideo?.url && (
+                          !isEmbeddableVideo(activeVideo.url) ? (
+                            <VideoPlayer video={activeVideo} onProgressUpdate={handleVideoProgress} onVideoEnded={handleVideoEnded} />
+                          ) : (
+                            <YouTubePlayer video={activeVideo} onVideoEnded={handleVideoEnded} />
+                          )
+                        )}
+                        {activeVideo?.isCompleted && (
+                          <div className="video-status-badge completed">
+                            <CheckCircle size={16} /> Video completed
+                          </div>
+                        )}
+                        <ActiveVideoDetails video={activeVideo} />
+                      </div>
+                      
+                      <div className="video-playlist-sidebar">
+                        <div className="session-duration-header">
+                          <Clock size={14} />
+                          <span>Session Duration: {getSessionDuration(currentSession)}</span>
+                        </div>
+                        <h4 className="playlist-title">Session Chapters</h4>
+                        <div className="playlist-items">
+                          {currentSession.videos.map((vid, idx) => {
+                            const isPreviousVideoIncomplete = idx > 0 && !currentSession.videos[idx - 1].isCompleted;
+                            const isLockedVideo = idx > 0 && isPreviousVideoIncomplete;
+
+                            return (
+                              <div
+                                key={vid.id}
+                                className={`playlist-chapter ${vid.id === activeVideoId ? 'active' : ''} ${isLockedVideo ? 'locked' : ''}`}
+                                onClick={() => !isLockedVideo && setActiveVideoId(vid.id)}
+                                style={{ opacity: isLockedVideo ? 0.6 : 1, cursor: isLockedVideo ? 'not-allowed' : 'pointer' }}
+                              >
+                                <span className="chapter-title">{vid.title}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    // Single Video Layout
+                    <div className="single-video-layout">
+                      <div className="main-video-viewport">
+                        <div className="active-video-header">
+                          <h4 className="active-video-title">{currentSession.videos[0]?.title}</h4>
+                        </div>
+                        {currentSession.videos[0]?.url && (
+                          !isEmbeddableVideo(currentSession.videos[0].url) ? (
+                            <VideoPlayer video={currentSession.videos[0]} onProgressUpdate={handleVideoProgress} onVideoEnded={handleVideoEnded} />
+                          ) : (
+                            <YouTubePlayer video={currentSession.videos[0]} onVideoEnded={handleVideoEnded} />
+                          )
+                        )}
+                        {currentSession.videos[0]?.isCompleted && (
+                          <div className="video-status-badge completed">
+                            <CheckCircle size={16} /> Video completed
+                          </div>
+                        )}
+                        <ActiveVideoDetails video={activeVideo} />
+                      </div>
+                      
+                      <div className="video-playlist-sidebar">
+                        <div className="session-duration-header">
+                          <Clock size={14} />
+                          <span>Session Duration: {getSessionDuration(currentSession)}</span>
+                        </div>
+                        <h4 className="playlist-title">Session Chapters</h4>
+                        <div className="playlist-items">
+                          {currentSession.videos.map((vid, idx) => {
+                            return (
+                              <div
+                                key={vid.id}
+                                className={`playlist-chapter ${vid.id === activeVideoId ? 'active' : ''}`}
+                              >
+                                <span className="chapter-title">{vid.title}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* TEXT/READING TAB */}
+              {activeTab === 'text' && hasContent && (
+                <div 
+                  className="tab-pane-content reading-tab-pane" 
+                  onScroll={handleReadingScroll}
+                  ref={(el) => {
+                    if (el) {
+                      const canScroll = el.scrollHeight > el.clientHeight;
+                      
+                      // If content is too short to scroll, mark as complete automatically
+                      if (!canScroll && !readingMarked && !currentSession?.readingCompleted) {
+                        setReadingMarked(true);
+                        learningPathService.trackReadingComplete(currentSessionId);
+                      }
+                    }
+                  }}
+                >
+                  {!currentSession.readingCompleted && !readingMarked && (
+                    <div className="reading-progress-hint">
+                      Scroll through all reading notes to mark this section complete.
+                    </div>
+                  )}
+                  {(currentSession.readingCompleted || readingMarked) && (
+                    <div className="reading-status-badge completed">
+                      <CheckCircle size={16} /> Reading notes completed
+                    </div>
+                  )}
+                  <div 
+                    className="markdown-body" 
+                    dangerouslySetInnerHTML={{ __html: renderMarkdown(currentSession.content) }} 
+                  />
+                </div>
+              )}
+
+              {/* QUIZ TAB */}
+              {activeTab === 'quiz' && (
+                <div className="tab-pane-content quiz-tab-pane">
+                  <div className="session-quiz-card card">
+                    <div className="quiz-card-header">
+                      <div className="quiz-badge">Session Evaluation</div>
+                      <h3 className="quiz-title-main">{sessionQuiz ? sessionQuiz.title : `Knowledge Check: ${currentSession.title}`}</h3>
+                    </div>
+                    
+                    <div className="quiz-details-grid">
+                      <div className="quiz-detail-item">
+                        <Clock size={18} />
+                        <div>
+                          <span className="detail-label">Duration</span>
+                          <span className="detail-value">{sessionQuiz?.timeLimitMinutes || 10} Mins</span>
+                        </div>
+                      </div>
+                      <div className="quiz-detail-item">
+                        <HelpCircle size={18} />
+                        <div>
+                          <span className="detail-label">Evaluation</span>
+                          <span className="detail-value">Practice Mode</span>
+                        </div>
+                      </div>
+                      <div className="quiz-detail-item">
+                        <Award size={18} />
+                        <div>
+                          <span className="detail-label">Passing Score</span>
+                          <span className="detail-value">{sessionQuiz?.passingScore || 70}%</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <p className="quiz-card-description">
+                      {sessionQuiz?.description || `Test your understanding of "${currentSession.title}". 3 questions • Unlimited attempts • Pass to unlock next steps.`}
+                    </p>
+
+                    <div className="quiz-card-actions">
+                      <button
+                        type="button"
+                        disabled={previewMode || !canAccessCurrentSession || !canOpenPracticeQuiz()}
+                        onClick={() => {
+                          if (sessionQuiz?.id) {
+                            navigate(`/quiz/${sessionQuiz.id}`);
+                          } else {
+                            toast.error('No practice quiz available for this session yet.');
+                          }
+                        }}
+                        className="btn btn-primary start-quiz-btn"
+                      >
+                        {canOpenPracticeQuiz() ? 'Take Practice Quiz (+25 XP)' : 'Complete session first'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* OVERVIEW TAB */}
+              {activeTab === 'overview' && (
+                <div className="tab-pane-content overview-tab-pane">
+                  <div className="overview-section">
+                    <h3 className="pane-section-title">Session Description</h3>
+                    <p className="session-description-text">
+                      {currentSession.description || 'No description available for this session.'}
+                    </p>
+                  </div>
+                  
+                  <div className="overview-section">
+                    <h3 className="pane-section-title">Learning Rewards & Info</h3>
+                    <div className="metrics-grid">
+                      <div className="metric-box">
+                        <Award size={20} className="metric-icon primary" />
+                        <div>
+                          <span className="metric-value">10 XP</span>
+                          <span className="metric-label">Reward Points</span>
+                        </div>
+                      </div>
+                      <div className="metric-box">
+                        <PlayCircle size={20} className="metric-icon secondary" />
+                        <div>
+                          <span className="metric-value">{currentSession.videos?.length || 0}</span>
+                          <span className="metric-label">Lectures</span>
+                        </div>
+                      </div>
+                      <div className="metric-box">
+                        <BookOpen size={20} className="metric-icon accent" />
+                        <div>
+                          <span className="metric-value">{currentSession.content ? '1 Article' : 'None'}</span>
+                          <span className="metric-label">Reading Notes</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Bottom Actions Bar */}
+            <div className="session-actions">
+              {previewMode ? (
+                <button
+                  type="button"
+                  onClick={handleEnroll}
+                  className="btn btn-primary enroll-btn-large"
+                  disabled={enrolling}
+                >
+                  {enrolling ? 'Enrolling...' : 'Enroll in Course to Save Progress'}
+                </button>
+              ) : currentSession.isCompleted ? (
+                <div className="completion-controls">
+                  <div className="tag tag-success session-complete-tag">
+                    <CheckCircle size={18} /> Chapter Completed (+10 XP)
+                  </div>
+                  {nextSession && !nextSession.isLocked ? (
+                    <button
+                      type="button"
+                      onClick={() => handleSessionSelect(nextSession.id)}
+                      className="btn btn-secondary next-session-btn"
+                    >
+                      Next Session →
+                    </button>
+                  ) : pathData?.finalExamUnlocked && pathData?.quizzes?.some(q => q.isExamMode) && sessionQuizPassed ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const finalExam = pathData.quizzes.find(q => q.isExamMode);
+                        if (finalExam) navigate(`/exam/${finalExam.id}`);
+                      }}
+                      className="btn btn-primary final-quiz-btn"
+                    >
+                      Take Final Exam →
+                    </button>
+                  ) : null}
                 </div>
               ) : (
-                <button
-                  onClick={() => handleCompleteSession(currentSession.id)}
-                  className="btn btn-primary"
-                >
-                  Mark session as complete (+10 XP)
-                </button>
+                <div className="session-progress-hint">
+                  <p>Complete all videos and reading notes — XP is awarded automatically when the chapter is finished.</p>
+                  <div className="chapter-checklist">
+                    <span className={allVideosWatched ? 'done' : ''}>
+                      {allVideosWatched ? '✓' : '○'} Videos watched
+                    </span>
+                    <span className={(currentSession.readingCompleted || readingMarked || !hasContent) ? 'done' : ''}>
+                      {(currentSession.readingCompleted || readingMarked || !hasContent) ? '✓' : '○'} Reading notes
+                    </span>
+                    <span className={sessionQuizPassed ? 'done' : ''}>
+                      {sessionQuizPassed ? '✓' : '○'} Practice quiz passed
+                    </span>
+                  </div>
+                </div>
               )}
             </div>
           </div>
         ) : (
           <div className="no-session">
-            <p>Select a session from the sidebar to begin.</p>
+            <Info size={48} className="no-session-icon" />
+            <p>Select a session from the curriculum sidebar to begin learning.</p>
           </div>
         )}
 
-        {/* Section Quiz / Examens */}
-        {quizzes && quizzes.length > 0 && (
-          <div className="quiz-section card" style={{ marginTop: '2rem', padding: '1.5rem' }}>
-            <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Award size={20} /> Evaluations & Exams
-            </h3>
-            {!pathData?.quizUnlocked && (
-              <p className="alert alert-warning" style={{ margin: '1rem 0' }}>
-                Complete all sessions to unlock quizzes and the final exam!
-              </p>
-            )}
-            <div className="quiz-list" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
-              {quizzes.map((quiz) => (
-                <div key={quiz.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc', padding: '1rem', borderRadius: '8px' }}>
-                  <div>
-                    <h4 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      {quiz.isExamMode ? <Clock size={16} color="#e11d48" /> : <HelpCircle size={16} color="#2563eb" />}
+        {/* Global Evaluations and Exams section (Coursera / Udemy Style) */}
+        <div className="quiz-section card final-assessment-card">
+          <h3 className="quiz-section-title">
+            <Award size={22}/> Course Final Exam & Official Certification
+          </h3>
+          
+          {!previewMode && !pathData?.finalExamUnlocked && (
+            <div className="alert alert-warning quiz-locked-message">
+              <Lock size={18} />
+              <span>Pass all session practice quizzes to unlock the Final Certification Exam (40 questions, max 3 attempts).</span>
+            </div>
+          )}
+
+          {previewMode && (
+            <div className="alert alert-warning quiz-locked-message">
+              <Lock size={18} />
+              <span>Enroll in the course to gain access to the quizzes, final exam, and certificate.</span>
+            </div>
+          )}
+
+          {/* Certificate Claim Banner when final exam passed */}
+          {finalExamPassed && (
+            <div className="certificate-unlocked-banner">
+              <div className="cert-banner-content">
+                <Award size={36} className="cert-banner-icon" />
+                <div>
+                  <h4>Congratulations! Course Requirements Fulfilled</h4>
+                  <p>You have completed all sessions. View your official Coursera/Udemy-level Certificate of Completion now!</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => navigate(`/certificates`)}
+                className="btn btn-primary btn-claim-certificate"
+              >
+                View Official Certificate 
+              </button>
+            </div>
+          )}
+          
+          <div className="quiz-list">
+            {(quizzes && quizzes.length > 0 ? quizzes : [
+              { id: 1, title: `Final Certification Exam: ${courseTitle}`, isExamMode: true, timeLimitMinutes: 30 }
+            ]).map((quiz) => {
+              // Find the session associated with this quiz
+              const associatedSession = quiz.sessionId ? pathData?.sessions?.find(s => s.id === quiz.sessionId) : null;
+              const sessionCompleted = associatedSession?.progress?.percentage === 100;
+              
+              // Check if all videos and reading are completed for practice quiz
+              const allVideosCompleted = associatedSession?.videos?.every(video => video.isCompleted) || false;
+              const readingCompleted = associatedSession?.readingCompleted || false;
+              const canTakePracticeQuiz = allVideosCompleted && readingCompleted;
+              
+              // Check if ALL practice quizzes are passed for final exam
+              const practiceQuizzes = quizzes.filter(q => !q.isExamMode);
+              const allPracticeQuizzesPassed = practiceQuizzes.length === 0 || practiceQuizzes.every(q => passedQuizIds.has(q.id));
+              const canTakeFinalExam = allPracticeQuizzesPassed;
+              
+              return (
+                <div key={quiz.id} className="quiz-list-item">
+                  <div className="quiz-item-info">
+                    <h4 className="quiz-item-title">
+                      <Award size={18} className={quiz.isExamMode ? "exam-icon" : "quiz-icon"} />
                       {quiz.title}
                     </h4>
-                    <small style={{ color: '#64748b' }}>
-                      {quiz.isExamMode ? `Timed Exam (${quiz.timeLimitMinutes || 30} mins)` : 'Practice Quiz'}
-                    </small>
+                    <span className="quiz-item-meta">
+                      {quiz.isExamMode ? `Final Timed Exam (${quiz.timeLimitMinutes || 30} mins) • Unlocks Certificate & +100 XP` : 'Practice Assessment'}
+                    </span>
                   </div>
                   <button
-                    disabled={!pathData?.quizUnlocked}
+                    type="button"
+                    disabled={
+                      previewMode || 
+                      (!canTakeFinalExam && quiz.isExamMode) ||
+                      (!quiz.isExamMode && !canTakePracticeQuiz)
+                    }
                     onClick={() => navigate(quiz.isExamMode ? `/exam/${quiz.id}` : `/quiz/${quiz.id}`)}
-                    className={`btn ${quiz.isExamMode ? 'btn-primary' : 'btn-secondary'} btn-sm`}
+                    className={`btn ${quiz.isExamMode ? 'btn-primary' : 'btn-secondary'} btn-sm action-quiz-btn`}
                   >
-                    {quiz.isExamMode ? 'Take Exam' : 'Start Quiz'}
+                    {quiz.isExamMode ? 'Take Final Exam (+100 XP)' : (canTakePracticeQuiz ? 'Take Practice Quiz (+25 XP)' : 'Complete session first')}
                   </button>
                 </div>
-              ))}
-            </div>
+              );
+            })}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
 }
 
 export default LearningPath;
-

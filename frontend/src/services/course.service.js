@@ -11,7 +11,7 @@ export const courseService = {
   },
 
   async enroll(courseId) {
-    return api.post('/enrollments', { courseId });
+    return api.post('/enrollments', { courseId: Number(courseId) });
   },
 
   async getMyEnrollments() {

@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { certificateService } from '../services/certificate.service';
+import Certificate from '../components/Certificate/Certificate';
 import './Certificates.css';
 
 function Certificates() {
   const [certificates, setCertificates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedCertificate, setSelectedCertificate] = useState(null);
+  const [showCertificateView, setShowCertificateView] = useState(false);
 
   useEffect(() => {
     loadCertificates();
@@ -15,20 +18,37 @@ function Certificates() {
   const loadCertificates = async () => {
     try {
       setLoading(true);
-      const data = await certificateService.getMyCertificates();
-      setCertificates(data);
+      console.log('=== LOADING CERTIFICATES ===');
+      
+      // Charger les certificats depuis l'API uniquement
+      const apiCertificates = await certificateService.getMyCertificates();
+      console.log('API Certificates data:', apiCertificates);
+      
+      // Nettoyer le localStorage pour supprimer les certificats incorrects
+      localStorage.removeItem('userCertificates');
+      
+      console.log('Certificates length:', apiCertificates?.length);
+      setCertificates(apiCertificates);
     } catch (err) {
-      setError('Failed to load certificates');
-      console.error(err);
+      console.error('Failed to load certificates:', err);
+      setCertificates([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDownload = (certificate) => {
-    // In a real implementation, this would generate and download the certificate
-    console.log('Downloading certificate:', certificate.id);
-    alert('Certificate download feature would be implemented here');
+  const handleViewCertificate = (certificate) => {
+    setSelectedCertificate(certificate);
+    setShowCertificateView(true);
+  };
+
+  const handleBack = () => {
+    setShowCertificateView(false);
+    setSelectedCertificate(null);
+  };
+
+  const handleDownload = () => {
+    window.print();
   };
 
   const handleVerify = (certificate) => {
@@ -47,6 +67,26 @@ function Certificates() {
     return (
       <div className="certificates-container">
         <div className="alert alert-danger">{error}</div>
+      </div>
+    );
+  }
+
+  if (showCertificateView && selectedCertificate) {
+    return (
+      <div className="certificates-view-container">
+        <div className="view-header">
+          <button onClick={handleBack} className="btn btn-secondary">
+            ← Back to Certificates
+          </button>
+          <button onClick={handleDownload} className="btn btn-primary">
+            Download PDF
+          </button>
+        </div>
+        <Certificate 
+          certificate={selectedCertificate}
+          user={selectedCertificate.user}
+          course={selectedCertificate.course}
+        />
       </div>
     );
   }
@@ -91,25 +131,22 @@ function Certificates() {
                     </span>
                   </div>
                   <div className="meta-item">
-                    <span className="meta-label">Score:</span>
-                    <span className="meta-value">{certificate.score}%</span>
+                    <span className="meta-label">Certificate #:</span>
+                    <span className="meta-value">{certificate.certificateNumber}</span>
                   </div>
-                </div>
-                <div className="certificate-number">
-                  Certificate #: {certificate.certificateNumber}
                 </div>
               </div>
 
               <div className="certificate-actions">
                 <button
-                  onClick={() => handleDownload(certificate)}
-                  className="btn btn-secondary btn-sm"
+                  onClick={() => handleViewCertificate(certificate)}
+                  className="btn btn-primary btn-sm"
                 >
-                  Download
+                  View Certificate
                 </button>
                 <button
                   onClick={() => handleVerify(certificate)}
-                  className="btn btn-primary btn-sm"
+                  className="btn btn-secondary btn-sm"
                 >
                   Verify
                 </button>

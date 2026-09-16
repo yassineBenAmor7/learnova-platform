@@ -14,6 +14,18 @@ function VerifyCertificate() {
     const fetchCertificate = async () => {
       setLoading(true);
       setError('');
+      
+      // D'abord, chercher dans localStorage
+      const localCertificates = JSON.parse(localStorage.getItem('userCertificates') || '[]');
+      const localCert = localCertificates.find(cert => cert.certificateNumber === certificateNumber);
+      
+      if (localCert) {
+        setData(localCert);
+        setLoading(false);
+        return;
+      }
+      
+      // Si pas trouvé dans localStorage, chercher dans l'API
       try {
         const res = await certificateService.verify(certificateNumber);
         if (res && res.isValid) {
@@ -57,8 +69,8 @@ function VerifyCertificate() {
             </div>
 
             <div className="cert-header">
-              <h1>Certificat de Réussite Learnova</h1>
-              <p className="subtitle">Institut Supérieur des Sciences Appliquées et de Technologies de Sousse & Vaerdia</p>
+              <h1>Certificat de Réussite</h1>
+              <p className="subtitle">LEARNOVA ACADEMY</p>
             </div>
 
             <div className="cert-details-grid">

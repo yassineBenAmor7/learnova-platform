@@ -10,14 +10,15 @@ export const videoService = {
   },
 
   async updateWatchProgress(videoId, watchedSeconds, completed = false) {
-    return api.put(`/videos/${videoId}`, {
+    return api.post(`/learning-path/video/${videoId}/watch`, {
       watchedSeconds,
       completed,
     });
   },
 
   async markAsWatched(videoId) {
-    return api.put(`/videos/${videoId}`, {
+    return api.post(`/learning-path/video/${videoId}/watch`, {
+      watchedSeconds: 0,
       completed: true,
     });
   },

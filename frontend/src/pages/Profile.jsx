@@ -2,6 +2,10 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { authService } from '../services/auth.service';
 import { userService } from '../services/user.service';
+import { gamificationService } from '../services/gamification.service';
+import Badge from '../components/Badge/Badge';
+import { useToast } from '../contexts/ToastContext';
+import { useConfirm } from '../contexts/ConfirmContext';
 import { 
   User, Mail, Calendar, Award, BookOpen, Clock, 
   TrendingUp, Settings, Bell, Globe, Shield, 
@@ -11,22 +15,24 @@ import './Profile.css';
 
 function Profile() {
   const { user, refreshUser } = useAuth();
+  const toast = useToast();
+  const { confirm } = useConfirm();
   const [activeTab, setActiveTab] = useState('profile');
   const [editing, setEditing] = useState(false);
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
+  const [formData, setFormData] = useState(() => ({
+    firstName: user?.firstName || '',
+    lastName: user?.lastName || '',
+    email: user?.email || '',
     currentPassword: '',
     newPassword: '',
     confirmPassword: '',
-    phone: '',
-    bio: '',
-    location: '',
-  });
+    phone: user?.phone || '',
+    bio: user?.bio || '',
+    location: user?.location || '',
+  }));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
@@ -53,50 +59,66 @@ function Profile() {
     level: 1,
   });
   const [recentActivity, setRecentActivity] = useState([]);
+  const [userBadges, setUserBadges] = useState([]);
   const [statsLoading, setStatsLoading] = useState(false);
   const [settingsLoading, setSettingsLoading] = useState(false);
 
   useEffect(() => {
     if (user) {
-      setFormData({
+      setFormData(prev => ({
         firstName: user.firstName || '',
         lastName: user.lastName || '',
         email: user.email || '',
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: '',
-        phone: '',
-        bio: '',
-        location: '',
-      });
+        currentPassword: prev.currentPassword || '',
+        newPassword: prev.newPassword || '',
+        confirmPassword: prev.confirmPassword || '',
+        phone: user.phone || '',
+        bio: user.bio || '',
+        location: user.location || '',
+      }));
       if (user.avatar) {
         setAvatarPreview(user.avatar);
       }
     }
-  }, [user]);
+  }, [user?.id]);
 
   // Fetch real statistics when switching to stats tab
   useEffect(() => {
-    if (activeTab === 'stats' && user) {
+    if (activeTab === 'stats' && user?.id) {
       fetchUserStatistics();
     }
-  }, [activeTab, user]);
+  }, [activeTab, user?.id]);
 
   // Fetch real settings when switching to settings tab
   useEffect(() => {
-    if (activeTab === 'settings' && user) {
+    if (activeTab === 'settings' && user?.id) {
       fetchUserSettings();
     }
-  }, [activeTab, user]);
+  }, [activeTab, user?.id]);
 
   const fetchUserStatistics = async () => {
     setStatsLoading(true);
     try {
+      console.log('Fetching user statistics...');
       const stats = await userService.getStatistics();
-      setUserStats(stats);
+      console.log('User statistics received:', stats);
+      
+      // Fetch streak from gamification service for consistency with dashboard
+      const streak = await gamificationService.getMyStreak().catch(() => ({ currentStreak: 0 }));
+      console.log('User streak received:', streak);
+      
+      setUserStats({ ...stats, currentStreak: streak.currentStreak || 0 });
 
       const activity = await userService.getActivity(10);
+      console.log('User activity received:', activity);
       setRecentActivity(activity);
+
+      const badgesRes = await gamificationService.getMyBadges().catch(() => null);
+      console.log('User badges received:', badgesRes);
+      if (badgesRes?.badges) {
+        const bArray = Array.isArray(badgesRes.badges) ? badgesRes.badges : (badgesRes.badges?.badges || []);
+        setUserBadges(bArray);
+      }
     } catch (err) {
       console.error('Failed to fetch statistics:', err);
       setError('Failed to load profile data');
@@ -214,20 +236,25 @@ function Profile() {
     }
   };
 
-  const handleDeleteAccount = () => {
-    const password = prompt('Please enter your password to confirm account deletion:');
-    if (password) {
-      if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
-        userService.deleteAccount(password)
-          .then(() => {
-            authService.logout();
-            window.location.href = '/';
-          })
-          .catch((err) => {
-            console.error('Failed to delete account:', err);
-            setError('Failed to delete account. Please check your password.');
-            setTimeout(() => setError(null), 3000);
-          });
+  const handleDeleteAccount = async () => {
+    const confirmed = await confirm({
+      title: 'Delete Account',
+      message: 'Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently deleted.',
+      confirmText: 'Delete Account',
+      cancelText: 'Cancel',
+      type: 'danger',
+    });
+
+    if (confirmed) {
+      try {
+        setError(null);
+        await userService.deleteAccount('');
+        toast.success('Account deleted successfully');
+        authService.logout();
+        window.location.href = '/';
+      } catch (err) {
+        console.error('Failed to delete account:', err);
+        toast.error('Failed to delete account. Please try again.');
       }
     }
   };
@@ -239,11 +266,11 @@ function Profile() {
       setUploadingAvatar(true);
       setError(null);
 
-      const formData = new FormData();
-      formData.append('avatar', avatarFile);
-
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
+      const result = await userService.uploadAvatar(avatarFile);
+      
+      // Refresh user data to get updated avatar
+      await refreshUser();
+      
       setSuccess('Avatar updated successfully!');
       setAvatarFile(null);
       setTimeout(() => setSuccess(false), 3000);
@@ -256,6 +283,7 @@ function Profile() {
   };
 
   const handleChange = (e) => {
+    console.log('handleChange called:', e.target.name, e.target.value);
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
@@ -281,7 +309,7 @@ function Profile() {
       setError(null);
       setSuccess(false);
 
-      const { confirmPassword, phone, bio, location, ...submitData } = formData;
+      const { confirmPassword, ...submitData } = formData;
 
       if (!submitData.newPassword) {
         delete submitData.currentPassword;
@@ -316,9 +344,9 @@ function Profile() {
       currentPassword: '',
       newPassword: '',
       confirmPassword: '',
-      phone: '',
-      bio: '',
-      location: '',
+      phone: user.phone || '',
+      bio: user.bio || '',
+      location: user.location || '',
     });
     setEditing(false);
     setError(null);
@@ -332,7 +360,10 @@ function Profile() {
     );
   }
 
-  const renderProfileTab = () => (
+  const renderProfileTab = () => {
+    console.log('Rendering profile tab, formData:', formData);
+    console.log('Editing state:', editing);
+    return (
     <div className="profile-content">
       <div className="profile-card card">
         <div className="profile-header-section">
@@ -426,9 +457,10 @@ function Profile() {
                   name="firstName"
                   value={formData.firstName}
                   onChange={handleChange}
-                  disabled={!editing}
                   className="form-control"
                   required
+                  disabled={!editing}
+                  autoComplete="off"
                 />
               </div>
 
@@ -439,9 +471,10 @@ function Profile() {
                   name="lastName"
                   value={formData.lastName}
                   onChange={handleChange}
-                  disabled={!editing}
                   className="form-control"
                   required
+                  disabled={!editing}
+                  autoComplete="off"
                 />
               </div>
             </div>
@@ -453,9 +486,10 @@ function Profile() {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                disabled={!editing}
                 className="form-control"
                 required
+                disabled={!editing}
+                autoComplete="off"
               />
             </div>
 
@@ -466,9 +500,10 @@ function Profile() {
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
-                disabled={!editing}
                 className="form-control"
                 placeholder="+216 XX XXX XXX"
+                disabled={!editing}
+                autoComplete="off"
               />
             </div>
 
@@ -479,9 +514,10 @@ function Profile() {
                 name="location"
                 value={formData.location}
                 onChange={handleChange}
-                disabled={!editing}
                 className="form-control"
                 placeholder="City, Country"
+                disabled={!editing}
+                autoComplete="off"
               />
             </div>
 
@@ -491,10 +527,11 @@ function Profile() {
                 name="bio"
                 value={formData.bio}
                 onChange={handleChange}
-                disabled={!editing}
                 className="form-control"
                 rows={4}
                 placeholder="Tell us about yourself..."
+                disabled={!editing}
+                autoComplete="off"
               />
             </div>
           </div>
@@ -595,6 +632,7 @@ function Profile() {
       </div>
     </div>
   );
+};
 
   const renderStatsTab = () => (
     <div className="profile-content">
@@ -642,9 +680,41 @@ function Profile() {
               <Award size={32} className="stat-icon" />
               <div className="stat-content">
                 <h3>{userStats?.currentStreak || 0}</h3>
-                <p>Day Streak</p>
+                <p>Days Streak</p>
               </div>
             </div>
+            <div className="stat-card stat-points">
+              <Award size={32} className="stat-icon" />
+              <div className="stat-content">
+                <h3>{userStats?.totalPoints || 0} pts</h3>
+                <p>Gamification Points</p>
+              </div>
+            </div>
+            <div className="stat-card stat-level">
+              <TrendingUp size={32} className="stat-icon" />
+              <div className="stat-content">
+                <h3>Level {userStats?.level || 1}</h3>
+                <p>Learner Level</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Earned Badges & Achievements Section */}
+          <div className="profile-badges-section card" style={{ padding: '1.75rem 2rem', marginBottom: '2rem', borderRadius: '20px', maxWidth: '800px', margin: '0 auto 2rem auto' }}>
+            <h3 className="section-title" style={{ fontSize: '1.3rem', fontWeight: 800, marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+              <Award size={24} style={{ color: 'var(--primary, #1e40af)' }} /> Earned Badges & Achievements
+            </h3>
+            {userBadges && userBadges.filter(b => b.unlocked !== false).length > 0 ? (
+              <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: '2rem', width: '100%' }}>
+                {userBadges.filter(b => b.unlocked !== false).map((badge) => (
+                  <Badge key={badge.id || badge.name} badge={badge} size="medium" />
+                ))}
+              </div>
+            ) : (
+              <p style={{ color: '#64748b', margin: 0, fontSize: '0.92rem' }}>
+                No badges earned yet. Complete masterclasses, pass practice quizzes, and maintain streaks to earn badges!
+              </p>
+            )}
           </div>
 
           <div className="activity-section card">
@@ -653,18 +723,19 @@ function Profile() {
               <p className="no-activity">No recent activity</p>
             ) : (
               <div className="activity-list">
-                {recentActivity.map((activity) => (
-                  <div key={activity.id} className="activity-item">
+                {recentActivity.map((activity, index) => (
+                  <div key={activity.id || index} className="activity-item">
                     <div className="activity-icon">
-                      {activity.type === 'course' && <BookOpen size={20} />}
+                      {(activity.type === 'course' || activity.type === 'course_enrollment') && <BookOpen size={20} />}
                       {activity.type === 'quiz' && <TrendingUp size={20} />}
                       {activity.type === 'certificate' && <Award size={20} />}
                     </div>
                     <div className="activity-details">
                       <p className="activity-title">{activity.title}</p>
-                      <span className="activity-date">{activity.date}</span>
+                      <span className="activity-date">
+                        {activity.date ? new Date(activity.date).toLocaleDateString() : ''}
+                      </span>
                     </div>
-                    <ChevronRight size={20} className="activity-arrow" />
                   </div>
                 ))}
               </div>
@@ -677,141 +748,135 @@ function Profile() {
 
   const renderSettingsTab = () => (
     <div className="profile-content">
-      {settingsLoading ? (
-        <div className="loading">Loading settings...</div>
-      ) : (
-        <>
-          <div className="settings-section card">
-            <h3 className="section-title">
-              <Bell size={24} />
-              Notification Preferences
-            </h3>
-            <div className="settings-list">
-              <div className="setting-item">
-                <div className="setting-info">
-                  <h4>Email Notifications</h4>
-                  <p>Receive updates about your courses and progress</p>
-                </div>
-                <label className="toggle-switch">
-                  <input
-                    type="checkbox"
-                    checked={notifications.email}
-                    onChange={(e) => handleNotificationChange('email', e.target.checked)}
-                  />
-                  <span className="toggle-slider"></span>
-                </label>
-              </div>
-              <div className="setting-item">
-                <div className="setting-info">
-                  <h4>Push Notifications</h4>
-                  <p>Get instant alerts on your device</p>
-                </div>
-                <label className="toggle-switch">
-                  <input
-                    type="checkbox"
-                    checked={notifications.push}
-                    onChange={(e) => handleNotificationChange('push', e.target.checked)}
-                  />
-                  <span className="toggle-slider"></span>
-                </label>
-              </div>
-              <div className="setting-item">
-                <div className="setting-info">
-                  <h4>SMS Notifications</h4>
-                  <p>Receive important updates via SMS</p>
-                </div>
-                <label className="toggle-switch">
-                  <input
-                    type="checkbox"
-                    checked={notifications.sms}
-                    onChange={(e) => handleNotificationChange('sms', e.target.checked)}
-                  />
-                  <span className="toggle-slider"></span>
-                </label>
-              </div>
+      <div className="settings-section card">
+        <h3 className="section-title">
+          <Bell size={24} />
+          Notification Preferences
+        </h3>
+        <div className="settings-list">
+          <div className="setting-item">
+            <div className="setting-info">
+              <h4>Email Notifications</h4>
+              <p>Receive updates about your courses and progress</p>
             </div>
+            <label className="toggle-switch">
+              <input
+                type="checkbox"
+                checked={notifications.email}
+                onChange={(e) => handleNotificationChange('email', e.target.checked)}
+              />
+              <span className="toggle-slider"></span>
+            </label>
           </div>
-
-          <div className="settings-section card">
-            <h3 className="section-title">
-              <Globe size={24} />
-              Language & Region
-            </h3>
-            <div className="settings-list">
-              <div className="setting-item">
-                <div className="setting-info">
-                  <h4>Language</h4>
-                  <p>Select your preferred language</p>
-                </div>
-                <select
-                  className="form-control"
-                  value={preferences.language}
-                  onChange={(e) => handlePreferenceChange('language', e.target.value)}
-                >
-                  <option value="en">English</option>
-                  <option value="fr">Français</option>
-                  <option value="ar">العربية</option>
-                </select>
-              </div>
-              <div className="setting-item">
-                <div className="setting-info">
-                  <h4>Timezone</h4>
-                  <p>Set your local timezone</p>
-                </div>
-                <select
-                  className="form-control"
-                  value={preferences.timezone}
-                  onChange={(e) => handlePreferenceChange('timezone', e.target.value)}
-                >
-                  <option value="UTC">UTC</option>
-                  <option value="Europe/Paris">Europe/Paris</option>
-                  <option value="Africa/Tunis">Africa/Tunis</option>
-                </select>
-              </div>
+          <div className="setting-item">
+            <div className="setting-info">
+              <h4>Push Notifications</h4>
+              <p>Get instant alerts on your device</p>
             </div>
+            <label className="toggle-switch">
+              <input
+                type="checkbox"
+                checked={notifications.push}
+                onChange={(e) => handleNotificationChange('push', e.target.checked)}
+              />
+              <span className="toggle-slider"></span>
+            </label>
           </div>
-
-          <div className="settings-section card">
-            <h3 className="section-title">
-              <Shield size={24} />
-              Privacy & Security
-            </h3>
-            <div className="settings-list">
-              <button 
-                className="setting-button"
-                onClick={handleDownloadData}
-              >
-                <div className="setting-info">
-                  <h4>Download My Data</h4>
-                  <p>Get a copy of all your personal data</p>
-                </div>
-                <Download size={20} />
-              </button>
-              <button 
-                className="setting-button setting-button-danger"
-                onClick={handleDeleteAccount}
-              >
-                <div className="setting-info">
-                  <h4>Delete Account</h4>
-                  <p>Permanently delete your account and data</p>
-                </div>
-                <ChevronRight size={20} />
-              </button>
+          <div className="setting-item">
+            <div className="setting-info">
+              <h4>SMS Notifications</h4>
+              <p>Receive important updates via SMS</p>
             </div>
+            <label className="toggle-switch">
+              <input
+                type="checkbox"
+                checked={notifications.sms}
+                onChange={(e) => handleNotificationChange('sms', e.target.checked)}
+              />
+              <span className="toggle-slider"></span>
+            </label>
           </div>
+        </div>
+      </div>
 
-          {success && (
-            <div className="alert alert-success">
-              {success}
+      <div className="settings-section card">
+        <h3 className="section-title">
+          <Globe size={24} />
+          Language & Region
+        </h3>
+        <div className="settings-list">
+          <div className="setting-item">
+            <div className="setting-info">
+              <h4>Language</h4>
+              <p>Select your preferred language</p>
             </div>
-          )}
+            <select
+              className="form-control"
+              value={preferences.language}
+              onChange={(e) => handlePreferenceChange('language', e.target.value)}
+            >
+              <option value="en">English</option>
+              <option value="fr">Français</option>
+              <option value="ar">العربية</option>
+            </select>
+          </div>
+          <div className="setting-item">
+            <div className="setting-info">
+              <h4>Timezone</h4>
+              <p>Set your local timezone</p>
+            </div>
+            <select
+              className="form-control"
+              value={preferences.timezone}
+              onChange={(e) => handlePreferenceChange('timezone', e.target.value)}
+            >
+              <option value="UTC">UTC</option>
+              <option value="Europe/Paris">Europe/Paris</option>
+              <option value="Africa/Tunis">Africa/Tunis</option>
+            </select>
+          </div>
+        </div>
+      </div>
 
-          {error && (
-            <div className="alert alert-danger">
-              {error}
+      <div className="settings-section card">
+        <h3 className="section-title">
+          <Shield size={24} />
+          Privacy & Security
+        </h3>
+        <div className="settings-list">
+          <button 
+            className="setting-button"
+            onClick={handleDownloadData}
+          >
+            <div className="setting-info">
+              <h4>Download My Data</h4>
+              <p>Get a copy of all your personal data</p>
             </div>
-          )}
-        </>
+            <Download size={20} />
+          </button>
+          <button 
+            className="setting-button setting-button-danger"
+            onClick={handleDeleteAccount}
+          >
+            <div className="setting-info">
+              <h4>Delete Account</h4>
+              <p>Permanently delete your account and data</p>
+            </div>
+            <ChevronRight size={20} />
+          </button>
+        </div>
+      </div>
+
+      {success && (
+        <div className="alert alert-success">
+          {success}
+        </div>
+      )}
+
+      {error && (
+        <div className="alert alert-danger">
+          {error}
+        </div>
       )}
     </div>
   );
@@ -833,13 +898,15 @@ function Profile() {
               <User size={20} />
               Profile
             </button>
-            <button 
-              className={`nav-item ${activeTab === 'stats' ? 'active' : ''}`}
-              onClick={() => setActiveTab('stats')}
-            >
-              <TrendingUp size={20} />
-              Statistics
-            </button>
+            {user.role?.name !== 'ADMIN' && (
+              <button 
+                className={`nav-item ${activeTab === 'stats' ? 'active' : ''}`}
+                onClick={() => setActiveTab('stats')}
+              >
+                <TrendingUp size={20} />
+                Statistics
+              </button>
+            )}
             <button 
               className={`nav-item ${activeTab === 'settings' ? 'active' : ''}`}
               onClick={() => setActiveTab('settings')}
@@ -858,6 +925,6 @@ function Profile() {
       </div>
     </div>
   );
-}
+};
 
 export default Profile;

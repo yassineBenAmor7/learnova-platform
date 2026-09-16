@@ -6,12 +6,16 @@ export const quizService = {
     return api.get(`/quiz/${quizId}`);
   },
 
+  async getForAttempt(quizId) {
+    return api.get(`/quiz/${quizId}/for-attempt`);
+  },
+
   async startAttempt(quizId, userId) {
     return api.post(`/exams/start/${quizId}/${userId}`);
   },
 
   async submitAttempt(attemptId, answers) {
-    return api.post(`/exams/submit/${attemptId}`, answers);
+    return api.post(`/exams/submit/${attemptId}`, { answers });
   },
 
   async getStatus(attemptId) {
@@ -19,7 +23,11 @@ export const quizService = {
   },
 
   async getMyAttempts(userId) {
-    return api.get(`/exams/attempts/${userId}`);
+    return api.get(`/quiz/attempts/${userId}`);
+  },
+
+  async validateExamAttempts(quizId, userId) {
+    return api.get(`/quiz/${quizId}/validate-exam-attempts/${userId}`);
   },
 
   // Admin actions

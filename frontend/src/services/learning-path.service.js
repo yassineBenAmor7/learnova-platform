@@ -9,18 +9,16 @@ export const learningPathService = {
     return api.post(`/learning-path/session/${sessionId}/complete`);
   },
 
-  async trackReadingComplete(sessionId) {
-    return api.post(`/learning-path/session/${sessionId}/reading-complete`);
-  },
-
-  async tryAutoComplete(sessionId) {
-    return api.post(`/learning-path/session/${sessionId}/auto-complete`);
-  },
-
-  async trackVideo(videoId, watchedSeconds, completed) {
+  async trackVideoWatch(videoId, watchedSeconds, completed) {
     return api.post(`/learning-path/video/${videoId}/watch`, {
       watchedSeconds,
       completed,
     });
   },
+
+  async checkAndGenerateCertificate(courseId) {
+    return api.post(`/learning-path/course/${courseId}/check-certificate`);
+  },
 };
+
+export default learningPathService;

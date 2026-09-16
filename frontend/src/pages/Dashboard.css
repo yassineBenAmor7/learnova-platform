@@ -179,22 +179,24 @@
 }
 
 .section-header {
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
   animation: fadeInUp 0.6s ease-out;
 }
 
 .section-title {
-  font-size: 1.75rem;
-  font-weight: 700;
+  font-size: 1.85rem;
+  font-weight: 800;
   color: var(--text-primary);
-  margin: 0 0 0.4rem;
+  margin: 0 0 0.5rem 0;
   letter-spacing: -0.02em;
 }
 
 .section-subtitle {
   color: var(--text-secondary);
-  font-size: 1rem;
-  margin: 0 0 2.5rem 0;
+  font-size: 1.05rem;
+  font-weight: 500;
+  margin: 0;
+  line-height: 1.5;
 }
 
 @keyframes fadeInUp {
@@ -241,8 +243,16 @@
   border-color: #1e40af;
 }
 
-.stat-emoji {
-  font-size: 2rem;
+.stat-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary);
+  color: white;
+  flex-shrink: 0;
 }
 
 .stat-info {
@@ -339,6 +349,49 @@
   margin: 0 0 1rem;
 }
 
+.activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.activity-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+}
+
+.activity-item-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.activity-item-date {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  white-space: nowrap;
+  margin-left: auto;
+  padding-left: 0.75rem;
+}
+
+.activity-item-title {
+  font-weight: 600;
+  margin: 0 0 0.2rem;
+}
+
+.activity-item-meta {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
 /* ===== GAMIFICATION SECTION ===== */
 .gamification-section {
   margin-bottom: 3rem;
@@ -383,6 +436,18 @@
   border-color: #1e40af;
 }
 
+.gamification-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary);
+  color: white;
+  flex-shrink: 0;
+}
+
 .gamification-info {
   flex: 1;
 }
@@ -405,49 +470,182 @@
   letter-spacing: -0.03em;
 }
 
-/* Badges Display */
-.badges-display {
+.gamification-sub {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0.25rem 0 0;
+  font-weight: 500;
+}
+
+/* Level Progress */
+.level-progress {
   background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
   border: 1px solid #1e40af;
   border-radius: var(--radius-xl);
-  padding: 2rem;
+  padding: 1.5rem 2rem;
+  margin-bottom: 2rem;
   box-shadow: 0 4px 14px 0 rgba(30, 64, 175, 0.4);
   animation: fadeInUp 1s ease-out;
 }
 
-.badges-title {
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: rgba(255, 255, 255, 0.8);
-  margin: 0 0 1.5rem;
-}
-
-.badges-list {
+.level-info {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.875rem;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
 }
 
-.badge-item {
+.level-label {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.level-next {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 500;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #ffffff;
+  border-radius: 4px;
+  transition: width 1s ease-out;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+/* Recent Badge Card */
+.recent-badge-card {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border: 2px solid #3b82f6;
+  border-radius: var(--radius-xl);
+  padding: 1.25rem 1.5rem;
+  max-width: 800px;
+  margin: 0 auto 2rem auto;
+  box-shadow: 0 8px 24px -4px rgba(37, 99, 235, 0.2);
+  animation: fadeInUp 0.7s ease-out;
+}
+
+.recent-badge-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.recent-badge-pill {
+  background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 0.35rem 0.85rem;
+  border-radius: 99px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: 0 4px 10px rgba(30, 64, 175, 0.3);
+}
+
+.recent-badge-level-info {
+  font-size: 0.825rem;
+  font-weight: 800;
+  color: #1e40af;
+}
+
+.recent-badge-main {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: var(--radius-lg);
-  padding: 0.75rem 1.25rem;
-  transition: all var(--transition-normal);
-  animation: badgePop 0.5s ease-out;
-  cursor: default;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  justify-content: center;
+  gap: 2rem;
 }
 
-.badge-item:hover {
-  transform: translateY(-3px);
-  border-color: rgba(255, 255, 255, 0.4);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+.recent-badge-img {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 12px rgba(30, 64, 175, 0.3));
+}
+
+.recent-badge-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 0.25rem;
+}
+
+.recent-badge-description {
+  font-size: 0.875rem;
+  margin: 0;
+  line-height: 1.45;
+}
+
+
+/* Badges Display */
+.badges-display {
+  background: #ffffff;
+  border: 2px solid #e2e8f0;
+  border-radius: var(--radius-xl);
+  padding: 1.5rem 1.75rem;
+  max-width: 800px;
+  margin: 0 auto;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
+  animation: fadeInUp 0.9s ease-out;
+}
+
+.badges-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.badges-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.view-profile-badges-link {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #2563eb;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.view-profile-badges-link:hover {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+
+.badges-grid-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  width: 100%;
+}
+
+.no-badges-msg {
+  color: #64748b;
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
 }
 
 .badge-name {
@@ -455,6 +653,13 @@
   font-weight: 600;
   color: #ffffff;
   letter-spacing: -0.01em;
+}
+
+.badge-description {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 400;
+  margin-left: 0.5rem;
 }
 
 @keyframes slideInUp {
