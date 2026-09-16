@@ -1,0 +1,155 @@
+[IT_DATA] Python Programming Masterclass | Python Fundamentals Crash Course
+[IT_DATA] Python Programming Masterclass | Python OOP and Classes
+[IT_DATA] SQL & Relational Databases for Beginners | SQL Basics for Beginners
+[IT_DATA] SQL & Relational Databases for Beginners | SQL Joins Explained
+[IT_DATA] Machine Learning Foundations | Regression Fundamentals
+[IT_DATA] Cybersecurity Fundamentals & Network Security | Intro to Cryptography
+[IT_DATA] Docker & Kubernetes: DevOps Containers | Docker Containers Crash Course
+[IT_DATA] Cloud Computing with AWS | AWS Cloud Fundamentals
+[IT_DATA] Modern Web Development with React & Node.js | HTML & CSS Layouts
+[IT_DATA] Modern Web Development with React & Node.js | JavaScript Asynchronous Flow
+[IT_DATA] Modern Web Development with React & Node.js | React Basics
+[IT_DATA] Modern Web Development with React & Node.js | React Hooks Deep Dive
+[IT_DATA] Modern Web Development with React & Node.js | Express Server Setup
+[IT_DATA] Modern Web Development with React & Node.js | REST API Best Practices
+[IT_DATA] Modern Web Development with React & Node.js | Prisma Client Integrations
+[IT_DATA] Modern Web Development with React & Node.js | JWT Token Security
+[MARKETING] Digital Marketing & Growth Strategy | Search Engine Crawling & Indexing
+[MARKETING] Search Engine Optimization (SEO) Masterclass | On-Page SEO Best Practices
+[MARKETING] Social Media Marketing & Brand Building | Building a Brand on Social Media
+[MARKETING] Copywriting & Persuasive Writing | The AIDA Formula in Copywriting
+[FINANCE_BUSINESS] Financial Analysis & Corporate Valuation | Interlinking the 3 Core Financial Statements
+[FINANCE_BUSINESS] Accounting & Financial Statements | Accounting Debits & Credits Explained
+[FINANCE_BUSINESS] Introduction to Microeconomics & Markets | Supply & Demand Principles
+[MANAGEMENT] Agile Project Management & Scrum Framework | Scrum Guide Overview & Key Principles
+[MANAGEMENT] Product Management: Building Tech Products | Product Management Fundamentals
+[MANAGEMENT] Strategic Leadership & Team Management | Situational Leadership Theories
+[DESIGN_CREATIVE] UI/UX Design Systems & Creative Brand Identity | UX Research Methods
+[DESIGN_CREATIVE] Figma Essentials for UI Designers | Figma Auto-Layout Masterclass
+[DESIGN_CREATIVE] Graphic Design Fundamentals | Color Theory & Typography Basics
+[LANGUAGE_COMMUNICATION] Business English & Professional Communication | Writing Professional Emails
+[LANGUAGE_COMMUNICATION] The Art of Public Speaking & Presentation | Public Speaking Vocal Tips
+[IT_DATA] Data Analytics & Power BI | Introduction to Power BI
+[IT_DATA] Data Analytics & Power BI | Data Connections and Loading
+[IT_DATA] Data Analytics & Power BI | Data Cleaning in Power Query
+[IT_DATA] Data Analytics & Power BI | Star Schema Data Modeling
+[IT_DATA] Data Analytics & Power BI | DAX Basics and CALCULATE
+[IT_DATA] Data Analytics & Power BI | Building Interactive Reports
+[IT_DATA] Data Analytics & Power BI | KPI Dashboards in Power BI
+[IT_DATA] Data Analytics & Power BI | Publishing and Gateways
+[IT_DATA] Artificial Intelligence & Deep Learning Masterclass | Deep Learning Video Tutorial: Part 1
+[IT_DATA] Artificial Intelligence & Deep Learning Masterclass | Deep Learning Video Tutorial: Part 2
+[IT_DATA] Artificial Intelligence & Deep Learning Masterclass | Deep Learning Video Tutorial: Part 3
+[IT_DATA] Artificial Intelligence & Deep Learning Masterclass | Deep Learning Video Tutorial: Part 4
+[IT_DATA] Artificial Intelligence & Deep Learning Masterclass | Deep Learning Video Tutorial: Part 5
+[IT_DATA] Artificial Intelligence & Deep Learning Masterclass | Deep Learning Video Tutorial: Part 6
+[IT_DATA] Artificial Intelligence & Deep Learning Masterclass | Deep Learning Video Tutorial: Part 7
+[IT_DATA] Artificial Intelligence & Deep Learning Masterclass | Deep Learning Video Tutorial: Part 8
+[IT_DATA] Artificial Intelligence & Deep Learning Masterclass | Deep Learning Video Tutorial: Part 9
+[IT_DATA] Artificial Intelligence & Deep Learning Masterclass | Deep Learning Video Tutorial: Part 10
+[IT_DATA] Artificial Intelligence & Deep Learning Masterclass | Deep Learning Video Tutorial: Part 11
+[IT_DATA] Artificial Intelligence & Deep Learning Masterclass | Deep Learning Video Tutorial: Part 12
+[FINANCE_BUSINESS] Startup Valuation, Venture Capital & Financial Modeling | Startup Finance Masterclass: Video 1
+[FINANCE_BUSINESS] Startup Valuation, Venture Capital & Financial Modeling | Startup Finance Masterclass: Video 2
+[FINANCE_BUSINESS] Startup Valuation, Venture Capital & Financial Modeling | Startup Finance Masterclass: Video 3
+[FINANCE_BUSINESS] Startup Valuation, Venture Capital & Financial Modeling | Startup Finance Masterclass: Video 4
+[FINANCE_BUSINESS] Startup Valuation, Venture Capital & Financial Modeling | Startup Finance Masterclass: Video 5
+[FINANCE_BUSINESS] Startup Valuation, Venture Capital & Financial Modeling | Startup Finance Masterclass: Video 6
+[FINANCE_BUSINESS] Startup Valuation, Venture Capital & Financial Modeling | Startup Finance Masterclass: Video 7
+[FINANCE_BUSINESS] Startup Valuation, Venture Capital & Financial Modeling | Startup Finance Masterclass: Video 8
+[FINANCE_BUSINESS] Startup Valuation, Venture Capital & Financial Modeling | Startup Finance Masterclass: Video 9
+[FINANCE_BUSINESS] Startup Valuation, Venture Capital & Financial Modeling | Startup Finance Masterclass: Video 10
+[FINANCE_BUSINESS] Startup Valuation, Venture Capital & Financial Modeling | Startup Finance Masterclass: Video 11
+[FINANCE_BUSINESS] Startup Valuation, Venture Capital & Financial Modeling | Startup Finance Masterclass: Video 12
+[DESIGN_CREATIVE] Professional Motion Design & Brand Identity | Motion Graphics Video Tutorial: Episode 1
+[DESIGN_CREATIVE] Professional Motion Design & Brand Identity | Motion Graphics Video Tutorial: Episode 2
+[DESIGN_CREATIVE] Professional Motion Design & Brand Identity | Motion Graphics Video Tutorial: Episode 3
+[DESIGN_CREATIVE] Professional Motion Design & Brand Identity | Motion Graphics Video Tutorial: Episode 4
+[DESIGN_CREATIVE] Professional Motion Design & Brand Identity | Motion Graphics Video Tutorial: Episode 5
+[DESIGN_CREATIVE] Professional Motion Design & Brand Identity | Motion Graphics Video Tutorial: Episode 6
+[DESIGN_CREATIVE] Professional Motion Design & Brand Identity | Motion Graphics Video Tutorial: Episode 7
+[DESIGN_CREATIVE] Professional Motion Design & Brand Identity | Motion Graphics Video Tutorial: Episode 8
+[DESIGN_CREATIVE] Professional Motion Design & Brand Identity | Motion Graphics Video Tutorial: Episode 9
+[DESIGN_CREATIVE] Professional Motion Design & Brand Identity | Motion Graphics Video Tutorial: Episode 10
+[DESIGN_CREATIVE] Professional Motion Design & Brand Identity | Motion Graphics Video Tutorial: Episode 11
+[DESIGN_CREATIVE] Professional Motion Design & Brand Identity | Motion Graphics Video Tutorial: Episode 12
+[HEALTH_WELLNESS] Nutrition, Health & Lifestyle Medicine Foundations | Introduction to Macronutrients
+[PERSONAL_DEVELOPMENT] High Performance Productivity & Life Mastery | The Science of Atomic Habits
+[ACADEMIC_SCIENCES] Calculus & Linear Algebra for Scientists | Eigenvalues and Eigenvectors Explained
+[MUSIC_ARTS] Music Production Masterclass: Ableton Live & Sound Design | Synthesizer Basics
+[IT_DATA] Design Patterns & Clean Code Architectures | SOLID Principles Walkthrough
+[SALES_E_COMMERCE] E-Commerce Empire: Building Shopify & Amazon Brands | How to Find Winning Products
+[HUMANITIES_SOCIAL] Modern History & World Civilizations | The Steam Age Overview
+[LAW_LEGAL] Contract Law & Intellectual Property Essentials | Contract Elements Explained
+[LIFESTYLE_HOBBIES] Culinary Arts: Master French Cooking Techniques | Introduction to French Mother Sauces
+[HEALTH_WELLNESS] Mindfulness, Yoga & Stress Management | Guided Mindfulness for Beginners
+[PERSONAL_DEVELOPMENT] Effective Communication & Emotional Intelligence | Active Listening Skills Explained
+[ACADEMIC_SCIENCES] Introduction to Physics & Chemistry | Newton's Laws of Motion
+[MUSIC_ARTS] Digital Illustration & Creative Drawing | Digital Drawing for Beginners
+[SALES_E_COMMERCE] B2B Sales & Negotiation Mastery | B2B Sales Process Explained
+[HUMANITIES_SOCIAL] Introduction to Psychology & Sociology | Introduction to Psychology
+[LAW_LEGAL] Business Law & Corporate Governance | Corporate Governance Explained
+[LIFESTYLE_HOBBIES] Gardening & Sustainable Living | Organic Gardening for Beginners
+[HEALTH_WELLNESS] Fitness Training & Exercise Science | Strength Training for Beginners
+[PERSONAL_DEVELOPMENT] Goal Setting & Personal Leadership | How to Set SMART Goals
+[ACADEMIC_SCIENCES] Biology & Genetics Fundamentals | DNA and RNA Explained
+[MUSIC_ARTS] Piano & Music Theory for Beginners | Music Theory for Beginners
+[SALES_E_COMMERCE] Retail Sales & Customer Experience | Retail Sales Techniques
+[HUMANITIES_SOCIAL] Philosophy & Ethics in Modern Society | Introduction to Ethics
+[LAW_LEGAL] International Law & Human Rights | International Human Rights Law
+[LIFESTYLE_HOBBIES] Travel Photography & Adventure Planning | Travel Photography Tips
+[LANGUAGE_COMMUNICATION] Spanish Conversation Skills for Beginners | Spanish for Beginners
+[HEALTH_WELLNESS] Sleep Science & Recovery Optimization | Sleep Science & Recovery Optimization — Overview
+[HEALTH_WELLNESS] Mental Health First Aid & Resilience | Mental Health First Aid & Resilience — Overview
+[HEALTH_WELLNESS] Plant-Based Nutrition & Meal Planning | Plant-Based Nutrition & Meal Planning — Overview
+[HEALTH_WELLNESS] Sports Injury Prevention & Rehabilitation | Sports Injury Prevention & Rehabilitation — Overview
+[LANGUAGE_COMMUNICATION] French for Professional Settings | French for Professional Settings — Overview
+[LANGUAGE_COMMUNICATION] Technical Writing & Documentation | Technical Writing & Documentation — Overview
+[LANGUAGE_COMMUNICATION] Cross-Cultural Communication in Business | Cross-Cultural Communication in Business — Overview
+[LANGUAGE_COMMUNICATION] Debate Skills & Persuasive Argumentation | Debate Skills & Persuasive Argumentation — Overview
+[LAW_LEGAL] Criminal Law & Justice Systems | Criminal Law & Justice Systems — Overview
+[LAW_LEGAL] Employment Law & Workplace Rights | Employment Law & Workplace Rights — Overview
+[LAW_LEGAL] Privacy Law & GDPR Compliance | Privacy Law & GDPR Compliance — Overview
+[LAW_LEGAL] Real Estate Law & Property Transactions | Real Estate Law & Property Transactions — Overview
+[MUSIC_ARTS] Guitar Fundamentals & Chord Progressions | Guitar Fundamentals & Chord Progressions — Overview
+[MUSIC_ARTS] Film Scoring & Sound Design for Cinema | Film Scoring & Sound Design for Cinema — Overview
+[MUSIC_ARTS] Watercolor Painting Techniques | Watercolor Painting Techniques — Overview
+[MUSIC_ARTS] Theatre Acting & Stage Performance | Theatre Acting & Stage Performance — Overview
+[HUMANITIES_SOCIAL] Anthropology & Cultural Studies | Anthropology & Cultural Studies — Overview
+[HUMANITIES_SOCIAL] Political Science & Governance | Political Science & Governance — Overview
+[HUMANITIES_SOCIAL] World Literature & Critical Analysis | World Literature & Critical Analysis — Overview
+[HUMANITIES_SOCIAL] Gender Studies & Social Identity | Gender Studies & Social Identity — Overview
+[HUMANITIES_SOCIAL] Archaeology & Ancient Civilizations | Archaeology & Ancient Civilizations — Overview
+[LIFESTYLE_HOBBIES] Home Baking & Pastry Arts | Home Baking & Pastry Arts — Overview
+[LIFESTYLE_HOBBIES] Woodworking & DIY Craftsmanship | Woodworking & DIY Craftsmanship — Overview
+[LIFESTYLE_HOBBIES] Wine Tasting & Sommelier Basics | Wine Tasting & Sommelier Basics — Overview
+[LIFESTYLE_HOBBIES] Interior Design for Small Spaces | Interior Design for Small Spaces — Overview
+[LIFESTYLE_HOBBIES] Chess Strategy & Tactical Thinking | Chess Strategy & Tactical Thinking — Overview
+[MANAGEMENT] Change Management & Organizational Transformation | Change Management & Organizational Transformation — Overview
+[MANAGEMENT] Risk Management & Business Continuity | Risk Management & Business Continuity — Overview
+[MANAGEMENT] Operations Management & Supply Chain | Operations Management & Supply Chain — Overview
+[MANAGEMENT] HR Management & Talent Acquisition | HR Management & Talent Acquisition — Overview
+[MANAGEMENT] Remote Team Leadership & Hybrid Work | Remote Team Leadership & Hybrid Work — Overview
+[PERSONAL_DEVELOPMENT] Critical Thinking & Problem Solving | Critical Thinking & Problem Solving — Overview
+[PERSONAL_DEVELOPMENT] Financial Literacy for Personal Wealth | Financial Literacy for Personal Wealth — Overview
+[PERSONAL_DEVELOPMENT] Confidence Building & Self-Esteem | Confidence Building & Self-Esteem — Overview
+[PERSONAL_DEVELOPMENT] Networking & Personal Branding | Networking & Personal Branding — Overview
+[PERSONAL_DEVELOPMENT] Work-Life Balance & Burnout Prevention | Work-Life Balance & Burnout Prevention — Overview
+[ACADEMIC_SCIENCES] Organic Chemistry & Laboratory Methods | Organic Chemistry & Laboratory Methods — Overview
+[ACADEMIC_SCIENCES] Astronomy & Astrophysics Fundamentals | Astronomy & Astrophysics Fundamentals — Overview
+[ACADEMIC_SCIENCES] Environmental Science & Climate Change | Environmental Science & Climate Change — Overview
+[ACADEMIC_SCIENCES] Statistics & Probability for Research | Statistics & Probability for Research — Overview
+[ACADEMIC_SCIENCES] Neuroscience & Brain Function | Neuroscience & Brain Function — Overview
+[ACADEMIC_SCIENCES] Microbiology & Infectious Diseases | Microbiology & Infectious Diseases — Overview
+[ACADEMIC_SCIENCES] Geology & Earth Systems Science | Geology & Earth Systems Science — Overview
+[ACADEMIC_SCIENCES] Research Methods & Scientific Writing | Research Methods & Scientific Writing — Overview
+[ACADEMIC_SCIENCES] Data Science for Scientific Research | Data Science for Scientific Research — Overview
+[SALES_E_COMMERCE] Amazon FBA Mastery & Product Launch | Amazon FBA Mastery & Product Launch — Overview
+[SALES_E_COMMERCE] Dropshipping Business Blueprint | Dropshipping Business Blueprint — Overview
+[SALES_E_COMMERCE] Social Commerce & Instagram Shopping | Social Commerce & Instagram Shopping — Overview
+[SALES_E_COMMERCE] CRM Systems & Sales Pipeline Automation | CRM Systems & Sales Pipeline Automation — Overview
+[SALES_E_COMMERCE] Pricing Strategy & Revenue Optimization | Pricing Strategy & Revenue Optimization — Overview
+[SALES_E_COMMERCE] Customer Retention & Loyalty Programs | Customer Retention & Loyalty Programs — Overview
+[SALES_E_COMMERCE] Wholesale & B2B Marketplace Selling | Wholesale & B2B Marketplace Selling — Overview
+[SALES_E_COMMERCE] Conversion Rate Optimization (CRO) | Conversion Rate Optimization (CRO) — Overview
+[SALES_E_COMMERCE] Sales Analytics & Forecasting with Excel | Sales Analytics & Forecasting with Excel — Overview
