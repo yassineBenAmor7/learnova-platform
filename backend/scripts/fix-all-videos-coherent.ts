@@ -174,12 +174,12 @@ function generateCoherentSessionVideos(
       duration: 720 + ((hash * 3) % 360),
       orderNumber: 1,
       description: `Introduction théorique et conceptuelle à ${cleanTitle}. Ce module pose les bases indispensables, les terminologies clés et les modèles directeurs appliqués dans le cadre du cours "${courseTitle}".`,
-      content: `### 🎯 Objectifs Pédagogiques du Module
+      content: `### Objectifs Pédagogiques du Module
 - Maîtriser le vocabulaire technique, les définitions normalisées et les concepts cardinaux liés à **${cleanTitle}**.
 - Comprendre les fondations structurelles régissant ce domaine au sein du programme **${courseTitle}**.
 - Savoir identifier les cas d'usage primaires et les contraintes opérationnelles initiales.
 
-### 🧠 Concepts Clés & Modèles Théoriques
+### Concepts Clés & Modèles Théoriques
 Dans cette première leçon, nous étudions l'architecture fondamentale sous-jacente. La maîtrise de **${cleanTitle}** repose sur trois piliers indispensables :
 1. **L'assise conceptuelle** : Délimitation précise du périmètre d'action, identification des variables clés et modélisation des flux logiques.
 2. **Le respect des standards de l'industrie** : Alignement avec les spécifications techniques modernes, normes de conformité et conventions de l'écosystème.
@@ -187,17 +187,17 @@ Dans cette première leçon, nous étudions l'architecture fondamentale sous-jac
 
 > **Règle d'or :** Une exécution technique réussie découle toujours d'une compréhension rigoureuse des principes directeurs plutôt que d'une simple récitation mécanique de recettes.
 
-### 📐 Mécanismes & Architecture Fonctionnelle
+### Mécanismes & Architecture Fonctionnelle
 Voici le cycle de traitement et d'application préconisé :
 - **Phase d'initialisation** : Analyse des prérequis, dimensionnement des paramètres et validation des entrées.
 - **Phase de traitement** : Exécution des règles métiers et isolation des responsabilités unitaires.
 - **Phase de contrôle** : Validation d'intégrité, traçabilité des opérations et monitoring.
 
-### 💡 Recommandations & Pièges Courants à Éviter
+### Recommandations & Pièges Courants à Éviter
 - **Piège classique** : Négliger les contraintes limites et les cas particuliers lors de la modélisation initiale.
 - **Bonne pratique** : Documenter systématiquement les choix d'architecture et valider les hypothèses à l'aide de métriques concrètes dès le premier jalon.
 
-### 📌 Synthèse & Prochaine Étape
+### Synthèse & Prochaine Étape
 Vous disposez désormais du socle théorique nécessaire sur **${cleanTitle}**. La prochaine leçon approfondira les méthodologies avancées et les cadres d'exécution pratiques.`,
     },
     {
@@ -206,12 +206,12 @@ Vous disposez désormais du socle théorique nécessaire sur **${cleanTitle}**. 
       duration: 840 + ((hash * 5) % 420),
       orderNumber: 2,
       description: `Décomposition méthodologique détaillée de ${cleanTitle}. Découvrez les frameworks standards, les protocoles de mise en œuvre et l'analyse comparative des compromis d'exécution.`,
-      content: `### 🎯 Objectifs Pédagogiques du Module
+      content: `### Objectifs Pédagogiques du Module
 - Analyser en profondeur les frameworks d'ingénierie et méthodologies professionnelles éprouvées pour **${cleanTitle}**.
 - Évaluer rationnellement les compromis (coût, vélocité, maintenabilité, robustesse) propres à **${courseTitle}**.
 - Structurer un protocole décisionnel reproductible en contexte professionnel réel.
 
-### 🔬 Décomposition Méthodologique
+### Décomposition Méthodologique
 L'approche systématique appliquée aux problématiques de **${cleanTitle}** se déploie selon une séquence structurée :
 - **Étape 1 : Diagnostic & Audit** — Cartographie de l'existant, recueil des spécifications critiques et élimination des goulets d'étranglement potentiels.
 - **Étape 2 : Sélection du Framework** — Choix de la structure de travail la plus adaptée selon les contraintes de scalabilité et de délais.
@@ -219,16 +219,16 @@ L'approche systématique appliquée aux problématiques de **${cleanTitle}** se 
 
 > **Citation méthodologique :** *"La simplicité est la condition préalable à la fiabilité."* — Une solution élégante minimise la complexité accidentelle au profit de la robustesse.
 
-### 📊 Analyse Comparative & Matrice de Décision
+### Analyse Comparative & Matrice de Décision
 Dans tout projet lié à **${courseTitle}**, le praticien doit arbitrer entre plusieurs trajectoires :
 - **Vitesse vs Précision** : Choisir une approche itérative rapide pour les prototypes ou une approche rigoureusement validée pour la production.
 - **Flexibilité vs Spécialisation** : Privilégier des composants génériques réutilisables ou des modules sur-mesure hyper-optimisés.
 
-### 💡 Recommandations Professionnelles
+### Recommandations Professionnelles
 - Établissez des conventions claires au sein de votre équipe avant de commencer l'implémentation.
 - Automatisez les vérifications récurrentes pour garantir que la conformité méthodologique ne dépende pas de l'effort individuel ponctuel.
 
-### 📌 Synthèse & Prochaine Étape
+### Synthèse & Prochaine Étape
 Avec cette maîtrise méthodologique, vous êtes prêts à passer à la phase de concrétisation technique dans l'atelier pratique de la leçon suivante.`,
     },
     {
@@ -237,12 +237,12 @@ Avec cette maîtrise méthodologique, vous êtes prêts à passer à la phase de
       duration: 900 + ((hash * 7) % 360),
       orderNumber: 3,
       description: `Mise en application guidée et concrète de ${cleanTitle}. Suivez pas à pas la configuration, la construction et le déploiement d'un résultat opérationnel conforme aux standards de l'industrie.`,
-      content: `### 🎯 Objectifs de l'Atelier Pratique
+      content: `### Objectifs de l'Atelier Pratique
 - Réaliser une implémentation pas à pas de **${cleanTitle}** prête pour un environnement de production.
 - Manipuler les outils, syntaxes et configurations recommandées dans le cadre de **${courseTitle}**.
 - Savoir tester, diagnostiquer et corriger les anomalies d'exécution en temps réel.
 
-### 🛠️ Protocole d'Implémentation Pas à Pas
+### Protocole d'Implémentation Pas à Pas
 Suivez rigoureusement les étapes suivantes pour exécuter le déploiement technique :
 
 1. **Préparation de l'Environnement** :
@@ -259,11 +259,11 @@ Suivez rigoureusement les étapes suivantes pour exécuter le déploiement techn
 
 > **Conseil pratique :** Testez toujours chaque bloc unitairement avant de passer à l'assemblage global pour localiser immédiatement d'éventuelles régressions.
 
-### 🔍 Dépannage des Erreurs Fréquentes
+### Dépannage des Erreurs Fréquentes
 - **Erreur de configuration / variable manquante** : Vérifiez toujours la présence et le typage exact de vos paramètres d'entrée.
 - **Conflit de dépendances** : Isolez vos modules pour éviter les effets de bord indésirables entre composants connexes.
 
-### 📌 Synthèse Technique
+### Synthèse Technique
 Vous avez concrétisé les concepts de **${cleanTitle}** en un artefact fonctionnel. La dernière leçon couvrira les scénarios avancés et les études de cas réelles.`,
     },
     {
@@ -272,12 +272,12 @@ Vous avez concrétisé les concepts de **${cleanTitle}** en un artefact fonction
       duration: 960 + ((hash * 11) % 480),
       orderNumber: 4,
       description: `Étude de cas approfondie, gestion des cas limites et optimisation avancée pour ${cleanTitle}. Synthétisez vos connaissances à travers des scénarios d'entreprise réels tirés de ${courseTitle}.`,
-      content: `### 🎯 Objectifs du Module Avancé
+      content: `### Objectifs du Module Avancé
 - Analyser une étude de cas d'entreprise réelle illustrant les défis majeurs de **${cleanTitle}**.
 - Anticiper et gérer les cas limites (edge cases), les pics de charge et les scénarios de défaillance.
 - Formaliser une stratégie de gouvernance pérenne conforme aux exigences de **${courseTitle}**.
 
-### 🏢 Étude de Cas Réelle : Analyse & Résolution
+### Étude de Cas Réelle : Analyse & Résolution
 Examinons un scénario emblématique rencontré par une organisation de premier plan :
 - **Contexte initial** : Confrontée à une transition d'échelle, l'équipe technique a constaté des inefficiences critiques dans la gestion de **${cleanTitle}**.
 - **Diagnostic posé** : Manque de modularité, absence de garde-fous automatisés et dépendance excessive à des interventions manuelles chronophages.
@@ -286,13 +286,13 @@ Examinons un scénario emblématique rencontré par une organisation de premier 
 
 > **Leçon d'excellence :** Dans les environnements à haute exigence, la résilience d'un système se mesure à sa capacité à gérer gracieusement les anomalies imprévues sans interruption de service.
 
-### ⚖️ Matrice de Gouvernance & Gestion des Risques
+### Matrice de Gouvernance & Gestion des Risques
 Pour pérenniser votre dispositif dans **${courseTitle}**, appliquez les règles suivantes :
 - **Auditabilité** : Conserver un journal d'événements exhaustif et non modifiable.
 - **Sécurité par conception (Security by Design)** : Ne jamais faire confiance aveuglément aux données entrantes.
 - **Amélioration continue** : Réviser trimestriellement les métriques d'efficacité opérationnelle.
 
-### 📌 Synthèse Finale du Chapitre
+### Synthèse Finale du Chapitre
 Félicitations pour avoir complété ce chapitre consacré à **${cleanTitle}** ! Vous êtes désormais armé pour aborder le Quiz de Pratique associé avec un haut niveau de confiance et de maîtrise.`,
     },
   ];

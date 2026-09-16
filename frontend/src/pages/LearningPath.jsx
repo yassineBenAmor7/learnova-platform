@@ -9,7 +9,7 @@ import { useToast } from '../contexts/ToastContext';
 import VideoPlayer from '../components/VideoPlayer/VideoPlayer';
 import YouTubePlayer from '../components/YouTubePlayer/YouTubePlayer';
 import Sidebar from '../components/Sidebar/Sidebar';
-import { Award, CheckCircle, HelpCircle, Clock, Lock, PlayCircle, BookOpen, Info } from 'lucide-react';
+import { Award, CheckCircle, HelpCircle, Clock, Lock, PlayCircle, Info } from 'lucide-react';
 import './LearningPath.css';
 
 // Helper to extract clean embeddable URLs for YouTube and Vimeo
@@ -75,7 +75,8 @@ const getSessionDuration = (session) => {
 const renderMarkdown = (markdown) => {
   if (!markdown) return '';
 
-  let html = markdown;
+  // Remove emojis and pictographs to keep textual content strictly academic and icon-free
+  let html = markdown.replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{FE00}-\u{FE0F}]/gu, '');
 
   // 1. Code blocks: ```lang ... ```
   html = html.replace(/```(\w*)\n([\s\S]*?)```/g, (match, lang, code) => {
@@ -127,7 +128,6 @@ const ActiveVideoDetails = ({ video }) => {
       {video.content && (
         <div className="video-notes-section">
           <div className="video-notes-header">
-            <BookOpen size={18} className="notes-icon" aria-hidden="true" />
             <h4 className="video-notes-title">Lecture Study Guide & Notes</h4>
           </div>
           <div
