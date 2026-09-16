@@ -5,6 +5,20 @@ import { PrismaService } from '../prisma/prisma.service';
 export class DashboardService {
   constructor(private prisma: PrismaService) {}
 
+  async getPublicOverview() {
+    const totalCourses = await this.prisma.client.course.count();
+    const totalEnrollments = await this.prisma.client.enrollment.count();
+    const totalCertificates = await this.prisma.client.certificate.count();
+    const totalUsers = await this.prisma.client.user.count();
+
+    return {
+      totalCourses,
+      totalEnrollments,
+      totalCertificates,
+      totalUsers,
+    };
+  }
+
   async getUserDashboard(userId: number) {
     const user = await this.prisma.client.user.findUnique({
       where: { id: userId },
@@ -88,6 +102,37 @@ export class DashboardService {
     const totalEnrollments = await this.prisma.client.enrollment.count();
     const totalQuizAttempts = await this.prisma.client.quizAttempt.count();
     const totalCertificates = await this.prisma.client.certificate.count();
+    const totalQuizzes = await this.prisma.client.quiz.count();
+
+    console.log('Admin Dashboard Stats:', {
+      totalUsers,
+      totalCourses,
+      totalEnrollments,
+      totalQuizAttempts,
+      totalCertificates,
+      totalQuizzes,
+    });
+
+    // Active users: accessed a course in the last 30 days
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const activeUsers = await this.prisma.client.user.count({
+      where: {
+        enrollments: {
+          some: {
+            progress: {
+              lastAccess: { gte: thirtyDaysAgo },
+            },
+          },
+        },
+      },
+    });
+
+    const revenueResult = await this.prisma.client.payment.aggregate({
+      where: { status: 'COMPLETED' },
+      _sum: { amount: true },
+    });
+    const revenue = revenueResult._sum.amount || 0;
 
     const recentUsers = await this.prisma.client.user.findMany({
       take: 5,
@@ -102,16 +147,130 @@ export class DashboardService {
       },
     });
 
-    return {
-      statistics: {
-        totalUsers,
-        totalCourses,
-        totalEnrollments,
-        totalQuizAttempts,
-        totalCertificates,
+    const recentCertificates = await this.prisma.client.certificate.findMany({
+      take: 5,
+      orderBy: { issuedAt: 'desc' },
+      include: {
+        user: true,
+        course: true,
       },
-      recentUsers,
-      recentCourses,
+    });
+
+    const recentEnrollments = await this.prisma.client.enrollment.findMany({
+      take: 5,
+      orderBy: { enrolledAt: 'desc' },
+      include: {
+        user: true,
+        course: true,
+      },
+    });
+
+    // Combine all activities into a single timeline
+    const activities = [
+      ...recentUsers.map(user => ({
+        type: 'user',
+        id: user.id,
+        message: `New user registered: ${user.firstName} ${user.lastName}`,
+        timestamp: user.createdAt,
+      })),
+      ...recentCourses.map(course => ({
+        type: 'course',
+        id: course.id,
+        message: `New course published: ${course.title}`,
+        timestamp: course.createdAt,
+      })),
+      ...recentCertificates.map(cert => ({
+        type: 'certificate',
+        id: cert.id,
+        message: `Certificate issued to ${cert.user.firstName} ${cert.user.lastName} for ${cert.course.title}`,
+        timestamp: cert.issuedAt,
+      })),
+      ...recentEnrollments.map(enrollment => ({
+        type: 'enrollment',
+        id: enrollment.id,
+        message: `${enrollment.user.firstName} ${enrollment.user.lastName} enrolled in ${enrollment.course.title}`,
+        timestamp: enrollment.enrolledAt,
+      })),
+    ].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+     .slice(0, 10);
+
+    const result = {
+      totalUsers,
+      totalCourses,
+      totalQuizzes,
+      totalEnrollments,
+      totalQuizAttempts,
+      totalCertificates,
+      activeUsers,
+      revenue,
+      recentActivity: activities,
+    };
+
+    console.log('Admin Dashboard Result:', result);
+    return result;
+  }
+
+  async getAllData() {
+    const users = await this.prisma.client.user.findMany({
+      include: {
+        enrollments: true,
+        certificates: true,
+        quizAttempts: true,
+      },
+    });
+
+    const courses = await this.prisma.client.course.findMany({
+      include: {
+        sessions: {
+          include: {
+            videos: true,
+          },
+        },
+        quizzes: {
+          include: {
+            questions: {
+              include: {
+                options: true,
+              },
+            },
+          },
+        },
+        enrollments: true,
+      },
+    });
+
+    const enrollments = await this.prisma.client.enrollment.findMany({
+      include: {
+        user: true,
+        course: true,
+        progress: true,
+      },
+    });
+
+    const certificates = await this.prisma.client.certificate.findMany({
+      include: {
+        user: true,
+        course: true,
+      },
+    });
+
+    const quizAttempts = await this.prisma.client.quizAttempt.findMany({
+      include: {
+        user: true,
+        quiz: {
+          include: {
+            course: true,
+          },
+        },
+      },
+    });
+
+    return {
+      users,
+      courses,
+      enrollments,
+      certificates,
+      quizAttempts,
     };
   }
 }

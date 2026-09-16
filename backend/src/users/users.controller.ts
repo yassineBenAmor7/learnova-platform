@@ -1,12 +1,48 @@
-import { Controller, Get, Put, Body, NotFoundException, UseGuards, Post } from '@nestjs/common';
+import { Controller, Get, Put, Body, NotFoundException, UseGuards, Post, UseInterceptors, UploadedFile, Delete, Param } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  @Post('upload-avatar')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('file', {
+    storage: diskStorage({
+      destination: './uploads/avatars',
+      filename: (req, file, cb) => {
+        const randomName = Array(32).fill(null).map(() => (Math.round(Math.random() * 16)).toString(16)).join('');
+        cb(null, `${randomName}${extname(file.originalname)}`);
+      },
+    }),
+    fileFilter: (req, file, cb) => {
+      const allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+      if (allowedMimes.includes(file.mimetype)) {
+        cb(null, true);
+      } else {
+        cb(new Error('Invalid file type. Only image files are allowed.'), false);
+      }
+    },
+    limits: {
+      fileSize: 5 * 1024 * 1024, // 5MB
+    },
+  }))
+  async uploadAvatar(@CurrentUser() user: { id: number }, @UploadedFile() file: any) {
+    const avatarUrl = `/uploads/avatars/${file.filename}`;
+    await this.usersService.updateAvatar(user.id, avatarUrl);
+    return {
+      filename: file.filename,
+      originalname: file.originalname,
+      size: file.size,
+      url: avatarUrl,
+    };
+  }
 
   @Get('me')
   @UseGuards(JwtAuthGuard)
@@ -101,5 +137,43 @@ export class UsersController {
     @Body() body: { password: string },
   ) {
     return this.usersService.deleteAccount(user.id, body.password);
+  }
+
+  @Get('all')
+  @UseGuards(JwtAuthGuard)
+  async getAllUsers(@CurrentUser() user: { id: number }) {
+    return this.usersService.getAllUsers();
+  }
+
+  @Delete(':userId')
+  @UseGuards(JwtAuthGuard)
+  async deleteUserByAdmin(@Param('userId') userId: string) {
+    return this.usersService.deleteUserByAdmin(+userId);
+  }
+
+  @Post()
+  @UseGuards(JwtAuthGuard)
+  async createUserByAdmin(
+    @Body() createUserData: { firstName: string; lastName: string; email: string; password: string; roleId: number },
+  ) {
+    return this.usersService.createUserByAdmin(createUserData);
+  }
+
+  @Put(':userId/role')
+  @UseGuards(JwtAuthGuard)
+  async updateUserRole(
+    @Param('userId') userId: string,
+    @Body() body: { roleId: number },
+  ) {
+    return this.usersService.updateUserRole(+userId, body.roleId);
+  }
+
+  @Put(':userId')
+  @UseGuards(JwtAuthGuard)
+  async updateUserByAdmin(
+    @Param('userId') userId: string,
+    @Body() updateData: { firstName?: string; lastName?: string; email?: string },
+  ) {
+    return this.usersService.updateUserByAdmin(+userId, updateData);
   }
 }

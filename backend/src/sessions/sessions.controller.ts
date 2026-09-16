@@ -38,4 +38,14 @@ export class SessionsController {
   remove(@Param('id') id: string) {
     return this.sessionsService.remove(+id);
   }
+
+  @Post(':sessionId/generate-quiz')
+  generateQuizForSession(@Param('sessionId') sessionId: string) {
+    return this.sessionsService.generateQuizForSession(+sessionId);
+  }
+
+  @Post('course/:courseId/generate-quizzes')
+  generateQuizzesForCourse(@Param('courseId') courseId: string) {
+    return this.sessionsService.generateQuizzesForCourse(+courseId);
+  }
 }

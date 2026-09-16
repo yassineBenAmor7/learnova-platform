@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Body, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards } from '@nestjs/common';
 import { CertificatesService } from './certificates.service';
 import { CreateCertificateDto } from './dto/create-certificate.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -42,6 +42,12 @@ export class CertificatesController {
   @UseGuards(JwtAuthGuard)
   findOne(@Param('id') id: string) {
     return this.certificatesService.findOne(+id);
+  }
+
+  @Put(':id')
+  @UseGuards(JwtAuthGuard)
+  update(@Param('id') id: string, @Body() updateData: any) {
+    return this.certificatesService.update(+id, updateData);
   }
 
   @Delete(':id')

@@ -3,6 +3,7 @@ import { QuizService } from './quiz.service';
 import { CreateQuizDto } from './dto/create-quiz.dto';
 import { UpdateQuizDto } from './dto/update-quiz.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
 
 @Controller('quiz')
 @UseGuards(JwtAuthGuard)
@@ -42,5 +43,20 @@ export class QuizController {
   @Post('attempt/:attemptId/calculate-score')
   calculateScore(@Param('attemptId') attemptId: string) {
     return this.quizService.calculateScore(+attemptId);
+  }
+
+  @Get('attempts/:userId')
+  getUserAttempts(@Param('userId') userId: string) {
+    return this.quizService.getUserAttempts(+userId);
+  }
+
+  @Get(':id/for-attempt')
+  getQuizForAttempt(@Param('id') id: string, @CurrentUser() user: { id: number }) {
+    return this.quizService.getQuizForAttempt(+id, user.id);
+  }
+
+  @Get(':id/validate-exam-attempts/:userId')
+  validateExamAttempts(@Param('id') id: string, @Param('userId') userId: string) {
+    return this.quizService.validateExamAttempts(+userId, +id);
   }
 }

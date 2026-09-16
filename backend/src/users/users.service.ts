@@ -110,47 +110,120 @@ export class UsersService {
         userId,
       },
       include: {
-        quiz: true,
+        quiz: {
+          include: {
+            course: true,
+          },
+        },
       },
     });
 
-    const passedQuizzes = quizAttempts.filter((a) => a.passed).length;
+    // Count unique quizzes passed (not all attempts)
+    const passedQuizzes = quizAttempts.filter((a) => a.passed);
+    const uniquePassedQuizzes = new Set(passedQuizzes.map(a => a.quizId));
 
     const certificates = await this.prisma.client.certificate.findMany({
       where: { userId },
+      include: {
+        course: true,
+      },
     });
+
+    const gamification = await this.prisma.client.userGamification.findUnique({
+      where: { userId },
+    });
+
+    const getLevelMultiplier = (level?: string) => {
+      switch (level) {
+        case 'ADVANCED': return 2.0;
+        case 'INTERMEDIATE': return 1.5;
+        case 'ALL_LEVELS': return 1.25;
+        case 'BEGINNER':
+        default: return 1.0;
+      }
+    };
+
+    const sessionPoints = enrollments.reduce((sum, e) => {
+      const mult = getLevelMultiplier(e.course?.level);
+      const completedSessions = e.progress?.completedSessions || 0;
+      return sum + Math.round(completedSessions * 10 * mult);
+    }, 0);
+
+    const quizPoints = passedQuizzes.reduce((sum, a) => {
+      const mult = getLevelMultiplier(a.quiz?.course?.level);
+      return sum + Math.round(50 * mult);
+    }, 0);
+
+    const certPoints = certificates.reduce((sum, c) => {
+      const mult = getLevelMultiplier(c.course?.level);
+      return sum + Math.round(100 * mult);
+    }, 0);
+
+    const totalPoints = sessionPoints + quizPoints + certPoints;
+    const level = Math.floor(totalPoints / 100) + 1;
+    const currentStreak = gamification?.currentStreak || 0;
 
     return {
       totalCourses: enrollments.length,
       completedCourses,
       totalHours: Math.floor(totalLearningTime / 3600),
       certificates: certificates.length,
-      quizzesPassed: passedQuizzes,
-      currentStreak: 0,
-      totalPoints: 0,
-      level: 1,
+      quizzesPassed: uniquePassedQuizzes.size,
+      currentStreak,
+      totalPoints,
+      level,
     };
   }
 
   async getUserActivity(userId: number, limit = 10) {
-    const enrollments = await this.prisma.client.enrollment.findMany({
-      where: { userId },
-      include: {
-        progress: true,
-        course: true,
-      },
-      orderBy: {
-        enrolledAt: 'desc',
-      },
-      take: limit,
-    });
+    const [enrollments, quizAttempts, certificates] = await Promise.all([
+      this.prisma.client.enrollment.findMany({
+        where: { userId },
+        include: { course: true, progress: true },
+        orderBy: { enrolledAt: 'desc' },
+        take: limit,
+      }),
+      this.prisma.client.quizAttempt.findMany({
+        where: { userId, passed: true },
+        include: { quiz: true },
+        orderBy: { finishedAt: 'desc' },
+        take: limit,
+      }),
+      this.prisma.client.certificate.findMany({
+        where: { userId },
+        include: { course: true },
+        orderBy: { issuedAt: 'desc' },
+        take: limit,
+      }),
+    ]);
 
-    return enrollments.map((e) => ({
-      type: 'course_enrollment',
-      title: e.course.title,
-      date: e.enrolledAt,
-      progress: e.progress?.percentage || 0,
-    }));
+    const activities = [
+      ...enrollments.map((e) => ({
+        id: `enrollment-${e.id}`,
+        type: 'course',
+        title: `Enrolled in ${e.course?.title || 'Course'}`,
+        date: e.enrolledAt,
+        progress: e.progress?.percentage || 0,
+      })),
+      ...quizAttempts.map((q) => ({
+        id: `quiz-${q.id}`,
+        type: 'quiz',
+        title: `Passed Quiz: ${q.quiz?.title || 'Assessment'} (${Math.round(q.score)}%)`,
+        date: q.finishedAt || q.startedAt,
+        progress: 100,
+      })),
+      ...certificates.map((c) => ({
+        id: `cert-${c.id}`,
+        type: 'certificate',
+        title: `Earned Certificate: ${c.course?.title || 'Course Completion'}`,
+        date: c.issuedAt,
+        progress: 100,
+      })),
+    ];
+
+    activities.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+    return activities.slice(0, limit);
   }
 
   async getUserSettings(userId: number) {
@@ -235,5 +308,125 @@ export class UsersService {
     });
 
     return { message: 'Compte supprimé avec succès' };
+  }
+
+  async getAllUsers(limit = 50, offset = 0) {
+    const users = await this.prisma.client.user.findMany({
+      skip: offset,
+      take: limit,
+      include: {
+        role: true,
+        _count: {
+          select: {
+            enrollments: true,
+            certificates: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    const total = await this.prisma.client.user.count();
+
+    return {
+      users: users.map((user) => {
+        const { password, ...userWithoutPassword } = user;
+        return userWithoutPassword;
+      }),
+      total,
+      limit,
+      offset,
+    };
+  }
+
+  async createUserByAdmin(createUserData: { firstName: string; lastName: string; email: string; password: string; roleId: number }) {
+    // Check if email already exists
+    const existingUser = await this.prisma.client.user.findUnique({
+      where: { email: createUserData.email },
+    });
+
+    if (existingUser) {
+      throw new BadRequestException('Cet email est déjà utilisé');
+    }
+
+    // Hash the password
+    const BCRYPT_SALT_ROUNDS = 10;
+    const hashedPassword = await bcrypt.hash(createUserData.password, BCRYPT_SALT_ROUNDS);
+
+    // Create the user
+    const user = await this.prisma.client.user.create({
+      data: {
+        firstName: createUserData.firstName,
+        lastName: createUserData.lastName,
+        email: createUserData.email,
+        password: hashedPassword,
+        roleId: createUserData.roleId,
+      },
+      include: {
+        role: true,
+      },
+    });
+
+    const { password, ...userWithoutPassword } = user;
+    return userWithoutPassword;
+  }
+
+  async deleteUserByAdmin(userId: number) {
+    await this.prisma.client.user.delete({
+      where: { id: userId },
+    });
+
+    return { message: 'Utilisateur supprimé avec succès' };
+  }
+
+  async updateUserRole(userId: number, roleId: number) {
+    const user = await this.prisma.client.user.update({
+      where: { id: userId },
+      data: { roleId },
+      include: {
+        role: true,
+      },
+    });
+
+    const { password, ...userWithoutPassword } = user;
+    return userWithoutPassword;
+  }
+
+  async updateUserByAdmin(userId: number, updateData: { firstName?: string; lastName?: string; email?: string }) {
+    if (updateData.email) {
+      const existingUser = await this.prisma.client.user.findUnique({
+        where: { email: updateData.email },
+      });
+
+      if (existingUser && existingUser.id !== userId) {
+        throw new BadRequestException('Cet email est déjà utilisé par un autre compte');
+      }
+    }
+
+    const updatedUser = await this.prisma.client.user.update({
+      where: { id: userId },
+      data: updateData,
+      include: {
+        role: true,
+      },
+    });
+
+    const { password, ...userWithoutPassword } = updatedUser;
+    return userWithoutPassword;
+  }
+
+  async updateAvatar(userId: number, avatarUrl: string) {
+    const user = await this.prisma.client.user.update({
+      where: { id: userId },
+      data: { avatar: avatarUrl },
+      include: {
+        role: true,
+      },
+    });
+
+    const { password, ...userWithoutPassword } = user;
+    return userWithoutPassword;
   }
 }

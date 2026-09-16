@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateVideoDto } from './dto/create-video.dto';
 import { UpdateVideoDto } from './dto/update-video.dto';
@@ -8,6 +8,18 @@ export class VideosService {
   constructor(private prisma: PrismaService) {}
 
   async create(createVideoDto: CreateVideoDto) {
+    // Check if order number already exists for this session
+    const existingVideo = await this.prisma.client.video.findFirst({
+      where: {
+        sessionId: createVideoDto.sessionId,
+        orderNumber: createVideoDto.orderNumber,
+      },
+    });
+
+    if (existingVideo) {
+      throw new BadRequestException('A video with this order number already exists in this session');
+    }
+
     return this.prisma.client.video.create({
       data: createVideoDto,
       include: {
@@ -56,6 +68,21 @@ export class VideosService {
 
     if (!video) {
       throw new NotFoundException(`Video with ID ${id} not found`);
+    }
+
+    // Check if order number already exists for this session (excluding current video)
+    if (updateVideoDto.orderNumber !== undefined) {
+      const existingVideo = await this.prisma.client.video.findFirst({
+        where: {
+          sessionId: updateVideoDto.sessionId || video.sessionId,
+          orderNumber: updateVideoDto.orderNumber,
+          id: { not: id }, // Exclude current video
+        },
+      });
+
+      if (existingVideo) {
+        throw new BadRequestException('A video with this order number already exists in this session');
+      }
     }
 
     return this.prisma.client.video.update({

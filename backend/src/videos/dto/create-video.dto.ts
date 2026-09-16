@@ -8,6 +8,10 @@ export class CreateVideoDto {
   url: string;
 
   @IsOptional()
+  @IsString()
+  fileUrl?: string;
+
+  @IsOptional()
   @IsInt()
   duration?: number;
 

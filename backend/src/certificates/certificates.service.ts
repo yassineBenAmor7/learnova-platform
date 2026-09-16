@@ -90,6 +90,25 @@ export class CertificatesService {
     });
   }
 
+  async update(id: number, updateData: any) {
+    const certificate = await this.prisma.client.certificate.findUnique({
+      where: { id },
+    });
+
+    if (!certificate) {
+      throw new NotFoundException(`Certificate with ID ${id} not found`);
+    }
+
+    return this.prisma.client.certificate.update({
+      where: { id },
+      data: updateData,
+      include: {
+        user: true,
+        course: true,
+      },
+    });
+  }
+
   private generateCertificateNumber(): string {
     const timestamp = Date.now().toString(36);
     const random = Math.random().toString(36).substring(2, 8);

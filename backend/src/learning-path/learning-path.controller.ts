@@ -26,6 +26,22 @@ export class LearningPathController {
     return this.learningPathService.getCoursePath(user.id, +courseId);
   }
 
+  @Post('session/:sessionId/reading-complete')
+  trackReadingComplete(
+    @CurrentUser() user: { id: number },
+    @Param('sessionId') sessionId: string,
+  ) {
+    return this.learningPathService.trackReadingComplete(user.id, +sessionId);
+  }
+
+  @Post('session/:sessionId/auto-complete')
+  tryAutoComplete(
+    @CurrentUser() user: { id: number },
+    @Param('sessionId') sessionId: string,
+  ) {
+    return this.learningPathService.tryAutoCompleteSession(user.id, +sessionId);
+  }
+
   @Post('session/:sessionId/complete')
   completeSession(
     @CurrentUser() user: { id: number },
@@ -46,5 +62,13 @@ export class LearningPathController {
       dto.watchedSeconds,
       dto.completed,
     );
+  }
+
+  @Post('course/:courseId/check-certificate')
+  checkAndGenerateCertificate(
+    @CurrentUser() user: { id: number },
+    @Param('courseId') courseId: string,
+  ) {
+    return this.learningPathService.checkAndGenerateCertificate(user.id, +courseId);
   }
 }

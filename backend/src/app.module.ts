@@ -15,6 +15,8 @@ import { GamificationModule } from './gamification/gamification.module';
 import { EnrollmentsModule } from './enrollments/enrollments.module';
 import { LearningPathModule } from './learning-path/learning-path.module';
 import { ExamsModule } from './exams/exams.module';
+import { QuestionsModule } from './questions/questions.module';
+import { PaymentsModule } from './payments/payments.module';
 import * as path from 'path';
 
 @Module({
@@ -38,6 +40,8 @@ import * as path from 'path';
     EnrollmentsModule,
     LearningPathModule,
     ExamsModule,
+    QuestionsModule,
+    PaymentsModule,
   ],
 })
 export class AppModule {}

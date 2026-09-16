@@ -4,9 +4,12 @@ export class CreateSessionDto {
   @IsString()
   title: string;
 
+  @IsString()
+  description: string;
+
   @IsOptional()
   @IsString()
-  description?: string;
+  content?: string;
 
   @IsInt()
   @Min(1)
