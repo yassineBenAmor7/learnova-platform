@@ -1,0 +1,90 @@
+<mxfile host="app.diagrams.net" modified="2026-09-16T15:05:00.000Z" agent="Learnova Platform" version="21.0.0" type="device">
+  <diagram id="Learnova-MPD" name="Modèle Physique des Données (MPD PostgreSQL) - Learnova">
+    <mxGraphModel dx="1600" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1920" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- TABLE: Role -->
+        <mxCell id="tbl_role" value="Role (table: roles)&#xa;---------------------------------&#xa;id : SERIAL PRIMARY KEY&#xa;name : VARCHAR(50) NOT NULL UNIQUE" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="230" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- TABLE: User -->
+        <mxCell id="tbl_user" value="User (table: users)&#xa;---------------------------------&#xa;id : SERIAL PRIMARY KEY&#xa;first_name : VARCHAR(100) NOT NULL&#xa;last_name : VARCHAR(100) NOT NULL&#xa;email : VARCHAR(255) NOT NULL UNIQUE&#xa;password : VARCHAR(255) NOT NULL&#xa;role_id : INT NOT NULL REFERENCES roles(id)&#xa;avatar : VARCHAR(500) NULL&#xa;bio : TEXT NULL&#xa;location : VARCHAR(100) NULL&#xa;phone : VARCHAR(30) NULL&#xa;created_at : TIMESTAMP WITH TIME ZONE DEFAULT NOW()&#xa;updated_at : TIMESTAMP WITH TIME ZONE DEFAULT NOW()" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="40" y="160" width="280" height="230" as="geometry" />
+        </mxCell>
+
+        <!-- TABLE: Course -->
+        <mxCell id="tbl_course" value="Course (table: courses)&#xa;---------------------------------&#xa;id : SERIAL PRIMARY KEY&#xa;title : VARCHAR(255) NOT NULL&#xa;description : TEXT NOT NULL&#xa;thumbnail : VARCHAR(500) NULL&#xa;creator_id : INT NOT NULL REFERENCES users(id)&#xa;domain : VARCHAR(100) NOT NULL DEFAULT 'IT_DATA'&#xa;level : VARCHAR(30) NOT NULL DEFAULT 'BEGINNER'&#xa;price : DOUBLE PRECISION NOT NULL DEFAULT 0.0&#xa;is_paid : BOOLEAN NOT NULL DEFAULT FALSE&#xa;recommended : BOOLEAN NOT NULL DEFAULT FALSE&#xa;created_at : TIMESTAMP WITH TIME ZONE DEFAULT NOW()" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="380" y="160" width="280" height="220" as="geometry" />
+        </mxCell>
+
+        <!-- TABLE: Session -->
+        <mxCell id="tbl_session" value="Session (table: sessions)&#xa;---------------------------------&#xa;id : SERIAL PRIMARY KEY&#xa;title : VARCHAR(255) NOT NULL&#xa;description : TEXT NULL&#xa;content : TEXT NULL&#xa;order_number : INT NOT NULL&#xa;course_id : INT NOT NULL REFERENCES courses(id) ON DELETE CASCADE" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="720" y="160" width="300" height="140" as="geometry" />
+        </mxCell>
+
+        <!-- TABLE: Video -->
+        <mxCell id="tbl_video" value="Video (table: videos)&#xa;---------------------------------&#xa;id : SERIAL PRIMARY KEY&#xa;title : VARCHAR(255) NOT NULL&#xa;url : VARCHAR(500) NOT NULL&#xa;duration : INT NULL&#xa;order_number : INT NOT NULL&#xa;description : TEXT NULL&#xa;content : TEXT NULL (Lecture Notes Markdown)&#xa;session_id : INT NOT NULL REFERENCES sessions(id) ON DELETE CASCADE" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="160" width="320" height="160" as="geometry" />
+        </mxCell>
+
+        <!-- TABLE: VideoWatch -->
+        <mxCell id="tbl_videowatch" value="VideoWatch (table: video_watches)&#xa;---------------------------------&#xa;id : SERIAL PRIMARY KEY&#xa;user_id : INT NOT NULL REFERENCES users(id)&#xa;video_id : INT NOT NULL REFERENCES videos(id)&#xa;watched_seconds : INT NOT NULL DEFAULT 0&#xa;completed : BOOLEAN NOT NULL DEFAULT FALSE&#xa;last_watched_at : TIMESTAMP WITH TIME ZONE DEFAULT NOW()&#xa;CONSTRAINT uq_user_video UNIQUE(user_id, video_id)" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="370" width="320" height="150" as="geometry" />
+        </mxCell>
+
+        <!-- TABLE: Enrollment -->
+        <mxCell id="tbl_enrollment" value="Enrollment (table: enrollments)&#xa;---------------------------------&#xa;id : SERIAL PRIMARY KEY&#xa;user_id : INT NOT NULL REFERENCES users(id)&#xa;course_id : INT NOT NULL REFERENCES courses(id)&#xa;enrolled_at : TIMESTAMP WITH TIME ZONE DEFAULT NOW()&#xa;CONSTRAINT uq_enrollment UNIQUE(user_id, course_id)" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="380" y="440" width="280" height="130" as="geometry" />
+        </mxCell>
+
+        <!-- TABLE: Progress -->
+        <mxCell id="tbl_progress" value="Progress (table: progresses)&#xa;---------------------------------&#xa;id : SERIAL PRIMARY KEY&#xa;enrollment_id : INT NOT NULL UNIQUE REFERENCES enrollments(id)&#xa;completed_sessions : INT NOT NULL DEFAULT 0&#xa;completed_videos : INT NOT NULL DEFAULT 0&#xa;percentage : DOUBLE PRECISION NOT NULL DEFAULT 0.0&#xa;learning_time_seconds : INT NOT NULL DEFAULT 0&#xa;last_access : TIMESTAMP WITH TIME ZONE DEFAULT NOW()" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="380" y="620" width="280" height="150" as="geometry" />
+        </mxCell>
+
+        <!-- TABLE: Quiz -->
+        <mxCell id="tbl_quiz" value="Quiz (table: quizzes)&#xa;---------------------------------&#xa;id : SERIAL PRIMARY KEY&#xa;title : VARCHAR(255) NOT NULL&#xa;description : TEXT NULL&#xa;course_id : INT NOT NULL REFERENCES courses(id) ON DELETE CASCADE&#xa;session_id : INT NULL REFERENCES sessions(id) ON DELETE SET NULL&#xa;passing_score : DOUBLE PRECISION NOT NULL DEFAULT 70.0&#xa;time_limit_minutes : INT NULL&#xa;is_exam_mode : BOOLEAN NOT NULL DEFAULT FALSE&#xa;allow_review : BOOLEAN NOT NULL DEFAULT TRUE&#xa;randomize_questions : BOOLEAN NOT NULL DEFAULT TRUE&#xa;randomize_answers : BOOLEAN NOT NULL DEFAULT TRUE&#xa;show_explanation : BOOLEAN NOT NULL DEFAULT TRUE&#xa;created_at : TIMESTAMP WITH TIME ZONE DEFAULT NOW()" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="720" y="530" width="310" height="250" as="geometry" />
+        </mxCell>
+
+        <!-- TABLE: Question -->
+        <mxCell id="tbl_question" value="Question (table: questions)&#xa;---------------------------------&#xa;id : SERIAL PRIMARY KEY&#xa;text : TEXT NOT NULL&#xa;quiz_id : INT NOT NULL REFERENCES quizzes(id) ON DELETE CASCADE" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="570" width="260" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- TABLE: QuestionOption -->
+        <mxCell id="tbl_option" value="QuestionOption (table: question_options)&#xa;---------------------------------&#xa;id : SERIAL PRIMARY KEY&#xa;text : TEXT NOT NULL&#xa;is_correct : BOOLEAN NOT NULL DEFAULT FALSE&#xa;explanation : TEXT NULL&#xa;question_id : INT NOT NULL REFERENCES questions(id) ON DELETE CASCADE" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="1390" y="570" width="310" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- TABLE: QuizAttempt -->
+        <mxCell id="tbl_quizattempt" value="QuizAttempt (table: quiz_attempts)&#xa;---------------------------------&#xa;id : SERIAL PRIMARY KEY&#xa;user_id : INT NOT NULL REFERENCES users(id)&#xa;quiz_id : INT NOT NULL REFERENCES quizzes(id)&#xa;score : DOUBLE PRECISION NOT NULL DEFAULT 0.0&#xa;passed : BOOLEAN NOT NULL DEFAULT FALSE&#xa;started_at : TIMESTAMP WITH TIME ZONE DEFAULT NOW()&#xa;finished_at : TIMESTAMP WITH TIME ZONE NULL&#xa;is_exam_mode : BOOLEAN NOT NULL DEFAULT FALSE&#xa;expires_at : TIMESTAMP WITH TIME ZONE NULL" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="730" width="270" height="180" as="geometry" />
+        </mxCell>
+
+        <!-- TABLE: QuizAnswer -->
+        <mxCell id="tbl_quizanswer" value="QuizAnswer (table: quiz_answers)&#xa;---------------------------------&#xa;id : SERIAL PRIMARY KEY&#xa;attempt_id : INT NOT NULL REFERENCES quiz_attempts(id)&#xa;question_id : INT NOT NULL REFERENCES questions(id) ON DELETE CASCADE&#xa;option_id : INT NOT NULL REFERENCES question_options(id)&#xa;is_correct : BOOLEAN NOT NULL" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="1390" y="740" width="310" height="130" as="geometry" />
+        </mxCell>
+
+        <!-- TABLE: Certificate -->
+        <mxCell id="tbl_cert" value="Certificate (table: certificates)&#xa;---------------------------------&#xa;id : SERIAL PRIMARY KEY&#xa;user_id : INT NOT NULL REFERENCES users(id)&#xa;course_id : INT NOT NULL REFERENCES courses(id)&#xa;certificate_number : VARCHAR(100) NOT NULL UNIQUE&#xa;qr_code : VARCHAR(500) NOT NULL UNIQUE&#xa;issued_at : TIMESTAMP WITH TIME ZONE DEFAULT NOW()" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="380" y="810" width="280" height="140" as="geometry" />
+        </mxCell>
+
+        <!-- TABLE: Payment -->
+        <mxCell id="tbl_payment" value="Payment (table: payments)&#xa;---------------------------------&#xa;id : SERIAL PRIMARY KEY&#xa;user_id : INT NOT NULL REFERENCES users(id)&#xa;course_id : INT NOT NULL REFERENCES courses(id)&#xa;amount : DOUBLE PRECISION NOT NULL&#xa;currency : VARCHAR(10) NOT NULL DEFAULT 'USD'&#xa;status : VARCHAR(30) NOT NULL DEFAULT 'COMPLETED'&#xa;payment_method : VARCHAR(50) NOT NULL&#xa;transaction_id : VARCHAR(100) NOT NULL UNIQUE&#xa;created_at : TIMESTAMP WITH TIME ZONE DEFAULT NOW()" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="40" y="440" width="280" height="180" as="geometry" />
+        </mxCell>
+
+        <!-- TABLE: UserGamification -->
+        <mxCell id="tbl_gamif" value="UserGamification (table: user_gamifications)&#xa;---------------------------------&#xa;id : SERIAL PRIMARY KEY&#xa;user_id : INT NOT NULL UNIQUE REFERENCES users(id)&#xa;current_streak : INT NOT NULL DEFAULT 0&#xa;longest_streak : INT NOT NULL DEFAULT 0&#xa;last_activity_date : TIMESTAMP WITH TIME ZONE NULL" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="40" y="660" width="280" height="130" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

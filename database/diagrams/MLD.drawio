@@ -1,0 +1,127 @@
+<mxfile host="app.diagrams.net" modified="2026-09-16T15:00:00.000Z" agent="Learnova Platform" version="21.0.0" type="device">
+  <diagram id="Learnova-MLD" name="Modèle Logique des Données (MLD) - Learnova">
+    <mxGraphModel dx="1600" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1920" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- TABLE: Role -->
+        <mxCell id="tbl_role" value="ROLE&#xa;---------------------------------&#xa;&lt;u&gt;id&lt;/u&gt; : Int (PK)&#xa;name : RoleName (UNIQUE)" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="50" y="50" width="200" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- TABLE: User -->
+        <mxCell id="tbl_user" value="USER&#xa;---------------------------------&#xa;&lt;u&gt;id&lt;/u&gt; : Int (PK)&#xa;email : String (UNIQUE)&#xa;password : String&#xa;firstName : String&#xa;lastName : String&#xa;avatar : String?&#xa;bio : String?&#xa;location : String?&#xa;phone : String?&#xa;#roleId : Int (FK -&gt; ROLE.id)&#xa;createdAt : DateTime&#xa;updatedAt : DateTime" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="50" y="180" width="220" height="240" as="geometry" />
+        </mxCell>
+
+        <!-- TABLE: UserGamification -->
+        <mxCell id="tbl_gamif" value="USER_GAMIFICATION&#xa;---------------------------------&#xa;&lt;u&gt;id&lt;/u&gt; : Int (PK)&#xa;#userId : Int (FK, UNIQUE)&#xa;currentStreak : Int (défaut: 0)&#xa;longestStreak : Int (défaut: 0)&#xa;lastActivityDate : DateTime?" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="50" y="470" width="220" height="130" as="geometry" />
+        </mxCell>
+
+        <!-- TABLE: Course -->
+        <mxCell id="tbl_course" value="COURSE&#xa;---------------------------------&#xa;&lt;u&gt;id&lt;/u&gt; : Int (PK)&#xa;title : String&#xa;description : String&#xa;thumbnail : String?&#xa;#creatorId : Int (FK -&gt; USER.id)&#xa;domain : String&#xa;level : CourseLevel&#xa;price : Float (défaut: 0)&#xa;isPaid : Boolean (défaut: false)&#xa;recommended : Boolean&#xa;createdAt : DateTime" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="360" y="180" width="230" height="210" as="geometry" />
+        </mxCell>
+
+        <!-- TABLE: Enrollment -->
+        <mxCell id="tbl_enrollment" value="ENROLLMENT&#xa;---------------------------------&#xa;&lt;u&gt;id&lt;/u&gt; : Int (PK)&#xa;#userId : Int (FK -&gt; USER.id)&#xa;#courseId : Int (FK -&gt; COURSE.id)&#xa;enrolledAt : DateTime&#xa;UNIQUE(userId, courseId)" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="360" y="450" width="230" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- TABLE: Progress -->
+        <mxCell id="tbl_progress" value="PROGRESS&#xa;---------------------------------&#xa;&lt;u&gt;id&lt;/u&gt; : Int (PK)&#xa;#enrollmentId : Int (FK, UNIQUE)&#xa;completedSessions : Int (défaut: 0)&#xa;completedVideos : Int (défaut: 0)&#xa;percentage : Float (défaut: 0)&#xa;learningTimeSeconds : Int (défaut: 0)&#xa;lastAccess : DateTime" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="360" y="620" width="230" height="150" as="geometry" />
+        </mxCell>
+
+        <!-- TABLE: Payment -->
+        <mxCell id="tbl_payment" value="PAYMENT&#xa;---------------------------------&#xa;&lt;u&gt;id&lt;/u&gt; : Int (PK)&#xa;#userId : Int (FK -&gt; USER.id)&#xa;#courseId : Int (FK -&gt; COURSE.id)&#xa;amount : Float&#xa;currency : String (USD)&#xa;status : String (COMPLETED)&#xa;paymentMethod : String&#xa;transactionId : String (UNIQUE)&#xa;createdAt : DateTime" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="50" y="650" width="230" height="180" as="geometry" />
+        </mxCell>
+
+        <!-- TABLE: Session -->
+        <mxCell id="tbl_session" value="SESSION&#xa;---------------------------------&#xa;&lt;u&gt;id&lt;/u&gt; : Int (PK)&#xa;title : String&#xa;description : String?&#xa;orderNumber : Int&#xa;content : String?&#xa;#courseId : Int (FK -&gt; COURSE.id, CASCADE)" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="680" y="180" width="230" height="140" as="geometry" />
+        </mxCell>
+
+        <!-- TABLE: Video -->
+        <mxCell id="tbl_video" value="VIDEO&#xa;---------------------------------&#xa;&lt;u&gt;id&lt;/u&gt; : Int (PK)&#xa;title : String&#xa;url : String&#xa;duration : Int?&#xa;orderNumber : Int&#xa;content : String?&#xa;description : String?&#xa;#sessionId : Int (FK -&gt; SESSION.id, CASCADE)" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="990" y="180" width="240" height="160" as="geometry" />
+        </mxCell>
+
+        <!-- TABLE: VideoWatch -->
+        <mxCell id="tbl_videowatch" value="VIDEO_WATCH&#xa;---------------------------------&#xa;&lt;u&gt;id&lt;/u&gt; : Int (PK)&#xa;#userId : Int (FK -&gt; USER.id)&#xa;#videoId : Int (FK -&gt; VIDEO.id)&#xa;watchedSeconds : Int (défaut: 0)&#xa;completed : Boolean (défaut: false)&#xa;lastWatchedAt : DateTime&#xa;UNIQUE(userId, videoId)" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="990" y="390" width="240" height="150" as="geometry" />
+        </mxCell>
+
+        <!-- TABLE: SessionCompletion -->
+        <mxCell id="tbl_sessioncompletion" value="SESSION_COMPLETION&#xa;---------------------------------&#xa;&lt;u&gt;id&lt;/u&gt; : Int (PK)&#xa;#userId : Int (FK -&gt; USER.id)&#xa;#sessionId : Int (FK -&gt; SESSION.id)&#xa;completedAt : DateTime&#xa;UNIQUE(userId, sessionId)" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="680" y="370" width="230" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- TABLE: Quiz -->
+        <mxCell id="tbl_quiz" value="QUIZ&#xa;---------------------------------&#xa;&lt;u&gt;id&lt;/u&gt; : Int (PK)&#xa;title : String&#xa;description : String?&#xa;#courseId : Int (FK -&gt; COURSE.id, CASCADE)&#xa;#sessionId : Int? (FK -&gt; SESSION.id, NULL)&#xa;passingScore : Float (défaut: 70)&#xa;timeLimitMinutes : Int?&#xa;isExamMode : Boolean (défaut: false)&#xa;allowReviewAfterSubmission : Boolean&#xa;randomizeQuestions : Boolean&#xa;randomizeAnswers : Boolean&#xa;showExplanationAfterAnswer : Boolean&#xa;createdAt : DateTime" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="680" y="540" width="250" height="230" as="geometry" />
+        </mxCell>
+
+        <!-- TABLE: Question -->
+        <mxCell id="tbl_question" value="QUESTION&#xa;---------------------------------&#xa;&lt;u&gt;id&lt;/u&gt; : Int (PK)&#xa;text : String&#xa;#quizId : Int (FK -&gt; QUIZ.id)" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="990" y="580" width="200" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- TABLE: QuestionOption -->
+        <mxCell id="tbl_option" value="QUESTION_OPTION&#xa;---------------------------------&#xa;&lt;u&gt;id&lt;/u&gt; : Int (PK)&#xa;text : String&#xa;isCorrect : Boolean (défaut: false)&#xa;explanation : String?&#xa;#questionId : Int (FK -&gt; QUESTION.id, CASCADE)" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="1260" y="580" width="250" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- TABLE: QuizAttempt -->
+        <mxCell id="tbl_quizattempt" value="QUIZ_ATTEMPT&#xa;---------------------------------&#xa;&lt;u&gt;id&lt;/u&gt; : Int (PK)&#xa;#userId : Int (FK -&gt; USER.id)&#xa;#quizId : Int (FK -&gt; QUIZ.id)&#xa;score : Float (défaut: 0)&#xa;passed : Boolean (défaut: false)&#xa;startedAt : DateTime&#xa;finishedAt : DateTime?&#xa;isExamMode : Boolean&#xa;expiresAt : DateTime?" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="990" y="730" width="220" height="180" as="geometry" />
+        </mxCell>
+
+        <!-- TABLE: QuizAnswer -->
+        <mxCell id="tbl_quizanswer" value="QUIZ_ANSWER&#xa;---------------------------------&#xa;&lt;u&gt;id&lt;/u&gt; : Int (PK)&#xa;#attemptId : Int (FK -&gt; QUIZ_ATTEMPT.id)&#xa;#questionId : Int (FK -&gt; QUESTION.id, CASCADE)&#xa;#optionId : Int (FK -&gt; QUESTION_OPTION.id)&#xa;isCorrect : Boolean" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="1260" y="740" width="250" height="130" as="geometry" />
+        </mxCell>
+
+        <!-- TABLE: Certificate -->
+        <mxCell id="tbl_cert" value="CERTIFICATE&#xa;---------------------------------&#xa;&lt;u&gt;id&lt;/u&gt; : Int (PK)&#xa;#userId : Int (FK -&gt; USER.id)&#xa;#courseId : Int (FK -&gt; COURSE.id)&#xa;certificateNumber : String (UNIQUE)&#xa;qrCode : String (UNIQUE)&#xa;issuedAt : DateTime" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="360" y="810" width="230" height="140" as="geometry" />
+        </mxCell>
+
+        <!-- RELATIONS / EDGES -->
+        <mxCell id="edge_u_role" style="endArrow=block;endFill=1;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" source="tbl_user" target="tbl_role" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_c_user" style="endArrow=block;endFill=1;html=1;exitX=0;exitY=0.3;exitDx=0;exitDy=0;entryX=1;entryY=0.3;entryDx=0;entryDy=0;" edge="1" source="tbl_course" target="tbl_user" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_s_course" style="endArrow=block;endFill=1;html=1;exitX=0;exitY=0.3;exitDx=0;exitDy=0;entryX=1;entryY=0.3;entryDx=0;entryDy=0;" edge="1" source="tbl_session" target="tbl_course" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_v_session" style="endArrow=block;endFill=1;html=1;exitX=0;exitY=0.3;exitDx=0;exitDy=0;entryX=1;entryY=0.3;entryDx=0;entryDy=0;" edge="1" source="tbl_video" target="tbl_session" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_q_course" style="endArrow=block;endFill=1;html=1;exitX=0;exitY=0.2;exitDx=0;exitDy=0;entryX=0.9;entryY=1;entryDx=0;entryDy=0;" edge="1" source="tbl_quiz" target="tbl_course" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_quest_quiz" style="endArrow=block;endFill=1;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" source="tbl_question" target="tbl_quiz" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_opt_quest" style="endArrow=block;endFill=1;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" source="tbl_option" target="tbl_question" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_att_quiz" style="endArrow=block;endFill=1;html=1;exitX=0;exitY=0.3;exitDx=0;exitDy=0;entryX=1;entryY=0.8;entryDx=0;entryDy=0;" edge="1" source="tbl_quizattempt" target="tbl_quiz" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_ans_att" style="endArrow=block;endFill=1;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" source="tbl_quizanswer" target="tbl_quizattempt" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_cert_course" style="endArrow=block;endFill=1;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" source="tbl_cert" target="tbl_progress" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
