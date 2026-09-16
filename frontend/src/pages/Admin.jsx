@@ -4,8 +4,10 @@ import { adminService } from '../services/admin.service';
 import { 
   Users, BookOpen, FileText, Award, TrendingUp, 
   Activity, Settings, LogOut, Search, Plus, 
-  Edit, Trash2, MoreVertical, Filter, Download, HelpCircle, ChevronUp, ChevronDown
+  Edit, Trash2, MoreVertical, Filter, Download, HelpCircle, ChevronUp, ChevronDown,
+  Sparkles, CheckCircle2, RefreshCw
 } from 'lucide-react';
+import { aiService } from '../services/ai.service';
 import { useToast } from '../contexts/ToastContext';
 import { useConfirm } from '../contexts/ConfirmContext';
 import './Admin.css';
@@ -114,6 +116,15 @@ const Admin = () => {
   const [questions, setQuestions] = useState([]);
   const [showAddQuestionForm, setShowAddQuestionForm] = useState(false);
   const [newQuestion, setNewQuestion] = useState({ text: '', options: [{ text: '', isCorrect: false, explanation: '' }, { text: '', isCorrect: false, explanation: '' }, { text: '', isCorrect: false, explanation: '' }, { text: '', isCorrect: false, explanation: '' }] });
+  
+  // AI Quiz Studio States (Section 5.3)
+  const [aiQuizCourseId, setAiQuizCourseId] = useState('');
+  const [aiQuizSessionId, setAiQuizSessionId] = useState('');
+  const [aiQuizDifficulty, setAiQuizDifficulty] = useState('INTERMEDIATE');
+  const [aiQuizCount, setAiQuizCount] = useState(5);
+  const [generatingQuiz, setGeneratingQuiz] = useState(false);
+  const [generatedQuiz, setGeneratedQuiz] = useState(null);
+  const [savingAiQuiz, setSavingAiQuiz] = useState(false);
   
   // Unified Course Builder Wizard States
   const [showCourseBuilder, setShowCourseBuilder] = useState(false);
@@ -1959,6 +1970,10 @@ const Admin = () => {
       <div className="section-header">
         <h2>Quiz Management</h2>
         <div className="header-actions">
+          <button className="btn btn-primary" onClick={() => setActiveTab('ai-quiz-studio')}>
+            <Sparkles size={18} />
+            Generate with AI
+          </button>
           <button className="btn btn-secondary" onClick={() => setShowQuizFilterModal(true)}>
             <Filter size={18} />
             Filter
@@ -2756,6 +2771,251 @@ const Admin = () => {
     </div>
   );
 
+  const handleGenerateAiQuiz = async (e) => {
+    if (e) e.preventDefault();
+    if (!aiQuizCourseId) {
+      toast.error('Please select a course to generate questions from');
+      return;
+    }
+    try {
+      setGeneratingQuiz(true);
+      const res = await aiService.generateQuiz({
+        courseId: parseInt(aiQuizCourseId, 10),
+        sessionId: aiQuizSessionId ? parseInt(aiQuizSessionId, 10) : null,
+        difficulty: aiQuizDifficulty,
+        questionCount: parseInt(aiQuizCount, 10),
+        saveToDatabase: false,
+      });
+      setGeneratedQuiz(res);
+      toast.success('AI Quiz generated successfully from lecture notes!');
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to generate quiz: ' + (err.response?.data?.message || err.message));
+    } finally {
+      setGeneratingQuiz(false);
+    }
+  };
+
+  const handleSaveAiQuizToCourse = async (isExamMode = false) => {
+    if (!generatedQuiz || !aiQuizCourseId) return;
+    try {
+      setSavingAiQuiz(true);
+      const res = await aiService.generateQuiz({
+        courseId: parseInt(aiQuizCourseId, 10),
+        sessionId: aiQuizSessionId ? parseInt(aiQuizSessionId, 10) : null,
+        difficulty: aiQuizDifficulty,
+        questionCount: generatedQuiz.questions?.length || 5,
+        saveToDatabase: true,
+        title: generatedQuiz.title,
+      });
+      toast.success(`AI Quiz saved successfully! Passing score set to 70%. (Quiz #${res.quizId})`);
+      const quizzesData = await adminService.getAllQuizzes();
+      setQuizzes(quizzesData);
+      setGeneratedQuiz(null);
+      setActiveTab('quizzes');
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to save quiz: ' + (err.response?.data?.message || err.message));
+    } finally {
+      setSavingAiQuiz(false);
+    }
+  };
+
+  const renderAiQuizStudio = () => {
+    const selectedCourseSessions = sessions.filter(
+      (s) => String(s.courseId) === String(aiQuizCourseId)
+    );
+
+    return (
+      <div className="admin-ai-quiz-studio">
+        <div className="section-header">
+          <div>
+            <div className="ai-studio-badge">
+              <Sparkles size={16} />
+              <span>Learnova AI • Section 5.3</span>
+            </div>
+            <h2>AI Quiz Generator Studio</h2>
+            <p className="section-desc">
+              Automatically extract conceptual multiple-choice questions (QCM) from video lecture study notes and transcripts using natural language processing.
+            </p>
+          </div>
+        </div>
+
+        {/* Generator Controls Card */}
+        <div className="ai-studio-card generator-panel">
+          <form onSubmit={handleGenerateAiQuiz} className="ai-studio-form">
+            <div className="ai-form-grid">
+              <div className="form-group">
+                <label>Target Course *</label>
+                <select
+                  value={aiQuizCourseId}
+                  onChange={(e) => {
+                    setAiQuizCourseId(e.target.value);
+                    setAiQuizSessionId('');
+                    setGeneratedQuiz(null);
+                  }}
+                  className="form-control"
+                  required
+                >
+                  <option value="">-- Choose a course --</option>
+                  {courses.map((course) => (
+                    <option key={course.id} value={course.id}>
+                      {course.title} ({course.level || 'BEGINNER'})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label>Target Session (Optional)</label>
+                <select
+                  value={aiQuizSessionId}
+                  onChange={(e) => setAiQuizSessionId(e.target.value)}
+                  className="form-control"
+                  disabled={!aiQuizCourseId || selectedCourseSessions.length === 0}
+                >
+                  <option value="">All Course Sessions (Comprehensive Assessment)</option>
+                  {selectedCourseSessions.map((session) => (
+                    <option key={session.id} value={session.id}>
+                      Session #{session.orderNumber}: {session.title}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label>Question Difficulty</label>
+                <select
+                  value={aiQuizDifficulty}
+                  onChange={(e) => setAiQuizDifficulty(e.target.value)}
+                  className="form-control"
+                >
+                  <option value="BEGINNER">Beginner (Foundational Concepts)</option>
+                  <option value="INTERMEDIATE">Intermediate (Application & Analysis)</option>
+                  <option value="ADVANCED">Advanced (Synthesis & Edge Cases)</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label>Question Count</label>
+                <select
+                  value={aiQuizCount}
+                  onChange={(e) => setAiQuizCount(Number(e.target.value))}
+                  className="form-control"
+                >
+                  <option value={3}>3 Questions (Quick Knowledge Check)</option>
+                  <option value={5}>5 Questions (Standard Practice Quiz)</option>
+                  <option value={8}>8 Questions (In-depth Evaluation)</option>
+                  <option value={10}>10 Questions (Mastery Exam)</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="generator-actions">
+              <button
+                type="submit"
+                className="btn btn-primary btn-generate-quiz"
+                disabled={generatingQuiz || !aiQuizCourseId}
+              >
+                {generatingQuiz ? (
+                  <>
+                    <span className="spinner-sm" />
+                    <span>Analyzing lecture notes & generating QCM...</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles size={18} />
+                    <span>Generate AI Quiz</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
+        </div>
+
+        {/* Generated Quiz Review Section */}
+        {generatedQuiz && (
+          <div className="generated-quiz-preview">
+            <div className="quiz-preview-header">
+              <div className="preview-meta">
+                <span className="badge badge-difficulty">{generatedQuiz.difficulty}</span>
+                <span className="badge badge-count">{generatedQuiz.questionCount} Questions</span>
+                <span className="badge badge-score">70% Pass Mark</span>
+              </div>
+              <h3 className="preview-title">{generatedQuiz.title}</h3>
+              <p className="preview-desc">{generatedQuiz.description}</p>
+              
+              <div className="preview-actions">
+                <button
+                  type="button"
+                  className="btn btn-success"
+                  disabled={savingAiQuiz}
+                  onClick={() => handleSaveAiQuizToCourse(false)}
+                >
+                  {savingAiQuiz ? (
+                    'Saving to database...'
+                  ) : (
+                    <>
+                      <CheckCircle2 size={18} />
+                      Save as Practice Quiz (70% Pass)
+                    </>
+                  )}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  disabled={savingAiQuiz}
+                  onClick={() => setGeneratedQuiz(null)}
+                >
+                  <RefreshCw size={18} />
+                  Discard & Regenerate
+                </button>
+              </div>
+            </div>
+
+            <div className="preview-questions-list">
+              {generatedQuiz.questions?.map((q, qIndex) => (
+                <div key={qIndex} className="preview-question-card">
+                  <div className="question-card-top">
+                    <span className="question-number">Question {qIndex + 1}</span>
+                    <h4 className="question-prompt">{q.text}</h4>
+                  </div>
+                  <div className="preview-options-grid">
+                    {q.options?.map((opt, optIndex) => {
+                      const isCorrect = opt === q.correctAnswer;
+                      return (
+                        <div
+                          key={optIndex}
+                          className={`preview-option-item ${isCorrect ? 'is-correct' : ''}`}
+                        >
+                          <span className="opt-letter">
+                            {String.fromCharCode(65 + optIndex)}
+                          </span>
+                          <span className="opt-text">{opt}</span>
+                          {isCorrect && (
+                            <span className="correct-tag">
+                              <CheckCircle2 size={14} /> Correct
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {q.explanation && (
+                    <div className="preview-explanation">
+                      <p className="explanation-label">Pedagogical Explanation:</p>
+                      <p className="explanation-text">{q.explanation}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   if (!isAdmin) {
     return (
       <div className="admin-container">
@@ -2882,6 +3142,19 @@ const Admin = () => {
               <Award size={20} />
               Certificates
             </button>
+
+            {/* AI Intelligence Section */}
+            <div className="nav-section-divider">
+              <span className="nav-section-label">AI Studio (Section 5)</span>
+            </div>
+
+            <button 
+              className={`nav-item ${activeTab === 'ai-quiz-studio' ? 'active' : ''}`}
+              onClick={() => setActiveTab('ai-quiz-studio')}
+            >
+              <Sparkles size={20} />
+              AI Quiz Generator
+            </button>
           </nav>
         </div>
 
@@ -2893,6 +3166,7 @@ const Admin = () => {
           {activeTab === 'videos' && renderVideos()}
           {activeTab === 'quizzes' && renderQuizzes()}
           {activeTab === 'certificates' && renderCertificates()}
+          {activeTab === 'ai-quiz-studio' && renderAiQuizStudio()}
         </div>
       </div>
 

@@ -917,3 +917,141 @@
   transform: translateY(-1px);
 }
 
+/* --- Courses AI Recommendation Bar --- */
+.courses-ai-bar {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.06), rgba(168, 85, 247, 0.06));
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: 20px;
+  padding: 1.5rem 1.75rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.05);
+}
+
+.courses-ai-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.courses-ai-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.3rem 0.75rem;
+  border-radius: 9999px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.courses-ai-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary, #0f172a);
+  margin: 0;
+}
+
+.courses-ai-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+.courses-ai-card {
+  position: relative;
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.08));
+  border-radius: 14px;
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  text-decoration: none;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.courses-ai-card:hover {
+  transform: translateY(-3px);
+  border-color: #6366f1;
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.15);
+}
+
+.courses-ai-card-badge {
+  position: absolute;
+  top: -9px;
+  right: 14px;
+  background: #10b981;
+  color: #ffffff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
+}
+
+.courses-ai-card-content {
+  flex-grow: 1;
+}
+
+.courses-ai-card-cat {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #6366f1;
+  letter-spacing: 0.04em;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.courses-ai-card-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary, #0f172a);
+  margin: 0 0 0.35rem 0;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.courses-ai-card-reason {
+  font-size: 0.78rem;
+  color: var(--text-secondary, #64748b);
+  margin: 0;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.courses-ai-card-arrow {
+  color: #6366f1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(99, 102, 241, 0.08);
+  flex-shrink: 0;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.courses-ai-card:hover .courses-ai-card-arrow {
+  transform: translateX(3px);
+  background: #6366f1;
+  color: #ffffff;
+}
+
+

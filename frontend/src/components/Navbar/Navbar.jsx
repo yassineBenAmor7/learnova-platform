@@ -34,16 +34,27 @@ const Navbar = () => {
                   <Link to="/certificates" className="navbar-link">
                     <span>Certificates</span>
                   </Link>
+                  <Link to="/chatbot" className="navbar-link">
+                    <span>Assistant IA</span>
+                  </Link>
                 </>
               )}
               {isAdmin && (
-                <Link to="/admin" className="navbar-link admin-link">
-                  <span>Admin</span>
-                </Link>
+                <>
+                  <Link to="/admin" className="navbar-link admin-link">
+                    <span>Admin</span>
+                  </Link>
+                  <Link to="/chatbot" className="navbar-link">
+                    <span>Assistant IA</span>
+                  </Link>
+                </>
               )}
             </>
           ) : (
-            <Link to="/" className="navbar-link">Home</Link>
+            <>
+              <Link to="/" className="navbar-link">Home</Link>
+              <Link to="/chatbot" className="navbar-link">Assistant IA</Link>
+            </>
           )}
         </div>
 

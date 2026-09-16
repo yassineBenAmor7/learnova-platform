@@ -1,16 +1,50 @@
 import { useState, useEffect, useRef } from 'react';
-import { MessageSquare, X, Send, Bot } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { MessageSquare, X, Send, Bot, ExternalLink, Sparkles } from 'lucide-react';
+import { aiService } from '../../services/ai.service';
 import './Chatbot.css';
 
-function Chatbot() {
+// Markdown-to-HTML parser for chatbot messages
+const formatChatMarkdown = (text) => {
+  if (!text) return '';
+  let html = text;
+
+  // Bold **text**
+  html = html.replace(/\*\*([\s\S]*?)\*\*/g, '<strong>$1</strong>');
+
+  // Links [text](url)
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="chatbot-inline-link">$1</a>');
+
+  // Lists
+  html = html.replace(/^[-*]\s+(.*?)$/gm, '<li class="chatbot-li">$1</li>');
+  html = html.replace(/(<li class="chatbot-li">[\s\S]*?<\/li>)+/g, '<ul class="chatbot-ul">$1</ul>');
+
+  // Paragraphs & Line breaks
+  const paragraphs = html.split(/\n\n+/);
+  return paragraphs
+    .map(p => {
+      const trimmed = p.trim();
+      if (trimmed.startsWith('<ul') || trimmed.startsWith('<li')) return trimmed;
+      return `<p class="chatbot-p">${trimmed.replace(/\n/g, '<br />')}</p>`;
+    })
+    .join('');
+};
+
+function Chatbot({ courseId = null, sessionId = null }) {
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     {
       id: 1,
-      text: "Hello! I'm the Learnova assistant. How can I help you today?",
+      text: "Bonjour ! Je suis l'assistant pédagogique intelligent de Learnova. Comment puis-je vous aider dans votre apprentissage aujourd'hui ?",
       sender: 'bot',
-      timestamp: new Date()
-    }
+      timestamp: new Date(),
+      suggestions: [
+        'Quels cours sont disponibles en Data & IA ?',
+        'Comment obtenir un certificat vérifiable ?',
+        'Quelles sont les règles du mode examen ?',
+      ],
+    },
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -24,58 +58,60 @@ function Chatbot() {
     scrollToBottom();
   }, [messages, isOpen]);
 
-  const predefinedResponses = {
-    'hello': "Hello! Welcome to Learnova. How can I assist you today?",
-    'hi': "Hi there! I'm here to help you with any questions about our courses.",
-    'courses': "We offer a variety of professional courses in technology, business, and more. You can browse all courses on the Courses page.",
-    'pricing': "Our courses are free to enroll! Simply sign up and start learning at your own pace.",
-    'certificate': "Upon successful completion of a course with a score of 70% or higher, you'll receive a verified certificate.",
-    'help': "I can help you with information about courses, certificates, account management, and more. What would you like to know?",
-    'default': "I'm not sure about that. For more detailed information, please check our Help page or contact our support team."
-  };
-
-  const getBotResponse = (userMessage) => {
-    const lowerMessage = userMessage.toLowerCase();
-    
-    for (const [key, response] of Object.entries(predefinedResponses)) {
-      if (key !== 'default' && lowerMessage.includes(key)) {
-        return response;
-      }
-    }
-    
-    return predefinedResponses.default;
-  };
-
-  const handleSendMessage = async (e) => {
-    e.preventDefault();
-    if (!inputValue.trim()) return;
+  const handleSendMessage = async (textToSend) => {
+    const queryText = (textToSend || inputValue).trim();
+    if (!queryText || isTyping) return;
 
     const userMessage = {
       id: Date.now(),
-      text: inputValue,
+      text: queryText,
       sender: 'user',
-      timestamp: new Date()
+      timestamp: new Date(),
     };
 
     setMessages(prev => [...prev, userMessage]);
     setInputValue('');
     setIsTyping(true);
 
-    // Simulate bot response delay
-    setTimeout(() => {
-      const botResponse = {
+    try {
+      const response = await aiService.askChatbot(queryText, courseId, sessionId);
+
+      const botMessage = {
         id: Date.now() + 1,
-        text: getBotResponse(inputValue),
+        text: response.answer,
         sender: 'bot',
-        timestamp: new Date()
+        timestamp: new Date(),
+        actions: response.actions || [],
+        suggestions: response.suggestions || [],
+        sources: response.sources || [],
       };
-      setMessages(prev => [...prev, botResponse]);
+
+      setMessages(prev => [...prev, botMessage]);
+    } catch (error) {
+      console.error('Chatbot query error:', error);
+      const errorMessage = {
+        id: Date.now() + 1,
+        text: "Désolé, une anomalie temporaire est survenue lors de la communication avec le service d'assistance. Veuillez réessayer dans un instant.",
+        sender: 'bot',
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
       setIsTyping(false);
-    }, 1000);
+    }
+  };
+
+  const handleActionClick = (url) => {
+    if (url.startsWith('http')) {
+      window.open(url, '_blank');
+    } else {
+      navigate(url);
+      setIsOpen(false);
+    }
   };
 
   const formatTime = (date) => {
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
   return (
@@ -83,22 +119,29 @@ function Chatbot() {
       <button
         className={`chatbot-toggle ${isOpen ? 'hidden' : ''}`}
         onClick={() => setIsOpen(true)}
-        title="Open Chat"
+        title="Ouvrir l'Assistant IA"
+        aria-label="Ouvrir l'Assistant IA"
       >
-        <MessageSquare size={24} />
+        <Bot size={24} />
       </button>
 
       {isOpen && (
-        <div className="chatbot-container">
+        <div className="chatbot-container" role="dialog" aria-labelledby="chatbot-heading">
           <div className="chatbot-header">
             <div className="chatbot-title">
-              <Bot size={20} />
-              <span>Learnova Assistant</span>
+              <div className="chatbot-icon-badge">
+                <Bot size={20} />
+              </div>
+              <div>
+                <span id="chatbot-heading" className="chatbot-name">Assistant Pédagogique IA</span>
+                <span className="chatbot-status">En ligne 24/7</span>
+              </div>
             </div>
             <button
               className="chatbot-close"
               onClick={() => setIsOpen(false)}
-              title="Close Chat"
+              title="Fermer la discussion"
+              aria-label="Fermer"
             >
               <X size={20} />
             </button>
@@ -111,35 +154,85 @@ function Chatbot() {
                 className={`message ${message.sender === 'user' ? 'user-message' : 'bot-message'}`}
               >
                 <div className="message-content">
-                  <p>{message.text}</p>
+                  <div
+                    className="message-text"
+                    dangerouslySetInnerHTML={{ __html: formatChatMarkdown(message.text) }}
+                  />
+
+                  {/* Interactive Action Buttons */}
+                  {message.actions && message.actions.length > 0 && (
+                    <div className="chatbot-actions-container">
+                      {message.actions.map((act, idx) => (
+                        <button
+                          key={idx}
+                          className="chatbot-action-btn"
+                          onClick={() => handleActionClick(act.url)}
+                        >
+                          <span>{act.label}</span>
+                          <ExternalLink size={14} />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Sources Citation */}
+                  {message.sources && message.sources.length > 0 && (
+                    <div className="chatbot-sources-container">
+                      <span className="sources-label">Sources associées :</span>
+                      {message.sources.map((src, idx) => (
+                        <span key={idx} className="source-tag">
+                          {src.courseTitle} {src.sessionTitle ? `— ${src.sessionTitle}` : ''}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Quick Suggestion Chips */}
+                  {message.suggestions && message.suggestions.length > 0 && (
+                    <div className="chatbot-suggestions-container">
+                      {message.suggestions.map((sug, idx) => (
+                        <button
+                          key={idx}
+                          className="chatbot-suggestion-chip"
+                          onClick={() => handleSendMessage(sug)}
+                        >
+                          <Sparkles size={12} />
+                          <span>{sug}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
                   <span className="message-time">{formatTime(message.timestamp)}</span>
                 </div>
               </div>
             ))}
+
             {isTyping && (
               <div className="message bot-message">
                 <div className="message-content typing">
-                  <span>.</span>
-                  <span>.</span>
-                  <span>.</span>
+                  <span className="dot"></span>
+                  <span className="dot"></span>
+                  <span className="dot"></span>
                 </div>
               </div>
             )}
             <div ref={messagesEndRef} />
           </div>
 
-          <form className="chatbot-input" onSubmit={handleSendMessage}>
+          <form className="chatbot-input" onSubmit={(e) => { e.preventDefault(); handleSendMessage(); }}>
             <input
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Type your message..."
+              placeholder="Posez une question sur nos formations..."
               disabled={isTyping}
             />
             <button
               type="submit"
               className="send-button"
               disabled={!inputValue.trim() || isTyping}
+              aria-label="Envoyer"
             >
               <Send size={18} />
             </button>

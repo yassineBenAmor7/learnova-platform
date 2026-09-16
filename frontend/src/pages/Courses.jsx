@@ -1,13 +1,17 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { courseService } from '../services/course.service';
-import { Search, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
+import { aiService } from '../services/ai.service';
+import { Search, Filter, ChevronLeft, ChevronRight, Sparkles, ArrowRight } from 'lucide-react';
 import { getCourseThumbnail, handleThumbnailError } from '../utils/thumbnailHelper';
 import './Courses.css';
 
 function Courses() {
+  const { user } = useAuth();
   const [courses, setCourses] = useState([]);
   const [filteredCourses, setFilteredCourses] = useState([]);
+  const [aiRecommendations, setAiRecommendations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -126,9 +130,21 @@ function Courses() {
   const loadCourses = async () => {
     try {
       setLoading(true);
-      const data = await courseService.getAll();
-      setCourses(data);
-      setFilteredCourses(data);
+      const [coursesRes, recsRes] = await Promise.allSettled([
+        courseService.getAll(),
+        aiService.getRecommendations(user?.id, 3),
+      ]);
+
+      if (coursesRes.status === 'fulfilled') {
+        setCourses(coursesRes.value);
+        setFilteredCourses(coursesRes.value);
+      } else {
+        throw coursesRes.reason;
+      }
+
+      if (recsRes.status === 'fulfilled') {
+        setAiRecommendations(recsRes.value?.recommendations || []);
+      }
     } catch (err) {
       setError('Failed to load courses');
       console.error(err);
@@ -176,6 +192,37 @@ function Courses() {
           </div>
         </div>
       </div>
+
+      {/* AI Recommendations Highlight Bar */}
+      {aiRecommendations && aiRecommendations.length > 0 && (
+        <div className="courses-ai-bar">
+          <div className="courses-ai-header">
+            <div className="courses-ai-pill">
+              <Sparkles size={14} className="ai-sparkle-spin" />
+              <span>Learnova AI Matches</span>
+            </div>
+            <h3 className="courses-ai-title">Tailored For Your Learning Path</h3>
+          </div>
+          <div className="courses-ai-grid">
+            {aiRecommendations.map((rec) => (
+              <Link to={`/courses/${rec.courseId}`} key={rec.courseId} className="courses-ai-card">
+                <div className="courses-ai-card-badge">
+                  <Sparkles size={12} />
+                  <span>{rec.matchPercentage}% Match</span>
+                </div>
+                <div className="courses-ai-card-content">
+                  <span className="courses-ai-card-cat">{rec.category} • {rec.level}</span>
+                  <h4 className="courses-ai-card-title">{rec.title}</h4>
+                  <p className="courses-ai-card-reason">{rec.primaryReason}</p>
+                </div>
+                <div className="courses-ai-card-arrow">
+                  <ArrowRight size={16} />
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Toolbar Section (Left Search Input & Right Filter Dropdown) */}
       <div className="courses-search-bar">

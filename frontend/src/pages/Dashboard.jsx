@@ -4,14 +4,18 @@ import { useAuth } from '../context/AuthContext';
 import { authService } from '../services/auth.service';
 import { dashboardService } from '../services/dashboard.service';
 import { gamificationService } from '../services/gamification.service';
+import { aiService } from '../services/ai.service';
+import { getCourseThumbnail, handleThumbnailError } from '../utils/thumbnailHelper';
 import Badge from '../components/Badge/Badge';
-import { BookOpen, Award, FileText, TrendingUp, Star, Flame } from 'lucide-react';
+import { BookOpen, Award, FileText, TrendingUp, Star, Flame, Sparkles, Brain, AlertTriangle, CheckCircle, ArrowRight, Target } from 'lucide-react';
 import './Dashboard.css';
 
 function Dashboard() {
   const { user: authUser } = useAuth();
   const [dashboardData, setDashboardData] = useState(null);
   const [gamificationData, setGamificationData] = useState(null);
+  const [aiRecommendations, setAiRecommendations] = useState([]);
+  const [aiPerformanceReport, setAiPerformanceReport] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [animatedValues, setAnimatedValues] = useState({
@@ -40,6 +44,18 @@ function Dashboard() {
         ]);
         console.log('Gamification data loaded:', { points, badges, streak });
         setGamificationData({ points, badges, streak });
+
+        // Load AI Insights in parallel (non-blocking)
+        try {
+          const [recs, perf] = await Promise.all([
+            aiService.getRecommendations(authUser?.id, 4),
+            aiService.getUserPerformanceAnalysis(authUser?.id),
+          ]);
+          setAiRecommendations(recs?.recommendations || []);
+          setAiPerformanceReport(perf);
+        } catch (aiErr) {
+          console.warn('AI services loading error:', aiErr);
+        }
       } catch (err) {
         console.error('Error loading dashboard:', err);
         setError('Failed to load dashboard data');
@@ -292,6 +308,202 @@ function Dashboard() {
             )}
           </div>
         </div>
+
+        {/* AI Recommendations Section */}
+        {aiRecommendations && aiRecommendations.length > 0 && (
+          <div className="ai-recommendations-section">
+            <div className="section-header">
+              <div className="ai-header-badge">
+                <Sparkles size={16} className="ai-sparkle-icon" />
+                <span>Learnova AI • Recommandations Hybrides</span>
+              </div>
+              <h2 className="section-title">Recommended For You</h2>
+              <p className="section-subtitle">
+                Personalized intelligent suggestions adapted to your domains, skill level, and learning speed.
+              </p>
+            </div>
+
+            <div className="ai-rec-grid">
+              {aiRecommendations.map((rec) => (
+                <div key={rec.courseId} className="ai-rec-card">
+                  <div className="ai-rec-thumbnail-wrapper">
+                    <img
+                      src={rec.thumbnailUrl || getCourseThumbnail(rec.title, rec.category)}
+                      alt={rec.title}
+                      className="ai-rec-thumbnail"
+                      onError={handleThumbnailError}
+                    />
+                    <div className="ai-match-badge">
+                      <Sparkles size={13} />
+                      <span>{rec.matchPercentage}% Match</span>
+                    </div>
+                  </div>
+                  <div className="ai-rec-body">
+                    <div className="ai-rec-tags">
+                      <span className="ai-domain-tag">{rec.category || 'General'}</span>
+                      <span className={`ai-level-tag level-${(rec.level || 'BEGINNER').toLowerCase()}`}>
+                        {rec.level || 'Beginner'}
+                      </span>
+                    </div>
+                    <h3 className="ai-rec-title" title={rec.title}>{rec.title}</h3>
+                    <p className="ai-rec-desc">{rec.description?.slice(0, 95)}...</p>
+                    <div className="ai-rec-reason">
+                      <Target size={14} className="reason-icon" />
+                      <span>{rec.primaryReason}</span>
+                    </div>
+                    <Link to={`/courses/${rec.courseId}`} className="btn ai-rec-btn">
+                      <span>Explore Course</span>
+                      <ArrowRight size={16} />
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* AI Performance & Retention Diagnosis Section */}
+        {aiPerformanceReport && (
+          <div className="ai-performance-section">
+            <div className="section-header">
+              <div className="ai-header-badge">
+                <Brain size={16} className="ai-sparkle-icon" />
+                <span>Diagnostic IA & Rétention</span>
+              </div>
+              <h2 className="section-title">AI Learning Diagnosis & Retention Health</h2>
+              <p className="section-subtitle">
+                Comprehensive analytics evaluating your global mastery index, retention risks, and domain proficiencies.
+              </p>
+            </div>
+
+            <div className="ai-perf-grid">
+              {/* Card 1: Global Mastery Index */}
+              <div className="ai-perf-card mastery-card">
+                <div className="perf-card-header">
+                  <div className="perf-card-icon-wrap mastery-icon">
+                    <TrendingUp size={22} />
+                  </div>
+                  <div>
+                    <h4 className="perf-card-title">Global Mastery Index</h4>
+                    <p className="perf-card-sub">Aggregated competency score</p>
+                  </div>
+                </div>
+                <div className="mastery-score-display">
+                  <div className="mastery-circle">
+                    <span className="mastery-number">
+                      {aiPerformanceReport.overallSummary?.globalMasteryIndex ?? 0}%
+                    </span>
+                    <span className="mastery-label">Proficiency</span>
+                  </div>
+                  <div className="mastery-details">
+                    <div className="mastery-metric">
+                      <span className="metric-label">Quizzes Passed</span>
+                      <span className="metric-value">
+                        {aiPerformanceReport.overallSummary?.quizzesPassed ?? 0} / {aiPerformanceReport.overallSummary?.totalQuizzesAttempted ?? 0}
+                      </span>
+                    </div>
+                    <div className="mastery-metric">
+                      <span className="metric-label">Average Score</span>
+                      <span className="metric-value">
+                        {aiPerformanceReport.overallSummary?.averageQuizScore ?? 0}%
+                      </span>
+                    </div>
+                    <div className="mastery-metric">
+                      <span className="metric-label">Course Completion</span>
+                      <span className="metric-value">
+                        {aiPerformanceReport.overallSummary?.completedCourses ?? 0} / {aiPerformanceReport.overallSummary?.totalEnrollments ?? 0}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 2: Retention Risk Diagnosis */}
+              <div className={`ai-perf-card risk-card risk-${(aiPerformanceReport.riskDiagnosis?.retentionRisk || 'LOW').toLowerCase()}`}>
+                <div className="perf-card-header">
+                  <div className="perf-card-icon-wrap risk-icon">
+                    {aiPerformanceReport.riskDiagnosis?.retentionRisk === 'HIGH' ? (
+                      <AlertTriangle size={22} />
+                    ) : (
+                      <CheckCircle size={22} />
+                    )}
+                  </div>
+                  <div>
+                    <h4 className="perf-card-title">Retention Risk Status</h4>
+                    <p className="perf-card-sub">Dropout & disengagement prediction</p>
+                  </div>
+                </div>
+                <div className="risk-status-badge">
+                  <span className="risk-pill">
+                    {aiPerformanceReport.riskDiagnosis?.retentionRisk} RISK ({aiPerformanceReport.riskDiagnosis?.riskScore}% vulnerability)
+                  </span>
+                </div>
+                <p className="risk-primary-concern">
+                  {aiPerformanceReport.riskDiagnosis?.primaryConcern}
+                </p>
+                <div className="risk-factors-list">
+                  {aiPerformanceReport.riskDiagnosis?.factors?.map((factor, idx) => (
+                    <div key={idx} className="risk-factor-item">
+                      <span className="factor-bullet">•</span>
+                      <span>{factor}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Domains Breakdown & Prescriptive AI Advice */}
+            <div className="ai-domains-prescriptions-grid">
+              {/* Domains Analysis */}
+              {aiPerformanceReport.domainsAnalysis?.length > 0 && (
+                <div className="ai-sub-card domains-card">
+                  <h4 className="sub-card-title">Skill Mastery by Domain</h4>
+                  <div className="domains-list">
+                    {aiPerformanceReport.domainsAnalysis.map((domain, idx) => (
+                      <div key={idx} className="domain-item">
+                        <div className="domain-info-row">
+                          <span className="domain-name">{domain.domain?.replace('_', ' ')}</span>
+                          <span className={`domain-level-badge level-${domain.masteryLevel?.toLowerCase()}`}>
+                            {domain.masteryLevel}
+                          </span>
+                        </div>
+                        <div className="domain-progress-bar">
+                          <div
+                            className="domain-progress-fill"
+                            style={{ width: `${Math.min(100, domain.avgQuizScore || 20)}%` }}
+                          />
+                        </div>
+                        <p className="domain-recommendation">{domain.recommendation}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Prescriptive Next Steps */}
+              {aiPerformanceReport.prescriptiveRecommendations?.length > 0 && (
+                <div className="ai-sub-card prescriptive-card">
+                  <h4 className="sub-card-title">Prescriptive Next Steps</h4>
+                  <div className="prescriptions-list">
+                    {aiPerformanceReport.prescriptiveRecommendations.map((action, idx) => (
+                      <div key={idx} className={`prescription-item priority-${action.priority?.toLowerCase()}`}>
+                        <div className="prescription-top">
+                          <span className="prescription-priority">{action.priority} PRIORITY</span>
+                          <h5 className="prescription-title">{action.title}</h5>
+                        </div>
+                        <p className="prescription-desc">{action.description}</p>
+                        <Link to={action.actionRoute || '/courses'} className="prescription-link">
+                          <span>Take Action</span>
+                          <ArrowRight size={14} />
+                        </Link>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Recent Activity */}
         <div className="activity-section">

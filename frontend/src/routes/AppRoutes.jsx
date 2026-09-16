@@ -19,6 +19,7 @@ import Contact from '../pages/Contact';
 import FAQ from '../pages/FAQ';
 import Terms from '../pages/Terms';
 import Admin from '../pages/Admin';
+import ChatbotPage from '../pages/Chatbot';
 import ForgotPassword from '../pages/ForgotPassword';
 import ResetPassword from '../pages/ResetPassword';
 
@@ -101,6 +102,7 @@ const AppRoutes = () => {
       <Route path="/faq" element={<FAQ />} />
       <Route path="/terms" element={<Terms />} />
       <Route path="/certificates/verify/:certificateNumber" element={<VerifyCertificate />} />
+      <Route path="/chatbot" element={<ChatbotPage />} />
 
       {/* Protected Routes */}
       <Route
