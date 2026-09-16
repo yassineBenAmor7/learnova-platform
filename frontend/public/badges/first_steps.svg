@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <linearGradient id="badgeGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e40af;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#3b82f6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2563eb;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="blueAccent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#60a5fa;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="12" flood-color="#1e40af" flood-opacity="0.25"/>
+    </filter>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Outer ring with gradient -->
+  <circle cx="100" cy="100" r="95" fill="url(#badgeGradient1)" filter="url(#shadow)" />
+  <circle cx="100" cy="100" r="90" fill="none" stroke="url(#blueAccent)" stroke-width="4" />
+  
+  <!-- Inner circle with subtle gradient -->
+  <circle cx="100" cy="100" r="75" fill="#ffffff" />
+  
+  <!-- Rocket icon -->
+  <g transform="translate(100, 100)" filter="url(#glow)">
+    <path d="M0,-45 C-15,-45 -25,-30 -25,-15 C-25,-5 -20,5 -15,10 L-15,25 L-5,20 L0,25 L5,20 L15,25 L15,10 C20,5 25,-5 25,-15 C25,-30 15,-45 0,-45 Z" fill="url(#badgeGradient1)" />
+    <circle cx="0" cy="-20" r="8" fill="#ffffff" />
+    <path d="M-25,-15 L-35,-10 L-35,-20 Z" fill="#3b82f6" />
+    <path d="M25,-15 L35,-10 L35,-20 Z" fill="#3b82f6" />
+    <path d="M-15,25 L-20,40 L-10,35 Z" fill="#3b82f6" />
+    <path d="M15,25 L20,40 L10,35 Z" fill="#3b82f6" />
+  </g>
+  
+  <!-- Decorative stars -->
+  <circle cx="50" cy="50" r="4" fill="#3b82f6" />
+  <circle cx="150" cy="50" r="4" fill="#3b82f6" />
+  <circle cx="50" cy="150" r="4" fill="#3b82f6" />
+  <circle cx="150" cy="150" r="4" fill="#3b82f6" />
+  
+  <!-- Shine effect -->
+  <ellipse cx="100" cy="70" rx="30" ry="15" fill="rgba(255,255,255,0.3)" />
+</svg>

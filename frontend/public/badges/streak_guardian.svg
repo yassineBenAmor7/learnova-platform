@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" fill="none">
+  <defs>
+    <linearGradient id="blueStreakGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#60a5fa"/>
+      <stop offset="50%" stop-color="#2563eb"/>
+      <stop offset="100%" stop-color="#1e40af"/>
+    </linearGradient>
+    <linearGradient id="blueFlameCore" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#93c5fd"/>
+    </linearGradient>
+    <filter id="shadowBlueStreak" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#1e40af" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+
+  <circle cx="100" cy="95" r="70" fill="url(#blueStreakGrad)" filter="url(#shadowBlueStreak)"/>
+  <circle cx="100" cy="95" r="58" fill="#0f172a"/>
+
+  <!-- Pure Blue Vector Flame Icon -->
+  <path d="M100 45 C100 45 125 75 125 98 C125 118 114 130 100 130 C86 130 75 118 75 98 C75 75 100 45 100 45 Z" fill="url(#blueStreakGrad)"/>
+  <path d="M100 68 C100 68 114 88 114 102 C114 114 108 120 100 120 C92 120 86 114 86 102 C86 88 100 68 100 68 Z" fill="url(#blueFlameCore)"/>
+  <circle cx="100" cy="105" r="7" fill="#1e40af"/>
+
+  <!-- Streak Banner in Blue -->
+  <rect x="45" y="132" width="110" height="24" rx="6" fill="#1e40af"/>
+  <text x="100" y="148" font-family="'Inter', sans-serif" font-size="11" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="1">STREAK</text>
+</svg>

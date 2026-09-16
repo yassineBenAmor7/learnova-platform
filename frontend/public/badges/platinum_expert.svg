@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" fill="none">
+  <defs>
+    <linearGradient id="bluePlatBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#93c5fd"/>
+      <stop offset="50%" stop-color="#2563eb"/>
+      <stop offset="100%" stop-color="#1e40af"/>
+    </linearGradient>
+    <linearGradient id="bluePlatInner" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#eff6ff"/>
+    </linearGradient>
+    <filter id="shadowBluePlat" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="10" stdDeviation="8" flood-color="#1e40af" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+
+  <polygon points="100,10 175,55 175,135 100,185 25,135 25,55" fill="url(#bluePlatBorder)" filter="url(#shadowBluePlat)"/>
+  <polygon points="100,22 163,62 163,128 100,172 37,128 37,62" fill="url(#bluePlatInner)"/>
+
+  <!-- Diamond Gemstone Icon -->
+  <polygon points="100,45 135,70 100,118 65,70" fill="url(#bluePlatBorder)"/>
+  <polygon points="100,45 135,70 100,75 65,70" fill="#bfdbfe"/>
+  <polygon points="100,75 135,70 100,118" fill="#1d4ed8"/>
+
+  <!-- Platinum Banner -->
+  <rect x="45" y="130" width="110" height="24" rx="6" fill="#1e293b"/>
+  <text x="100" y="146" font-family="'Inter', sans-serif" font-size="11" font-weight="900" fill="#60a5fa" text-anchor="middle" letter-spacing="1.5">PLATINUM</text>
+</svg>

@@ -63,15 +63,37 @@ const AdminRoute = ({ children }) => {
   return children;
 };
 
+const LearnerRoute = ({ children }) => {
+  const { isAuthenticated, isAdmin, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#f5f7fa', color: '#333' }}>
+        Loading session...
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (isAdmin) {
+    return <Navigate to="/admin" replace />;
+  }
+
+  return children;
+};
+
 const AppRoutes = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isAdmin } = useAuth();
 
   return (
     <Routes>
       {/* Public Routes */}
-      <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Home />} />
-      <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />} />
-      <Route path="/register" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Register />} />
+      <Route path="/" element={isAuthenticated ? (isAdmin ? <Navigate to="/admin" replace /> : <Navigate to="/dashboard" replace />) : <Home />} />
+      <Route path="/login" element={isAuthenticated ? (isAdmin ? <Navigate to="/admin" replace /> : <Navigate to="/dashboard" replace />) : <Login />} />
+      <Route path="/register" element={isAuthenticated ? (isAdmin ? <Navigate to="/admin" replace /> : <Navigate to="/dashboard" replace />) : <Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/help" element={<Help />} />
@@ -84,57 +106,57 @@ const AppRoutes = () => {
       <Route
         path="/dashboard"
         element={
-          <ProtectedRoute>
+          <LearnerRoute>
             <Dashboard />
-          </ProtectedRoute>
+          </LearnerRoute>
         }
       />
       <Route
         path="/courses"
         element={
-          <ProtectedRoute>
+          <LearnerRoute>
             <Courses />
-          </ProtectedRoute>
+          </LearnerRoute>
         }
       />
       <Route
         path="/courses/:id"
         element={
-          <ProtectedRoute>
+          <LearnerRoute>
             <CourseDetails />
-          </ProtectedRoute>
+          </LearnerRoute>
         }
       />
       <Route
         path="/learning-path/:id"
         element={
-          <ProtectedRoute>
+          <LearnerRoute>
             <LearningPath />
-          </ProtectedRoute>
+          </LearnerRoute>
         }
       />
       <Route
         path="/quiz/:id"
         element={
-          <ProtectedRoute>
+          <LearnerRoute>
             <Quiz />
-          </ProtectedRoute>
+          </LearnerRoute>
         }
       />
       <Route
         path="/exam/:id"
         element={
-          <ProtectedRoute>
+          <LearnerRoute>
             <Exam />
-          </ProtectedRoute>
+          </LearnerRoute>
         }
       />
       <Route
         path="/certificates"
         element={
-          <ProtectedRoute>
+          <LearnerRoute>
             <Certificates />
-          </ProtectedRoute>
+          </LearnerRoute>
         }
       />
       <Route

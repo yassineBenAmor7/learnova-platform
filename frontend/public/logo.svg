@@ -14,12 +14,7 @@
     </filter>
   </defs>
 
-  <!-- Outer Rounded Square Emblem Container -->
   <rect x="32" y="32" width="448" height="448" rx="112" fill="url(#primaryGrad)" filter="url(#shadow)" />
-  
-  <!-- Stylized Geometric 'L' for Learnova -->
   <path d="M160 128 C160 110.3 174.3 96 192 96 L224 96 C241.7 96 256 110.3 256 128 L256 304 L336 304 C353.7 304 368 318.3 368 336 L368 368 C368 385.7 353.7 400 336 400 L192 400 C174.3 400 160 385.7 160 368 Z" fill="#ffffff" />
-  
-  <!-- Accent Gold Nova Spark (Intelligence & Excellence) -->
   <path d="M336 128 L354 164 L390 182 L354 200 L336 236 L318 200 L282 182 L318 164 Z" fill="url(#goldGrad)" />
 </svg>

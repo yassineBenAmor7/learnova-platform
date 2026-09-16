@@ -1,12 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
 import './VideoPlayer.css';
 
-function VideoPlayer({ video, onProgressUpdate }) {
+function VideoPlayer({ video, onProgressUpdate, onVideoEnded }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
+  const [videoError, setVideoError] = useState(false);
   const videoRef = useRef(null);
 
   useEffect(() => {
@@ -18,26 +19,51 @@ function VideoPlayer({ video, onProgressUpdate }) {
       if (onProgressUpdate) {
         onProgressUpdate(video.currentTime, video.duration);
       }
+      
+      // Check if video reached 99% completion (when user seeks to end)
+      if (video.duration > 0 && !video.hasAttribute('data-ended')) {
+        const progressPercent = (video.currentTime / video.duration) * 100;
+        if (progressPercent >= 99) {
+          console.log('Video reached 99% completion, marking as completed');
+          video.setAttribute('data-ended', 'true');
+          if (onVideoEnded) {
+            onVideoEnded();
+          }
+        }
+      }
     };
 
     const handleLoadedMetadata = () => {
       setDuration(video.duration);
+      setVideoError(false);
     };
 
     const handleEnded = () => {
+      console.log('Video ended event triggered');
       setIsPlaying(false);
+      if (onVideoEnded && !video.hasAttribute('data-ended')) {
+        console.log('Calling onVideoEnded callback');
+        video.setAttribute('data-ended', 'true');
+        onVideoEnded();
+      }
+    };
+
+    const handleError = () => {
+      setVideoError(true);
     };
 
     video.addEventListener('timeupdate', handleTimeUpdate);
     video.addEventListener('loadedmetadata', handleLoadedMetadata);
     video.addEventListener('ended', handleEnded);
+    video.addEventListener('error', handleError);
 
     return () => {
       video.removeEventListener('timeupdate', handleTimeUpdate);
       video.removeEventListener('loadedmetadata', handleLoadedMetadata);
       video.removeEventListener('ended', handleEnded);
+      video.removeEventListener('error', handleError);
     };
-  }, [onProgressUpdate]);
+  }, [onProgressUpdate, onVideoEnded]);
 
   const togglePlay = () => {
     const video = videoRef.current;
@@ -82,8 +108,60 @@ function VideoPlayer({ video, onProgressUpdate }) {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  const videoSrc = video?.url?.startsWith('/uploads')
+    ? `http://localhost:3000${video.url}`
+    : video?.url || '';
+
+  // Detect video type from URL
+  const getVideoType = (url) => {
+    if (!url) return 'video/mp4';
+    const extension = url.split('.').pop().toLowerCase();
+    switch (extension) {
+      case 'mp4':
+        return 'video/mp4';
+      case 'webm':
+        return 'video/webm';
+      case 'ogg':
+        return 'video/ogg';
+      default:
+        return 'video/mp4';
+    }
+  };
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.load();
+      videoRef.current.removeAttribute('data-ended');
+      setIsPlaying(false);
+      setCurrentTime(0);
+      setVideoError(false);
+    }
+  }, [video?.url]);
+
   if (!video) {
     return null;
+  }
+
+  if (videoError) {
+    return (
+      <div className="video-player video-error">
+        <div className="error-message">
+          <p>Unable to load video</p>
+          <p className="error-url">{video.url}</p>
+          <p className="error-hint">Please check if the URL is accessible and supports CORS</p>
+          {onVideoEnded && (
+            <button
+              type="button"
+              className="retry-button"
+              onClick={onVideoEnded}
+              style={{ marginTop: '1rem', background: '#10b981' }}
+            >
+              ✓ Marquer comme terminée et continuer
+            </button>
+          )}
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -93,8 +171,10 @@ function VideoPlayer({ video, onProgressUpdate }) {
           ref={videoRef}
           className="video-element"
           poster={video.thumbnail || ''}
+          crossOrigin="anonymous"
+          controls
         >
-          <source src={video.url} type="video/mp4" />
+          <source src={videoSrc} type={getVideoType(video?.url)} />
           Your browser does not support the video tag.
         </video>
       </div>

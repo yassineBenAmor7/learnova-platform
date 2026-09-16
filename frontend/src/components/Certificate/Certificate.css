@@ -1,0 +1,403 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Great+Vibes&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap');
+
+.certificate-wrapper {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.certificate-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  margin-top: 1rem;
+}
+
+.btn-print-cert {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 1.4rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+  box-shadow: 0 4px 14px rgba(30, 64, 175, 0.3);
+}
+
+.certificate-frame {
+  background: #ffffff;
+  padding: 24px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border-radius: 16px;
+  color: #0f172a;
+  position: relative;
+}
+
+.certificate-outer-border {
+  border: 12px double #1e3a8a;
+  padding: 16px;
+  border-radius: 12px;
+  background: #fffdfa;
+  position: relative;
+}
+
+.certificate-inner-border {
+  border: 2px solid #d97706;
+  padding: 3rem 2.5rem;
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(180deg, #ffffff 0%, #fffdf8 100%);
+}
+
+.certificate-watermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-30deg);
+  font-family: 'Cinzel', serif;
+  font-size: 8.5rem;
+  font-weight: 800;
+  color: rgba(30, 58, 138, 0.03);
+  letter-spacing: 0.25em;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.certificate-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.certificate-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.brand-logo-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #1e3a8a;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Cinzel', serif;
+}
+
+.brand-name {
+  font-family: 'Cinzel', serif;
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: #1e3a8a;
+}
+
+.brand-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-tagline {
+  font-size: 0.7rem;
+  color: #64748b;
+  letter-spacing: 0.05em;
+  margin-top: 0.1rem;
+}
+
+.seal-outer {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  padding: 3px;
+  box-shadow: 0 6px 16px rgba(217, 119, 6, 0.35);
+}
+
+.seal-inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px dashed #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+}
+
+.seal-icon {
+  margin-bottom: 0.1rem;
+}
+
+.seal-text {
+  font-size: 0.55rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.certificate-title-section {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.certificate-kicker {
+  font-family: 'Cinzel', serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #d97706;
+  letter-spacing: 0.2em;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.certificate-main-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.75rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.01em;
+}
+
+.certificate-presentation {
+  font-size: 1.05rem;
+  color: #64748b;
+  font-style: italic;
+  margin: 0;
+}
+
+.certificate-recipient {
+  text-align: center;
+  margin-bottom: 2.25rem;
+}
+
+.recipient-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: #1e3a8a;
+  margin-bottom: 0.5rem;
+}
+
+.recipient-underline {
+  width: 280px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, #d97706 50%, transparent 100%);
+  margin: 0 auto;
+}
+
+.certificate-accomplishment {
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto 3rem;
+}
+
+.accomplishment-text {
+  font-size: 1rem;
+  color: #475569;
+  line-height: 1.6;
+  margin-bottom: 0.85rem;
+}
+
+.course-name-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 0.5rem;
+}
+
+.course-domain-meta {
+  font-size: 0.88rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.course-details {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.course-detail-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.detail-label {
+  font-size: 0.75rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.detail-value {
+  font-size: 0.9rem;
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.certificate-achievement {
+  text-align: center;
+  margin: 2rem 0;
+}
+
+.achievement-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border: 1px solid #f59e0b;
+  padding: 0.75rem 1.5rem;
+  border-radius: 50px;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+}
+
+.achievement-icon {
+  color: #d97706;
+}
+
+.achievement-text {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #92400e;
+  letter-spacing: 0.03em;
+}
+
+.certificate-footer {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1.5rem;
+  align-items: end;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 2rem;
+}
+
+.signature-column {
+  text-align: center;
+}
+
+.signature-line {
+  border-bottom: 1px solid #94a3b8;
+  padding-bottom: 0.35rem;
+  margin-bottom: 0.5rem;
+  height: 45px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.signature-font {
+  font-family: 'Great Vibes', cursive;
+  font-size: 1.9rem;
+  color: #1e3a8a;
+}
+
+.signature-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #0f172a;
+  display: block;
+}
+
+.signature-org, .signature-date {
+  font-size: 0.75rem;
+  color: #64748b;
+  display: block;
+}
+
+.verification-box {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  padding: 0.65rem 0.85rem;
+  border-radius: 10px;
+}
+
+.verification-qr {
+  width: 64px;
+  height: 64px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  padding: 2px;
+  flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.verification-status-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #16a34a;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.2rem;
+}
+
+.verification-icon {
+  color: #16a34a;
+  flex-shrink: 0;
+}
+
+.verification-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.verification-label {
+  font-size: 0.65rem;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.verification-code {
+  font-size: 0.8rem;
+  color: #0f172a;
+  font-family: monospace;
+  letter-spacing: -0.02em;
+}
+
+.verification-url {
+  font-size: 0.65rem;
+  color: #2563eb;
+  word-break: break-all;
+}
+
+/* Print Optimization CSS */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .certificate-frame, .certificate-frame * {
+    visibility: visible;
+  }
+  .certificate-frame {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    box-shadow: none;
+    padding: 0;
+  }
+}

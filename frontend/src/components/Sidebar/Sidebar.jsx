@@ -1,7 +1,44 @@
-import { Lock, CheckCircle, Play } from 'lucide-react';
+import { Lock, CheckCircle, Play, Clock, ChevronRight, ChevronDown, HelpCircle } from 'lucide-react';
 import './Sidebar.css';
+import { useState } from 'react';
 
-const Sidebar = ({ sessions, activeSessionId, onSessionSelect }) => {
+const Sidebar = ({ sessions, activeSessionId, activeVideoId, onSessionSelect, onVideoSelect, quizzes }) => {
+  const [expandedSessions, setExpandedSessions] = useState(new Set([activeSessionId]));
+
+  const toggleSession = (sessionId) => {
+    const newExpanded = new Set(expandedSessions);
+    if (newExpanded.has(sessionId)) {
+      newExpanded.delete(sessionId);
+    } else {
+      newExpanded.add(sessionId);
+    }
+    setExpandedSessions(newExpanded);
+  };
+
+  // Calculate estimated duration for each session
+  const getSessionDuration = (session) => {
+    if (!session.videos || session.videos.length === 0) return null;
+    
+    const totalSeconds = session.videos.reduce((sum, video) => {
+      return sum + (video.duration || 0);
+    }, 0);
+    
+    const totalMinutes = Math.round(totalSeconds / 60);
+    
+    if (totalMinutes < 60) {
+      return `${totalMinutes} min`;
+    } else {
+      const hours = Math.floor(totalMinutes / 60);
+      const mins = totalMinutes % 60;
+      return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+    }
+  };
+
+  // Find practice quiz for a session
+  const getSessionQuiz = (sessionId) => {
+    return quizzes?.find(q => q.sessionId === sessionId && !q.isExamMode);
+  };
+
   return (
     <aside className="sidebar-container">
       <div className="sidebar-header">
@@ -12,6 +49,8 @@ const Sidebar = ({ sessions, activeSessionId, onSessionSelect }) => {
           const isActive = session.id === activeSessionId;
           const isCompleted = session.isCompleted;
           const isLocked = session.isLocked;
+          const isExpanded = expandedSessions.has(session.id);
+          const sessionDuration = getSessionDuration(session);
 
           let statusClass = 'session-unlocked';
           let StatusIcon = Play;
@@ -27,18 +66,68 @@ const Sidebar = ({ sessions, activeSessionId, onSessionSelect }) => {
           }
 
           return (
-            <div
-              key={session.id}
-              className={`session-item ${isActive ? 'active' : ''} ${isLocked ? 'locked' : ''}`}
-              onClick={() => !isLocked && onSessionSelect(session.id)}
-            >
-              <div className={`session-status-indicator ${statusClass}`}>
-                <StatusIcon size={16} />
+            <div key={session.id} className="session-wrapper">
+              <div
+                className={`session-item ${isActive ? 'active' : ''} ${isLocked ? 'locked' : ''}`}
+                onClick={() => {
+                  if (!isLocked) {
+                    toggleSession(session.id);
+                    onSessionSelect(session.id);
+                  }
+                }}
+              >
+                <div className={`session-status-indicator ${statusClass}`}>
+                  {isCompleted ? (
+                    <CheckCircle size={14} />
+                  ) : isLocked ? (
+                    <Lock size={14} />
+                  ) : (
+                    <span className="session-badge-number">{index + 1}</span>
+                  )}
+                </div>
+                <div className="session-info">
+                  <span className="session-title-text">{session.title}</span>
+                  {sessionDuration && (
+                    <div className="session-duration">
+                      <Clock size={12} />
+                      <span>{sessionDuration}</span>
+                    </div>
+                  )}
+                </div>
+                <div className="session-chevron">
+                  {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                </div>
               </div>
-              <div className="session-info">
-                <span className="session-number">Session {index + 1}</span>
-                <span className="session-title-text">{session.title}</span>
-              </div>
+              
+              {isExpanded && session.videos && session.videos.length > 0 && (
+                <div className="session-chapters">
+                  {session.videos.map((video, vIdx) => {
+                    const isVideoActive = video.id === activeVideoId;
+                    const isVideoLocked = vIdx > 0 && !session.videos[vIdx - 1].isCompleted;
+                    
+                    return (
+                      <div
+                        key={video.id}
+                        className={`chapter-item ${isVideoActive ? 'active' : ''} ${isVideoLocked ? 'locked' : ''}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (!isVideoLocked && onVideoSelect) {
+                            onVideoSelect(video.id);
+                          }
+                        }}
+                      >
+                        <span className="chapter-number">{vIdx + 1}</span>
+                        <span className="chapter-title">{video.title}</span>
+                        {video.duration && (
+                          <span className="chapter-duration">
+                            {Math.round(video.duration / 60)} min
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           );
         })}

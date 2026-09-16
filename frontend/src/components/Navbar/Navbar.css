@@ -25,24 +25,34 @@
   font-size: 1.75rem;
   font-weight: 800;
   letter-spacing: -0.03em;
-  color: #000;
   display: flex;
   align-items: center;
-  gap: 0.25rem;
-  transition: color var(--transition-fast);
+  gap: 0.65rem;
+  transition: opacity var(--transition-fast);
+}
+
+.navbar-logo span {
+  background: linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #3b82f6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #1e40af;
+}
+
+.navbar-brand-img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
 }
 
 .navbar-logo:hover {
-  color: var(--primary);
-}
-
-.navbar-logo:hover .logo-dot {
-  color: var(--primary);
+  opacity: 0.9;
 }
 
 .logo-dot {
-  color: #000;
-  transition: color var(--transition-fast);
+  background: linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #3b82f6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #3b82f6;
 }
 
 .navbar-menu {

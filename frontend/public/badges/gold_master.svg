@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" fill="none">
+  <defs>
+    <linearGradient id="blueMasterBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#93c5fd"/>
+      <stop offset="35%" stop-color="#3b82f6"/>
+      <stop offset="70%" stop-color="#1d4ed8"/>
+      <stop offset="100%" stop-color="#1e1b4b"/>
+    </linearGradient>
+    <linearGradient id="blueMasterInner" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#dbeafe"/>
+    </linearGradient>
+    <filter id="shadowMaster" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="10" stdDeviation="8" flood-color="#1d4ed8" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+
+  <circle cx="100" cy="95" r="75" fill="url(#blueMasterBorder)" filter="url(#shadowMaster)"/>
+  <circle cx="100" cy="95" r="63" fill="url(#blueMasterInner)"/>
+
+  <!-- Crown Icon -->
+  <path d="M65 105 L72 65 L90 85 L100 55 L110 85 L128 65 L135 105 Z" fill="url(#blueMasterBorder)"/>
+  <circle cx="72" cy="62" r="4" fill="#1e40af"/>
+  <circle cx="100" cy="50" r="5" fill="#1e40af"/>
+  <circle cx="128" cy="62" r="4" fill="#1e40af"/>
+  
+  <rect x="68" y="100" width="64" height="10" rx="3" fill="#1e3a8a"/>
+
+  <!-- Blue Ribbon Base -->
+  <path d="M45 142 L100 132 L155 142 L145 168 L100 158 L55 168 Z" fill="#1e3a8a"/>
+  <text x="100" y="150" font-family="'Inter', sans-serif" font-size="12" font-weight="900" fill="#93c5fd" text-anchor="middle" letter-spacing="2">GOLD MASTER</text>
+</svg>

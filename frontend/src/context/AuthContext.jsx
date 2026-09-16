@@ -68,8 +68,10 @@ export const AuthProvider = ({ children }) => {
     try {
       const profile = await authService.getMe();
       setUser(profile);
+      return profile;
     } catch (err) {
       console.error('Failed to refresh user profile:', err);
+      return null;
     }
   };
 

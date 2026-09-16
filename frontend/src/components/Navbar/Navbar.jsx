@@ -15,22 +15,27 @@ const Navbar = () => {
   return (
     <nav className="navbar-container">
       <div className="navbar-content">
-        <Link to={isAuthenticated ? '/dashboard' : '/'} className="navbar-logo">
-          Learnova<span className="logo-dot">.</span>
+        <Link to={isAuthenticated ? (isAdmin ? '/admin' : '/dashboard') : '/'} className="navbar-logo">
+          <img src="/logo.svg" alt="Learnova Logo" className="navbar-brand-img" />
+          <span>Learnova<span className="logo-dot">.</span></span>
         </Link>
 
         <div className="navbar-menu">
           {isAuthenticated ? (
             <>
-              <Link to="/courses" className="navbar-link">
-                <span>Courses</span>
-              </Link>
-              <Link to="/dashboard" className="navbar-link">
-                <span>Dashboard</span>
-              </Link>
-              <Link to="/certificates" className="navbar-link">
-                <span>Certificates</span>
-              </Link>
+              {!isAdmin && (
+                <>
+                  <Link to="/courses" className="navbar-link">
+                    <span>Courses</span>
+                  </Link>
+                  <Link to="/dashboard" className="navbar-link">
+                    <span>Dashboard</span>
+                  </Link>
+                  <Link to="/certificates" className="navbar-link">
+                    <span>Certificates</span>
+                  </Link>
+                </>
+              )}
               {isAdmin && (
                 <Link to="/admin" className="navbar-link admin-link">
                   <span>Admin</span>

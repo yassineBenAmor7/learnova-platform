@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" fill="none">
+  <defs>
+    <linearGradient id="diaBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="50%" stop-color="#2563eb"/>
+      <stop offset="100%" stop-color="#1e1b4b"/>
+    </linearGradient>
+    <linearGradient id="diaCore" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#bae6fd"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+    <filter id="shadowDia" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="12" stdDeviation="10" flood-color="#0284c7" flood-opacity="0.55"/>
+    </filter>
+  </defs>
+
+  <!-- Glowing Outer Starburst -->
+  <polygon points="100,5 125,50 175,25 150,75 195,100 150,125 175,175 125,150 100,195 75,150 25,175 50,125 5,100 50,75 25,25 75,50" fill="url(#diaBorder)" filter="url(#shadowDia)"/>
+  
+  <circle cx="100" cy="100" r="58" fill="url(#diaCore)"/>
+  
+  <!-- Crown Icon with Gold Accent -->
+  <path d="M70 112 L78 72 L94 92 L100 62 L106 92 L122 72 L130 112 Z" fill="#ffffff"/>
+  <circle cx="78" cy="68" r="4" fill="#fbbf24"/>
+  <circle cx="100" cy="56" r="5" fill="#fbbf24"/>
+  <circle cx="122" cy="68" r="4" fill="#fbbf24"/>
+
+  <!-- Legend Text -->
+  <rect x="50" y="128" width="100" height="22" rx="5" fill="#0f172a"/>
+  <text x="100" y="143" font-family="'Inter', sans-serif" font-size="10" font-weight="900" fill="#38bdf8" text-anchor="middle" letter-spacing="1.5">GRANDMASTER</text>
+</svg>
