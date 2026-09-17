@@ -12,6 +12,10 @@ const Navbar = () => {
     navigate('/');
   };
 
+  const handleAssistantClick = () => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+  };
+
   return (
     <nav className="navbar-container">
       <div className="navbar-content">
@@ -34,7 +38,7 @@ const Navbar = () => {
                   <Link to="/certificates" className="navbar-link">
                     <span>Certificates</span>
                   </Link>
-                  <Link to="/chatbot" className="navbar-link">
+                  <Link to="/chatbot" className="navbar-link" onClick={handleAssistantClick}>
                     <span>Assistant IA</span>
                   </Link>
                 </>
@@ -44,7 +48,7 @@ const Navbar = () => {
                   <Link to="/admin" className="navbar-link admin-link">
                     <span>Admin</span>
                   </Link>
-                  <Link to="/chatbot" className="navbar-link">
+                  <Link to="/chatbot" className="navbar-link" onClick={handleAssistantClick}>
                     <span>Assistant IA</span>
                   </Link>
                 </>
@@ -53,7 +57,7 @@ const Navbar = () => {
           ) : (
             <>
               <Link to="/" className="navbar-link">Home</Link>
-              <Link to="/chatbot" className="navbar-link">Assistant IA</Link>
+              <Link to="/chatbot" className="navbar-link" onClick={handleAssistantClick}>Assistant IA</Link>
             </>
           )}
         </div>

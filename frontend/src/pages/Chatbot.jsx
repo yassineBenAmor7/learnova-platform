@@ -42,12 +42,27 @@ function ChatbotPage() {
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
+  const streamRef = useRef(null);
+  const isFirstMount = useRef(true);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (streamRef.current) {
+      streamRef.current.scrollTo({
+        top: streamRef.current.scrollHeight,
+        behavior: 'smooth',
+      });
+    }
   };
 
   useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, []);
+
+  useEffect(() => {
+    if (isFirstMount.current) {
+      isFirstMount.current = false;
+      return;
+    }
     scrollToBottom();
   }, [messages]);
 
@@ -101,56 +116,57 @@ function ChatbotPage() {
   };
 
   return (
-    <div className="chatbot-page-container">
-      <div className="chatbot-page-sidebar">
-        <button className="back-btn" onClick={() => navigate(-1)}>
-          <ArrowLeft size={16} />
-          <span>Retour</span>
-        </button>
+    <div className="chatbot-page-root">
+      <div className="chatbot-page-container">
+        <div className="chatbot-page-sidebar">
+          <button className="back-btn" onClick={() => navigate(-1)}>
+            <ArrowLeft size={16} />
+            <span>Retour</span>
+          </button>
 
-        <div className="sidebar-header">
-          <div className="tutor-avatar">
-            <Bot size={28} />
+          <div className="sidebar-header">
+            <div className="tutor-avatar">
+              <Bot size={28} />
+            </div>
+            <h3>Tuteur Virtuel IA</h3>
+            <p>Assistance pédagogique 24/7 alimentée par les contenus réels de Learnova.</p>
           </div>
-          <h3>Tuteur Virtuel IA</h3>
-          <p>Assistance pédagogique 24/7 alimentée par les contenus réels de Learnova.</p>
+
+          <div className="prompt-topics">
+            <h4>Thématiques Fréquentes</h4>
+            <button
+              className="topic-btn"
+              onClick={() => handleSendMessage('Quelles sont les formations les plus populaires en Informatique & Data ?')}
+            >
+              <BookOpen size={16} />
+              <span>Formations IT & Data</span>
+            </button>
+            <button
+              className="topic-btn"
+              onClick={() => handleSendMessage('Comment se déroule la certification avec QR Code ?')}
+            >
+              <Award size={16} />
+              <span>Certifications & QR Code</span>
+            </button>
+            <button
+              className="topic-btn"
+              onClick={() => handleSendMessage('Quelles sont les règles du Mode Examen chronométré ?')}
+            >
+              <CheckCircle size={16} />
+              <span>Mode Examen & Seuil 70%</span>
+            </button>
+            <button
+              className="topic-btn"
+              onClick={() => handleSendMessage('Comment progresser en niveau et débloquer des badges ?')}
+            >
+              <Sparkles size={16} />
+              <span>Gamification & Streaks</span>
+            </button>
+          </div>
         </div>
 
-        <div className="prompt-topics">
-          <h4>Thématiques Fréquentes</h4>
-          <button
-            className="topic-btn"
-            onClick={() => handleSendMessage('Quelles sont les formations les plus populaires en Informatique & Data ?')}
-          >
-            <BookOpen size={16} />
-            <span>Formations IT & Data</span>
-          </button>
-          <button
-            className="topic-btn"
-            onClick={() => handleSendMessage('Comment se déroule la certification avec QR Code ?')}
-          >
-            <Award size={16} />
-            <span>Certifications & QR Code</span>
-          </button>
-          <button
-            className="topic-btn"
-            onClick={() => handleSendMessage('Quelles sont les règles du Mode Examen chronométré ?')}
-          >
-            <CheckCircle size={16} />
-            <span>Mode Examen & Seuil 70%</span>
-          </button>
-          <button
-            className="topic-btn"
-            onClick={() => handleSendMessage('Comment progresser en niveau et débloquer des badges ?')}
-          >
-            <Sparkles size={16} />
-            <span>Gamification & Streaks</span>
-          </button>
-        </div>
-      </div>
-
-      <div className="chatbot-page-main">
-        <div className="chatpage-stream">
+        <div className="chatbot-page-main">
+          <div className="chatpage-stream" ref={streamRef}>
           {messages.map((m) => (
             <div
               key={m.id}
@@ -239,6 +255,7 @@ function ChatbotPage() {
         </form>
       </div>
     </div>
+  </div>
   );
 }
 
