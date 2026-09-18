@@ -199,23 +199,6 @@ function Exam() {
             {Math.round(result.score)}%
           </div>
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-            {result.passed && (
-              <button
-                type="button"
-                onClick={() => {
-                  const cId = quiz?.courseId || quiz?.course?.id;
-                  if (cId) {
-                    navigate(`/learning-path/${cId}`);
-                  } else {
-                    navigate('/courses');
-                  }
-                }}
-                className="btn btn-primary"
-                style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#ffffff', border: 'none', fontWeight: 800, padding: '0.75rem 1.5rem', borderRadius: '12px' }}
-              >
-                Continue to Next Session 
-              </button>
-            )}
             <button onClick={() => setShowReview(true)} className="btn btn-secondary">
               Review Answers 
             </button>
@@ -224,45 +207,22 @@ function Exam() {
                 type="button"
                 onClick={async () => {
                   try {
-                    // Stocker les informations du certificat dans localStorage
-                    const certificateData = {
-                      id: Date.now(),
-                      courseId: quiz.courseId,
-                      courseTitle: quiz.title,
-                      issuedAt: new Date().toISOString(),
-                      certificateNumber: `CERT-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`,
-                      user: {
-                        firstName: user?.firstName || 'Learner',
-                        lastName: user?.lastName || 'User'
-                      },
-                      course: {
-                        title: quiz.title,
-                        domain: quiz.domain || 'Professional Development',
-                        level: quiz.level || 'Intermediate',
-                        duration: quiz.duration || 'Self-paced'
-                      }
-                    };
-                    
-                    // Récupérer les certificats existants
-                    const existingCertificates = JSON.parse(localStorage.getItem('userCertificates') || '[]');
-                    // Vérifier si un certificat pour ce cours existe déjà
-                    const existingIndex = existingCertificates.findIndex(cert => cert.courseId === quiz.courseId);
-                    if (existingIndex !== -1) {
-                      existingCertificates[existingIndex] = certificateData;
+                    const learningPathService = (await import('../services/learning-path.service')).default;
+                    const res = await learningPathService.checkAndGenerateCertificate(quiz.courseId);
+                    if (res?.certificate || res?.success || res?.message?.includes('Certificate generated') || res?.message?.includes('Certificate already issued')) {
+                      navigate('/certificates');
                     } else {
-                      existingCertificates.push(certificateData);
+                      navigate('/certificates');
                     }
-                    localStorage.setItem('userCertificates', JSON.stringify(existingCertificates));
-                    
-                    navigate('/certificates');
                   } catch (err) {
                     console.error('Failed to generate certificate:', err);
                     navigate('/certificates');
                   }
                 }}
                 className="btn btn-primary"
+                style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#ffffff', border: 'none', fontWeight: 800, padding: '0.75rem 1.5rem', borderRadius: '12px' }}
               >
-                Claim My Certificate
+                🎓 Obtenir mon Certificat Officiel →
               </button>
             )}
             <Link to={quiz?.courseId ? `/learning-path/${quiz.courseId}` : "/courses"} className="btn btn-secondary">

@@ -617,66 +617,95 @@ export class LearningPathService {
 
 
   async checkAndGenerateCertificate(userId: number, courseId: number) {
-
     const existingCertificate = await this.prisma.client.certificate.findFirst({
-
       where: { userId, courseId },
-
+      include: { course: true, user: true },
     });
 
     if (existingCertificate) {
-
       return { message: 'Certificate already issued', certificate: existingCertificate };
-
     }
 
-
-
     const course = await this.prisma.client.course.findUnique({
-
       where: { id: courseId },
-
-      include: { sessions: true, quizzes: true },
-
+      include: {
+        sessions: { orderBy: { orderNumber: 'asc' } },
+        quizzes: true,
+      },
     });
 
-    if (!course) throw new NotFoundException('Course not found');
+    if (!course) throw new NotFoundException(`Course with ID ${courseId} not found`);
 
-    // Check if ALL practice quizzes are passed for final exam
+    // 1. Check if user is enrolled
+    const enrollment = await this.prisma.client.enrollment.findUnique({
+      where: { userId_courseId: { userId, courseId } },
+      include: { progress: true },
+    });
+
+    if (!enrollment) {
+      throw new ForbiddenException('You must be enrolled in this course to receive a certificate');
+    }
+
+    // 2. Check if ALL sessions in this course are completed
+    const totalSessions = course.sessions.length;
+    if (totalSessions > 0) {
+      const completedSessionsCount = await this.prisma.client.sessionCompletion.count({
+        where: {
+          userId,
+          sessionId: { in: course.sessions.map((s) => s.id) },
+        },
+      });
+
+      if (completedSessionsCount < totalSessions) {
+        return {
+          success: false,
+          message: 'All course sessions must be completed before receiving the certificate',
+          progress: `${completedSessionsCount}/${totalSessions} sessions completed`,
+        };
+      }
+    }
+
+    // 3. Check if ALL practice quizzes are passed
     const practiceQuizzes = course.quizzes.filter((q) => !q.isExamMode);
-
     if (practiceQuizzes.length > 0) {
       const passedPractice = await this.prisma.client.quizAttempt.count({
         where: { userId, passed: true, quizId: { in: practiceQuizzes.map((q) => q.id) } },
       });
 
-      if (passedPractice !== practiceQuizzes.length) {
-        return { message: 'Not all practice quizzes passed', progress: `${passedPractice}/${practiceQuizzes.length}` };
+      if (passedPractice < practiceQuizzes.length) {
+        return {
+          success: false,
+          message: 'All practice quizzes must be passed before receiving the certificate',
+          progress: `${passedPractice}/${practiceQuizzes.length} practice quizzes passed`,
+        };
       }
     }
 
+    // 4. Check if final exam (isExamMode = true) exists and was passed with score >= passingScore
     const examQuiz = course.quizzes.find((q) => q.isExamMode);
-
-
-
-    if (examQuiz) {
-
-      const examPassed = await this.prisma.client.quizAttempt.findFirst({
-
-        where: { userId, quizId: examQuiz.id, passed: true },
-
-      });
-
-      if (!examPassed) return { message: 'Final exam not passed yet' };
-
+    if (!examQuiz) {
+      return { success: false, message: 'No final certification exam configured for this course' };
     }
 
+    const examPassed = await this.prisma.client.quizAttempt.findFirst({
+      where: {
+        userId,
+        quizId: examQuiz.id,
+        passed: true,
+        score: { gte: examQuiz.passingScore || 70 },
+      },
+    });
 
+    if (!examPassed) {
+      return {
+        success: false,
+        message: 'Final certification exam must be passed with at least 70% to receive the certificate',
+      };
+    }
 
+    // All requirements strictly satisfied! Issue official certificate
     const certificate = await this.certificatesService.create({ userId, courseId });
-
-    return { message: 'Certificate generated successfully', certificate };
-
+    return { success: true, message: 'Certificate generated successfully', certificate };
   }
 
 }
