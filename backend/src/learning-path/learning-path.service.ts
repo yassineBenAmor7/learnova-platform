@@ -212,71 +212,65 @@ export class LearningPathService {
 
 
 
+    let priorSessionsSatisfied = true;
+
     const sessions = enrollment.course.sessions.map((session, index) => {
-
       const isCompleted = completedSessionIds.has(session.id);
-
-      const readingCompleted =
-
-        !session.content?.trim() || readSessionIds.has(session.id);
-
-      const previousSession = index === 0 ? null : enrollment.course.sessions[index - 1];
-
-      // Check if previous session's practice quiz is passed to unlock next session
-      let previousQuizPassed = false;
-      if (previousSession) {
-        const previousQuiz = this.findSessionQuiz(previousSession, enrollment.course.quizzes);
-        if (previousQuiz) {
-          previousQuizPassed = passedQuizIds.has(previousQuiz.id);
-        } else {
-          // If no quiz exists, allow access based on video completion
-          const previousVideoIds = previousSession.videos.map(v => v.id);
-          previousQuizPassed = watchedVideos.some(w => 
-            previousVideoIds.includes(w.videoId) && w.completed
-          );
-        }
-      }
-
-      const canAccess = index === 0 || previousQuizPassed;
+      const readingCompleted = !session.content?.trim() || readSessionIds.has(session.id);
 
       const sessionQuiz = this.findSessionQuiz(session, enrollment.course.quizzes);
+      const isSessionQuizPassed = sessionQuiz ? passedQuizIds.has(sessionQuiz.id) : true;
 
+      // Sequential video locking within the session
+      let priorVideosInSessionCompleted = true;
+      const videos = session.videos.map((video, vIdx) => {
+        const watch = watchedVideoMap.get(video.id);
+        const isVideoCompleted = !!watch?.completed;
 
+        // Video is locked if current session is locked OR if any previous video in this session is incomplete
+        const canAccessSession = index === 0 || priorSessionsSatisfied;
+        const isLocked = !canAccessSession ? true : (vIdx > 0 && !priorVideosInSessionCompleted);
+
+        if (!isVideoCompleted) {
+          priorVideosInSessionCompleted = false;
+        }
+
+        return {
+          ...video,
+          isCompleted: isVideoCompleted,
+          watchedSeconds: watch?.watchedSeconds || 0,
+          isLocked,
+        };
+      });
+
+      const allVideosCompleted = session.videos.length === 0 || session.videos.every((v) => {
+        const watch = watchedVideoMap.get(v.id);
+        return !!watch?.completed;
+      });
+
+      // To unlock the NEXT session:
+      // 1. ALL videos in this session must be completed
+      // 2. The practice quiz of this session must be passed with success
+      // 3. Reading completed (if content exists)
+      const thisSessionComplete = allVideosCompleted && isSessionQuizPassed && readingCompleted;
+
+      const canAccess = index === 0 ? true : priorSessionsSatisfied;
+
+      if (!thisSessionComplete) {
+        priorSessionsSatisfied = false;
+      }
 
       return {
-
         ...session,
-
-        videos: session.videos.map((video) => {
-
-          const watch = watchedVideoMap.get(video.id);
-
-          return {
-
-            ...video,
-
-            isCompleted: !!watch?.completed,
-
-            watchedSeconds: watch?.watchedSeconds || 0,
-
-          };
-
-        }),
-
+        videos,
         sessionQuiz,
-
         readingCompleted,
-
-        sessionQuizPassed: sessionQuiz ? passedQuizIds.has(sessionQuiz.id) : true,
-
-        isCompleted,
-
+        sessionQuizPassed: isSessionQuizPassed,
+        allVideosCompleted,
+        isCompleted: thisSessionComplete || isCompleted,
         isLocked: index > 0 && !canAccess,
-
         canAccess,
-
       };
-
     });
 
 
@@ -370,133 +364,104 @@ export class LearningPathService {
 
 
   async tryAutoCompleteSession(userId: number, sessionId: number) {
-
     const session = await this.prisma.client.session.findUnique({
-
       where: { id: sessionId },
-
       include: {
-
         videos: true,
-
-        course: { include: { sessions: { orderBy: { orderNumber: 'asc' } } } },
-
+        course: {
+          include: {
+            sessions: { orderBy: { orderNumber: 'asc' } },
+            quizzes: true,
+          },
+        },
       },
-
     });
-
-
 
     if (!session) throw new NotFoundException(`Session with ID ${sessionId} not found`);
 
-
-
     const alreadyDone = await this.prisma.client.sessionCompletion.findUnique({
-
       where: { userId_sessionId: { userId, sessionId } },
-
     });
 
     if (alreadyDone) {
-
       return { autoCompleted: false, alreadyCompleted: true };
-
     }
-
-
 
     const videosDone = await this.areAllVideosComplete(userId, session);
-
     const readingDone = await this.isReadingComplete(userId, session);
 
-
-
-    if (!videosDone || !readingDone) {
-
-      return {
-
-        autoCompleted: false,
-
-        videosDone,
-
-        readingDone,
-
-        message: 'Complete all videos and reading notes to earn session XP',
-
-      };
-
+    const sessionQuiz = this.findSessionQuiz(session, session.course.quizzes || []);
+    let quizPassed = true;
+    if (sessionQuiz) {
+      const attempt = await this.prisma.client.quizAttempt.findFirst({
+        where: { userId, quizId: sessionQuiz.id, passed: true },
+      });
+      quizPassed = !!attempt;
     }
 
-
+    if (!videosDone || !readingDone || !quizPassed) {
+      return {
+        autoCompleted: false,
+        videosDone,
+        readingDone,
+        quizPassed,
+        message: 'Complete all videos, reading notes, and pass the practice quiz to complete this chapter',
+      };
+    }
 
     return this.completeSession(userId, sessionId, true);
-
   }
 
-
-
   async completeSession(userId: number, sessionId: number, isAuto = false) {
-
     const session = await this.prisma.client.session.findUnique({
-
       where: { id: sessionId },
-
-      include: { videos: true, course: { include: { sessions: { orderBy: { orderNumber: 'asc' } } } } },
-
+      include: {
+        videos: true,
+        course: {
+          include: {
+            sessions: { orderBy: { orderNumber: 'asc' } },
+            quizzes: true,
+          },
+        },
+      },
     });
-
-
 
     if (!session) throw new NotFoundException(`Session with ID ${sessionId} not found`);
 
-
-
     const enrollment = await this.prisma.client.enrollment.findUnique({
-
       where: { userId_courseId: { userId, courseId: session.courseId } },
-
       include: { progress: true },
-
     });
 
     if (!enrollment) throw new ForbiddenException('You must enroll in this course first');
 
-
-
     const sessionIndex = session.course.sessions.findIndex((s) => s.id === sessionId);
-
     if (sessionIndex > 0) {
-
       const previousSession = session.course.sessions[sessionIndex - 1];
-
       const previousDone = await this.prisma.client.sessionCompletion.findUnique({
-
         where: { userId_sessionId: { userId, sessionId: previousSession.id } },
-
       });
-
       if (!previousDone) {
-
         throw new ForbiddenException('Complete the previous session first');
-
       }
-
     }
 
-
-
     const videosDone = await this.areAllVideosComplete(userId, session);
-
     const readingDone = await this.isReadingComplete(userId, session);
 
-    if (!videosDone || !readingDone) {
+    const sessionQuiz = this.findSessionQuiz(session, session.course.quizzes || []);
+    let quizPassed = true;
+    if (sessionQuiz) {
+      const attempt = await this.prisma.client.quizAttempt.findFirst({
+        where: { userId, quizId: sessionQuiz.id, passed: true },
+      });
+      quizPassed = !!attempt;
+    }
 
+    if (!videosDone || !readingDone || !quizPassed) {
       throw new BadRequestException(
-
-        'You must watch all session videos and complete the reading notes before earning XP',
-
+        'You must watch all session videos, complete the reading notes, and pass the practice quiz before completing this chapter',
       );
-
     }
 
 

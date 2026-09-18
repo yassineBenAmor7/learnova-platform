@@ -2,7 +2,16 @@ import { Lock, CheckCircle, Play, Clock, ChevronRight, ChevronDown, HelpCircle }
 import './Sidebar.css';
 import { useState } from 'react';
 
-const Sidebar = ({ sessions, activeSessionId, activeVideoId, onSessionSelect, onVideoSelect, quizzes }) => {
+const Sidebar = ({
+  sessions,
+  activeSessionId,
+  activeVideoId,
+  onSessionSelect,
+  onVideoSelect,
+  onSessionLockedClick,
+  onVideoLockedClick,
+  quizzes,
+}) => {
   const [expandedSessions, setExpandedSessions] = useState(new Set([activeSessionId]));
 
   const toggleSession = (sessionId) => {
@@ -73,6 +82,8 @@ const Sidebar = ({ sessions, activeSessionId, activeVideoId, onSessionSelect, on
                   if (!isLocked) {
                     toggleSession(session.id);
                     onSessionSelect(session.id);
+                  } else if (onSessionLockedClick) {
+                    onSessionLockedClick(session, index);
                   }
                 }}
               >
@@ -103,7 +114,9 @@ const Sidebar = ({ sessions, activeSessionId, activeVideoId, onSessionSelect, on
                 <div className="session-chapters">
                   {session.videos.map((video, vIdx) => {
                     const isVideoActive = video.id === activeVideoId;
-                    const isVideoLocked = vIdx > 0 && !session.videos[vIdx - 1].isCompleted;
+                    const isVideoDone = video.isCompleted;
+                    const isPriorIncomplete = vIdx > 0 && session.videos.slice(0, vIdx).some((v) => !v.isCompleted);
+                    const isVideoLocked = isLocked || isPriorIncomplete;
                     
                     return (
                       <div
@@ -113,16 +126,22 @@ const Sidebar = ({ sessions, activeSessionId, activeVideoId, onSessionSelect, on
                           e.stopPropagation();
                           if (!isVideoLocked && onVideoSelect) {
                             onVideoSelect(video.id);
+                          } else if (isVideoLocked && onVideoLockedClick) {
+                            onVideoLockedClick(video, vIdx);
                           }
                         }}
                       >
                         <span className="chapter-number">{vIdx + 1}</span>
                         <span className="chapter-title">{video.title}</span>
-                        {video.duration && (
+                        {isVideoDone ? (
+                          <CheckCircle size={12} style={{ color: '#10b981', marginLeft: 'auto', flexShrink: 0 }} />
+                        ) : isVideoLocked ? (
+                          <Lock size={12} style={{ color: '#94a3b8', marginLeft: 'auto', flexShrink: 0 }} />
+                        ) : video.duration ? (
                           <span className="chapter-duration">
                             {Math.round(video.duration / 60)} min
                           </span>
-                        )}
+                        ) : null}
                       </div>
                     );
                   })}

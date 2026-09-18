@@ -121,31 +121,17 @@ function Quiz() {
             quizData.title.toLowerCase().includes(s.title.toLowerCase())
           );
           
-          // Get all practice quizzes for the current session
-          const sessionPracticeQuizzes = (courseData.quizzes || [])
-            .filter(q => !q.isExamMode && (
-              currentSession && (
-                q.sessionId === currentSession.id ||
-                q.title.toLowerCase().includes(currentSession.title.toLowerCase()) ||
-                currentSession.title.toLowerCase().includes(q.title.toLowerCase().replace('quiz', '').trim())
-              )
-            ));
+          const sessions = [...(courseData.sessions || [])].sort((a, b) => a.orderNumber - b.orderNumber);
+          const currentSessionIndex = sessions.findIndex((s) => 
+            s.id === quizData.sessionId ||
+            (currentSession && s.id === currentSession.id) ||
+            s.title.toLowerCase().includes(quizData.title.toLowerCase().replace('quiz', '').trim()) ||
+            quizData.title.toLowerCase().includes(s.title.toLowerCase())
+          );
           
-          const sortedSessionPracticeQuizzes = sessionPracticeQuizzes.sort((a, b) => new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime());
-          const lastSessionPracticeQuiz = sortedSessionPracticeQuizzes[sortedSessionPracticeQuizzes.length - 1];
-          
-          // Set isLastPracticeQuiz based on whether this is the last practice quiz of the current session
-          quizData.isLastPracticeQuiz = lastSessionPracticeQuiz?.id === quizData.id;
-          setIsLastPracticeQuiz(quizData.isLastPracticeQuiz);
-          
-          console.log('=== DEBUG QUIZ DETECTION ===');
-          console.log('Current Quiz ID:', quizData.id);
-          console.log('Current Quiz Title:', quizData.title);
-          console.log('Current Session:', currentSession ? { id: currentSession.id, title: currentSession.title } : 'None');
-          console.log('Session Practice Quizzes:', sessionPracticeQuizzes.map(q => ({ id: q.id, title: q.title })));
-          console.log('Last Session Practice Quiz:', lastSessionPracticeQuiz ? { id: lastSessionPracticeQuiz.id, title: lastSessionPracticeQuiz.title } : 'None');
-          console.log('Is Last Practice Quiz of Session:', quizData.isLastPracticeQuiz);
-          console.log('============================');
+          const isLastSessionOfCourse = currentSessionIndex !== -1 && currentSessionIndex === (sessions.length - 1);
+          quizData.isLastPracticeQuiz = isLastSessionOfCourse;
+          setIsLastPracticeQuiz(isLastSessionOfCourse);
         } catch (err) {
           console.error('Failed to load course quizzes:', err);
           quizData.isLastPracticeQuiz = false;
@@ -372,43 +358,26 @@ function Quiz() {
                 onClick={async () => {
                   try {
                     const courseData = await courseService.getById(quiz.courseId);
+                    const sessions = [...(courseData.sessions || [])].sort((a, b) => a.orderNumber - b.orderNumber);
                     
                     // Find the current session for this quiz
-                    const currentSession = courseData.sessions?.find(s => 
+                    const currentSession = sessions.find((s) => 
+                      s.id === quiz.sessionId ||
                       s.title.toLowerCase().includes(quiz.title.toLowerCase().replace('quiz', '').trim()) ||
                       quiz.title.toLowerCase().includes(s.title.toLowerCase())
                     );
                     
-                    // Get all practice quizzes for the current session
-                    const sessionPracticeQuizzes = (courseData.quizzes || [])
-                      .filter(q => !q.isExamMode && (
-                        currentSession && (
-                          q.sessionId === currentSession.id ||
-                          q.title.toLowerCase().includes(currentSession.title.toLowerCase()) ||
-                          currentSession.title.toLowerCase().includes(q.title.toLowerCase().replace('quiz', '').trim())
-                        )
-                      ));
-                    
-                    const sortedSessionPracticeQuizzes = sessionPracticeQuizzes.sort((a, b) => new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime());
-                    const lastSessionPracticeQuiz = sortedSessionPracticeQuizzes[sortedSessionPracticeQuizzes.length - 1];
-                    const isLastSessionPracticeQuiz = lastSessionPracticeQuiz?.id === quiz.id;
+                    const currentSessionIndex = sessions.findIndex((s) => s.id === currentSession?.id);
+                    const nextSession = currentSessionIndex !== -1 ? sessions[currentSessionIndex + 1] : null;
 
-                    if (isLastSessionPracticeQuiz) {
-                      // This is the last practice quiz of the current session - proceed to final exam
-                      const finalExam = courseData.quizzes?.find(q => q.isExamMode);
+                    if (nextSession) {
+                      // Navigate to the newly unlocked next session!
+                      window.location.href = `/learning-path/${quiz.courseId}?session=${nextSession.id}`;
+                    } else {
+                      // Last session of the course! Proceed to final exam if available
+                      const finalExam = courseData.quizzes?.find((q) => q.isExamMode);
                       if (finalExam) {
                         window.location.href = `/exam/${finalExam.id}`;
-                      } else {
-                        window.location.href = `/learning-path/${quiz.courseId}`;
-                      }
-                    } else {
-                      // This is not the last practice quiz - proceed to next session
-                      const sessions = courseData.sessions || [];
-                      const currentSessionIndex = sessions.findIndex(s => s.id === currentSession?.id);
-                      const nextSession = sessions[currentSessionIndex + 1];
-                      
-                      if (nextSession) {
-                        window.location.href = `/learning-path/${quiz.courseId}?session=${nextSession.id}`;
                       } else {
                         window.location.href = `/learning-path/${quiz.courseId}`;
                       }
@@ -420,7 +389,7 @@ function Quiz() {
                 }}
                 className="btn btn-primary"
               >
-                {isLastPracticeQuiz ? 'Proceed to Final Exam' : 'Proceed to Next Session'}
+                {isLastPracticeQuiz ? 'Proceed to Final Exam →' : 'Proceed to Next Session →'}
               </button>
             )}
           </div>
