@@ -1,6 +1,8 @@
 import { Controller, Get, Put, Body, NotFoundException, UseGuards, Post, UseInterceptors, UploadedFile, Delete, Param } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../common/guards/roles.guard';
+import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -140,19 +142,22 @@ export class UsersController {
   }
 
   @Get('all')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
   async getAllUsers(@CurrentUser() user: { id: number }) {
     return this.usersService.getAllUsers();
   }
 
   @Delete(':userId')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
   async deleteUserByAdmin(@Param('userId') userId: string) {
     return this.usersService.deleteUserByAdmin(+userId);
   }
 
   @Post()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
   async createUserByAdmin(
     @Body() createUserData: { firstName: string; lastName: string; email: string; password: string; roleId: number },
   ) {
@@ -160,7 +165,8 @@ export class UsersController {
   }
 
   @Put(':userId/role')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
   async updateUserRole(
     @Param('userId') userId: string,
     @Body() body: { roleId: number },
@@ -169,7 +175,8 @@ export class UsersController {
   }
 
   @Put(':userId')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
   async updateUserByAdmin(
     @Param('userId') userId: string,
     @Body() updateData: { firstName?: string; lastName?: string; email?: string },

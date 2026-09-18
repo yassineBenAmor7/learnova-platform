@@ -1,6 +1,8 @@
 import { Controller, Get, Param, UseGuards, Request } from '@nestjs/common';
 import { DashboardService } from './dashboard.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../common/guards/roles.guard';
+import { Roles } from '../common/decorators/roles.decorator';
 
 @Controller('dashboard')
 export class DashboardController {
@@ -24,13 +26,15 @@ export class DashboardController {
   }
 
   @Get('admin')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
   getAdminDashboard() {
     return this.dashboardService.getAdminDashboard();
   }
 
   @Get('admin/all-data')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
   getAllData() {
     return this.dashboardService.getAllData();
   }
