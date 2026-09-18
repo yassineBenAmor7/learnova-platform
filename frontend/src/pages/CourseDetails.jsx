@@ -222,14 +222,18 @@ const CourseDetails = () => {
                       tabIndex={0}
                       onClick={() => handleSessionClick(session.id)}
                       onKeyDown={(event) => handleSessionKeyDown(event, session.id)}
-                      aria-label={`Open session ${index + 1}: ${session.title}`}
+                      aria-label={sortedSessions.length > 1 ? `Open session ${index + 1}: ${session.title}` : `Open session: ${session.title}`}
                     >
-                      <div className="session-index">{String(index + 1).padStart(2, '0')}</div>
+                      {sortedSessions.length > 1 && (
+                        <div className="session-index">{String(index + 1).padStart(2, '0')}</div>
+                      )}
                       <div className="session-number" aria-hidden="true">
                         <PlayCircle size={22} className="play-icon" />
                       </div>
                       <div className="session-info">
-                        <h3 className="session-title">{session.title}</h3>
+                        <h3 className="session-title">
+                          {sortedSessions.length === 1 ? session.title.replace(/^Session\s*1\s*[:\-]\s*/i, 'Session: ') : session.title}
+                        </h3>
                         <div className="session-meta">
                           <p className="session-duration">
                             <Clock size={14} aria-hidden="true" />

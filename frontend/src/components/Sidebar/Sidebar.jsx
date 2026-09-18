@@ -92,12 +92,16 @@ const Sidebar = ({
                     <CheckCircle size={14} />
                   ) : isLocked ? (
                     <Lock size={14} />
-                  ) : (
+                  ) : sessions.length > 1 ? (
                     <span className="session-badge-number">{index + 1}</span>
+                  ) : (
+                    <Play size={12} />
                   )}
                 </div>
                 <div className="session-info">
-                  <span className="session-title-text">{session.title}</span>
+                  <span className="session-title-text">
+                    {sessions.length === 1 ? session.title.replace(/^Session\s*1\s*[:\-]\s*/i, 'Session: ') : session.title}
+                  </span>
                   {sessionDuration && (
                     <div className="session-duration">
                       <Clock size={12} />

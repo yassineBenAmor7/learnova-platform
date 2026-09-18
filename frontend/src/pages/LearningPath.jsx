@@ -40,6 +40,15 @@ const isEmbeddableVideo = (url) => {
   return url.includes('youtube.com') || url.includes('youtu.be') || url.includes('vimeo.com');
 };
 
+// Helper to format session title (for single session courses, "Session:" instead of "Session 1:")
+const formatSessionTitle = (title, totalSessions = 1) => {
+  if (!title) return '';
+  if (totalSessions <= 1) {
+    return title.replace(/^Session\s*1\s*[:\-]\s*/i, 'Session: ');
+  }
+  return title;
+};
+
 // Helper to calculate session duration (videos + reading time)
 const getSessionDuration = (session) => {
   if (!session) return null;
@@ -650,7 +659,9 @@ function LearningPath() {
 
         {currentSession ? (
           <div className="session-content">
-            <h2 className="session-title">{currentSession.title}</h2>
+            <h2 className="session-title">
+              {formatSessionTitle(currentSession.title, pathData?.sessions?.length)}
+            </h2>
             
             {/* Navigation Tabs (Udemy/Coursera style) */}
             <div className="session-tabs">
@@ -853,7 +864,9 @@ function LearningPath() {
                   <div className="session-quiz-card card">
                     <div className="quiz-card-header">
                       <div className="quiz-badge">Session Evaluation</div>
-                      <h3 className="quiz-title-main">{sessionQuiz ? sessionQuiz.title : `Knowledge Check: ${currentSession.title}`}</h3>
+                      <h3 className="quiz-title-main">
+                        {sessionQuiz ? sessionQuiz.title : `Knowledge Check: ${formatSessionTitle(currentSession.title, pathData?.sessions?.length)}`}
+                      </h3>
                     </div>
                     
                     <div className="quiz-details-grid">
@@ -881,7 +894,7 @@ function LearningPath() {
                     </div>
 
                     <p className="quiz-card-description">
-                      {sessionQuiz?.description || `Test your understanding of "${currentSession.title}". 3 questions • Unlimited attempts • Pass to unlock next steps.`}
+                      {sessionQuiz?.description || `Test your understanding of "${formatSessionTitle(currentSession.title, pathData?.sessions?.length)}". 3 questions • Unlimited attempts • Pass to unlock next steps.`}
                     </p>
 
                     <div className="quiz-card-actions">
