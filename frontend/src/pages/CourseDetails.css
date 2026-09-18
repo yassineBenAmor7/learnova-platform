@@ -313,12 +313,12 @@
   border-radius: var(--radius-md);
   flex-shrink: 0;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 3px 10px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 3px 10px rgba(37, 99, 235, 0.3);
 }
 
 .session-item:hover .session-number {
   transform: scale(1.1) rotate(3deg);
-  box-shadow: 0 5px 15px rgba(99, 102, 241, 0.4);
+  box-shadow: 0 5px 15px rgba(37, 99, 235, 0.4);
 }
 
 .play-icon {
