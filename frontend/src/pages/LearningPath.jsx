@@ -9,7 +9,7 @@ import { useToast } from '../contexts/ToastContext';
 import VideoPlayer from '../components/VideoPlayer/VideoPlayer';
 import YouTubePlayer from '../components/YouTubePlayer/YouTubePlayer';
 import Sidebar from '../components/Sidebar/Sidebar';
-import { Award, CheckCircle, HelpCircle, Clock, Lock, PlayCircle, Info } from 'lucide-react';
+import { Award, CheckCircle, HelpCircle, Clock, Lock, PlayCircle, Info, BookOpen } from 'lucide-react';
 import './LearningPath.css';
 
 // Helper to extract clean embeddable URLs for YouTube and Vimeo
