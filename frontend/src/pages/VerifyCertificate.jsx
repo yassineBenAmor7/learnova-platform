@@ -15,17 +15,6 @@ function VerifyCertificate() {
       setLoading(true);
       setError('');
       
-      // D'abord, chercher dans localStorage
-      const localCertificates = JSON.parse(localStorage.getItem('userCertificates') || '[]');
-      const localCert = localCertificates.find(cert => cert.certificateNumber === certificateNumber);
-      
-      if (localCert) {
-        setData(localCert);
-        setLoading(false);
-        return;
-      }
-      
-      // Si pas trouvé dans localStorage, chercher dans l'API
       try {
         const res = await certificateService.verify(certificateNumber);
         if (res && res.isValid) {
