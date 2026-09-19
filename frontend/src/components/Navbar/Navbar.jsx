@@ -44,14 +44,9 @@ const Navbar = () => {
                 </>
               )}
               {isAdmin && (
-                <>
-                  <Link to="/admin" className="navbar-link admin-link">
-                    <span>Admin</span>
-                  </Link>
-                  <Link to="/chatbot" className="navbar-link" onClick={handleAssistantClick}>
-                    <span>Assistant IA</span>
-                  </Link>
-                </>
+                <Link to="/admin" className="navbar-link admin-link">
+                  <span>Admin</span>
+                </Link>
               )}
             </>
           ) : (

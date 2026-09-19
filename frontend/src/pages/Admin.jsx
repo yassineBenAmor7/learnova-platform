@@ -2816,8 +2816,10 @@ const Admin = () => {
         questionCount: generatedQuiz.questions?.length || 5,
         saveToDatabase: true,
         title: generatedQuiz.title,
+        questions: generatedQuiz.questions,
       });
-      toast.success(`AI Quiz saved successfully! Passing score set to 70%. (Quiz #${res.quizId})`);
+      const quizRef = res.savedQuizId || res.quizId || '';
+      toast.success(`AI Quiz saved successfully! Passing score set to 70%.${quizRef ? ` (Quiz #${quizRef})` : ''}`);
       const quizzesData = await adminService.getAllQuizzes();
       setQuizzes(quizzesData);
       setGeneratedQuiz(null);
@@ -2973,11 +2975,11 @@ const Admin = () => {
                 <button
                   type="button"
                   className="btn btn-secondary"
-                  disabled={savingAiQuiz}
-                  onClick={() => setGeneratedQuiz(null)}
+                  disabled={savingAiQuiz || generatingQuiz}
+                  onClick={handleGenerateAiQuiz}
                 >
-                  <RefreshCw size={18} />
-                  Discard & Regenerate
+                  <RefreshCw size={18} className={generatingQuiz ? 'spin' : ''} />
+                  {generatingQuiz ? 'Regenerating...' : 'Discard & Regenerate'}
                 </button>
               </div>
             </div>
@@ -2986,12 +2988,13 @@ const Admin = () => {
               {generatedQuiz.questions?.map((q, qIndex) => (
                 <div key={qIndex} className="preview-question-card">
                   <div className="question-card-top">
-                    <span className="question-number">Question {qIndex + 1}</span>
+                    <span className="question-number-icon">{qIndex + 1}</span>
                     <h4 className="question-prompt">{q.text}</h4>
                   </div>
                   <div className="preview-options-grid">
                     {q.options?.map((opt, optIndex) => {
-                      const isCorrect = opt === q.correctAnswer;
+                      const isCorrect = typeof opt === 'object' ? Boolean(opt.isCorrect || opt.text === q.correctAnswer) : opt === q.correctAnswer;
+                      const optText = typeof opt === 'object' ? (opt.text || '') : String(opt || '');
                       return (
                         <div
                           key={optIndex}
@@ -3000,7 +3003,7 @@ const Admin = () => {
                           <span className="opt-letter">
                             {String.fromCharCode(65 + optIndex)}
                           </span>
-                          <span className="opt-text">{opt}</span>
+                          <span className="opt-text">{optText}</span>
                           {isCorrect && (
                             <span className="correct-tag">
                               <CheckCircle2 size={14} /> Correct
@@ -3793,7 +3796,7 @@ const Admin = () => {
                       {builderQuestions.map((question, index) => (
                         <div key={question.id} className="builder-question-item">
                           <div className="question-header">
-                            <span className="question-number">Q{index + 1}</span>
+                            <span className="question-number-icon">{index + 1}</span>
                             <div className="question-actions">
                               <button 
                                 className="btn-icon edit" 
@@ -4536,7 +4539,7 @@ const Admin = () => {
                   {questions.map((question, index) => (
                     <div key={question.id} className="question-card">
                       <div className="question-header">
-                        <div className="question-number">Q{index + 1}</div>
+                        <span className="question-number-icon">{index + 1}</span>
                         <div className="question-actions">
                           <button 
                             className="btn-icon danger" 

@@ -356,15 +356,15 @@ function Profile() {
 
   const handleCancel = () => {
     setFormData({
-      firstName: user.firstName || '',
-      lastName: user.lastName || '',
-      email: user.email || '',
+      firstName: user?.firstName || '',
+      lastName: user?.lastName || '',
+      email: user?.email || '',
       currentPassword: '',
       newPassword: '',
       confirmPassword: '',
-      phone: user.phone || '',
-      bio: user.bio || '',
-      location: user.location || '',
+      phone: user?.phone || '',
+      bio: user?.bio || '',
+      location: user?.location || '',
     });
     setEditing(false);
     setError(null);
@@ -379,8 +379,6 @@ function Profile() {
   }
 
   const renderProfileTab = () => {
-    console.log('Rendering profile tab, formData:', formData);
-    console.log('Editing state:', editing);
     return (
     <div className="profile-content">
       <div className="profile-card card">
@@ -473,7 +471,7 @@ function Profile() {
                 <input
                   type="text"
                   name="firstName"
-                  value={formData.firstName}
+                  value={formData.firstName || ''}
                   onChange={handleChange}
                   className="form-control"
                   required
@@ -487,7 +485,7 @@ function Profile() {
                 <input
                   type="text"
                   name="lastName"
-                  value={formData.lastName}
+                  value={formData.lastName || ''}
                   onChange={handleChange}
                   className="form-control"
                   required
@@ -502,7 +500,7 @@ function Profile() {
               <input
                 type="email"
                 name="email"
-                value={formData.email}
+                value={formData.email || ''}
                 onChange={handleChange}
                 className="form-control"
                 required
@@ -516,7 +514,7 @@ function Profile() {
               <input
                 type="tel"
                 name="phone"
-                value={formData.phone}
+                value={formData.phone || ''}
                 onChange={handleChange}
                 className="form-control"
                 placeholder="+216 XX XXX XXX"
@@ -530,7 +528,7 @@ function Profile() {
               <input
                 type="text"
                 name="location"
-                value={formData.location}
+                value={formData.location || ''}
                 onChange={handleChange}
                 className="form-control"
                 placeholder="City, Country"
@@ -543,7 +541,7 @@ function Profile() {
               <label className="form-label">Bio</label>
               <textarea
                 name="bio"
-                value={formData.bio}
+                value={formData.bio || ''}
                 onChange={handleChange}
                 className="form-control"
                 rows={4}
@@ -566,7 +564,7 @@ function Profile() {
                 <input
                   type="password"
                   name="currentPassword"
-                  value={formData.currentPassword}
+                  value={formData.currentPassword || ''}
                   onChange={handleChange}
                   className="form-control"
                   placeholder="Enter current password"
@@ -578,7 +576,7 @@ function Profile() {
                 <input
                   type="password"
                   name="newPassword"
-                  value={formData.newPassword}
+                  value={formData.newPassword || ''}
                   onChange={handleChange}
                   className="form-control"
                   placeholder="Enter new password"
@@ -590,7 +588,7 @@ function Profile() {
                 <input
                   type="password"
                   name="confirmPassword"
-                  value={formData.confirmPassword}
+                  value={formData.confirmPassword || ''}
                   onChange={handleChange}
                   className="form-control"
                   placeholder="Confirm new password"
@@ -780,7 +778,7 @@ function Profile() {
             <label className="toggle-switch">
               <input
                 type="checkbox"
-                checked={notifications.email}
+                checked={Boolean(notifications?.email)}
                 onChange={(e) => handleNotificationChange('email', e.target.checked)}
               />
               <span className="toggle-slider"></span>
@@ -794,7 +792,7 @@ function Profile() {
             <label className="toggle-switch">
               <input
                 type="checkbox"
-                checked={notifications.push}
+                checked={Boolean(notifications?.push)}
                 onChange={(e) => handleNotificationChange('push', e.target.checked)}
               />
               <span className="toggle-slider"></span>
@@ -808,7 +806,7 @@ function Profile() {
             <label className="toggle-switch">
               <input
                 type="checkbox"
-                checked={notifications.sms}
+                checked={Boolean(notifications?.sms)}
                 onChange={(e) => handleNotificationChange('sms', e.target.checked)}
               />
               <span className="toggle-slider"></span>

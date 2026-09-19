@@ -29,6 +29,7 @@ export const aiService = {
     difficulty = 'BEGINNER',
     saveToDatabase = false,
     title = null,
+    questions = null,
   }) => {
     const payload = {
       courseId,
@@ -38,6 +39,7 @@ export const aiService = {
     };
     if (sessionId) payload.sessionId = sessionId;
     if (title) payload.title = title;
+    if (questions) payload.questions = questions;
     const response = await api.post('/ai/quiz-generator/generate', payload);
     return response?.data ?? response;
   },

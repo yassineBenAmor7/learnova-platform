@@ -31,4 +31,7 @@ export class GenerateQuizDto {
 
   @IsOptional()
   title?: string;
+
+  @IsOptional()
+  questions?: any[];
 }
