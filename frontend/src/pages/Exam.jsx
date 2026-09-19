@@ -174,7 +174,7 @@ function Exam() {
 
   if (!quiz) {
     return (
-      <div className="exam-container" style={{ padding: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+      <div className="exam-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div className="card" style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center', padding: '2.5rem 2rem' }}>
           <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>📋</div>
           <h2 style={{ fontSize: '1.75rem', fontWeight: 800, marginBottom: '1rem' }}>Exam Not Found</h2>
@@ -189,7 +189,7 @@ function Exam() {
 
   if (result && !showReview) {
     return (
-      <div className="exam-container" style={{ padding: '2rem' }}>
+      <div className="exam-container">
         <div className="card" style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center', padding: '2.5rem 2rem' }}>
           <h2 style={{ fontSize: '1.75rem', fontWeight: 800 }}>{result.passed ? 'Exam Passed!' : '❌ Exam Not Passed'}</h2>
           <p className="subtitle" style={{ color: '#64748b', marginTop: '0.5rem' }}>
@@ -236,7 +236,7 @@ function Exam() {
 
   if (showReview) {
     return (
-      <div className="exam-container page-wrapper" style={{ maxWidth: '900px', margin: '0 auto', padding: '2rem 1rem' }}>
+      <div className="exam-container page-wrapper" style={{ maxWidth: '920px' }}>
         <div className="exam-header" style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <h1 className="exam-title" style={{ fontSize: '1.75rem', fontWeight: 800 }}>Exam Answers Review</h1>
