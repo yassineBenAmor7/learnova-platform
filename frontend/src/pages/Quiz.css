@@ -514,47 +514,41 @@
 .question-number {
   display: inline-flex;
   align-items: center;
-  gap: 0.55rem;
-  font-family: var(--font-heading);
-  font-size: 0.78rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--primary);
+  margin: 0;
+  padding: 0;
 }
 
 .question-number::before {
-  content: '';
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--primary);
+  display: none !important;
+  content: none !important;
 }
 
 .question-number-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   background: var(--primary);
-  color: white;
+  color: #ffffff;
   font-size: 1rem;
   font-weight: 700;
   flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(30, 64, 175, 0.22);
+  line-height: 1;
 }
 
 .question-points {
-  display: inline;
-  font-size: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.8rem;
   color: var(--text-tertiary);
-  font-weight: 800;
-  background: transparent;
-  padding: 0;
-  border: none;
-  border-radius: 0;
+  font-weight: 700;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  border-radius: 99px;
+  padding: 0.35rem 0.75rem;
 }
 .question-card::after {
   display: none;

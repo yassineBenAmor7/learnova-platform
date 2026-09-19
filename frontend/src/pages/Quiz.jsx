@@ -531,7 +531,7 @@ function Quiz() {
                       <span className="question-number-icon">{currentQuestionIndex + 1}</span>
                     </span>
                     <span className="question-points">
-                      {currentQuestion.points || 1} point{currentQuestion.points !== 1 ? 's' : ''}
+                      {Number(currentQuestion.points) || 1} point{(Number(currentQuestion.points) || 1) > 1 ? 's' : ''}
                     </span>
                   </div>
 
