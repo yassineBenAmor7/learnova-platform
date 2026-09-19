@@ -260,9 +260,7 @@ function Exam() {
                 background: isCorrect ? '#f0fdf4' : '#fef2f2'
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', fontWeight: 700, alignItems: 'center' }}>
-                  <span className="question-number">
-                    <span className="question-number-icon">{index + 1}</span>
-                  </span>
+                  <span className="question-number-icon">{index + 1}</span>
                   <span style={{ color: isCorrect ? '#059669' : '#dc2626' }}>
                     {isCorrect ? '✓ Correct' : '✗ Incorrect'}
                   </span>
@@ -378,11 +376,9 @@ function Exam() {
             {quiz.questions.map((question, index) => (
               <div key={question.id} className="question-card card">
                 <div className="question-header">
-                  <span className="question-number">
-                    Question {index + 1}
-                  </span>
+                  <span className="question-number-icon">{index + 1}</span>
                   <span className="question-points">
-                    {question.points || 1} point{question.points !== 1 ? 's' : ''}
+                    {Number(question.points) || 1} point{(Number(question.points) || 1) > 1 ? 's' : ''}
                   </span>
                 </div>
                 

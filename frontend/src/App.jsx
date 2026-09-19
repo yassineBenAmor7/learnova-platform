@@ -19,13 +19,14 @@ function AppLayout() {
   }, [pathname]);
 
   const isAuthPage = pathname === '/login' || pathname === '/register' || pathname === '/forgot-password' || pathname === '/reset-password';
+  const isAssessmentPage = pathname.startsWith('/exam') || pathname.startsWith('/quiz');
 
   return (
     <div className="app-layout">
       <Navbar />
       <AppRoutes />
       {!isAuthPage && <Footer />}
-      {!isAuthPage && pathname !== '/chatbot' && <Chatbot />}
+      {!isAuthPage && !isAssessmentPage && pathname !== '/chatbot' && <Chatbot />}
     </div>
   );
 }
