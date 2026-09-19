@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { ExternalLink, CheckCircle, AlertTriangle } from 'lucide-react';
+import YouTubePlayerErrorBoundary from './YouTubePlayerErrorBoundary';
 import './YouTubePlayer.css';
 
 // Extract clean YouTube video ID
@@ -19,7 +20,7 @@ export const extractVideoId = (url) => {
   return null;
 };
 
-function YouTubePlayer({ video, onVideoEnded }) {
+function YouTubePlayerInner({ video, onVideoEnded }) {
   const [videoId, setVideoId] = useState(null);
   const [error, setError] = useState(null);
   const [isCompleted, setIsCompleted] = useState(false);
@@ -39,24 +40,82 @@ function YouTubePlayer({ video, onVideoEnded }) {
     }
   }, [onVideoEnded]);
 
-  // 1. PostMessage listener for YouTube state change to ENDED (state 0)
+  // Handshake with YouTube iframe via postMessage to subscribe to events
+  const sendListeningHandshake = useCallback(() => {
+    if (iframeRef.current?.contentWindow) {
+      try {
+        iframeRef.current.contentWindow.postMessage(
+          JSON.stringify({ event: 'listening', id: videoId }),
+          '*'
+        );
+        iframeRef.current.contentWindow.postMessage(
+          JSON.stringify({ event: 'command', func: 'addEventListener', args: ['onStateChange'] }),
+          '*'
+        );
+      } catch (e) {
+        // Cross-origin safety
+      }
+    }
+  }, [videoId]);
+
+  // Send handshake on mount and shortly after to ensure YouTube iframe receives it
+  useEffect(() => {
+    if (!videoId) return;
+    sendListeningHandshake();
+    const t1 = setTimeout(sendListeningHandshake, 800);
+    const t2 = setTimeout(sendListeningHandshake, 2000);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, [videoId, sendListeningHandshake]);
+
+  // PostMessage listener for YouTube events (no direct DOM mutation, 100% React compatible)
   useEffect(() => {
     const handleMessage = (event) => {
+      if (
+        event.origin &&
+        !event.origin.includes('youtube.com') &&
+        !event.origin.includes('youtube-nocookie.com')
+      ) {
+        return;
+      }
+
       try {
         let data = event.data;
         if (typeof data === 'string') {
-          data = JSON.parse(data);
+          try {
+            data = JSON.parse(data);
+          } catch {
+            return;
+          }
         }
+
+        if (!data || typeof data !== 'object') return;
+
         // State 0 is ENDED in YouTube Player API
-        if (
-          (data?.event === 'onStateChange' && data?.info === 0) ||
-          (data?.info?.playerState === 0)
-        ) {
+        const isEnded =
+          (data.event === 'onStateChange' && (data.info === 0 || data.info === '0')) ||
+          (data.info?.playerState === 0 || data.info?.playerState === '0') ||
+          (data.event === 'infoDelivery' && (data.info?.playerState === 0 || data.info?.playerState === '0'));
+
+        if (isEnded) {
           console.log('YouTube video ended event detected automatically via postMessage');
           handleMarkCompleted();
+          return;
+        }
+
+        // Also check if playback position reached duration
+        const currentTime = Number(data.info?.currentTime);
+        const duration = Number(data.info?.duration);
+        if (!isNaN(currentTime) && !isNaN(duration) && duration > 0) {
+          if (currentTime >= duration - 1.5) {
+            console.log('YouTube video completion detected via playback position');
+            handleMarkCompleted();
+          }
         }
       } catch (e) {
-        // Non-JSON message, ignore safely
+        // Non-JSON message, safely ignore
       }
     };
 
@@ -65,65 +124,6 @@ function YouTubePlayer({ video, onVideoEnded }) {
       window.removeEventListener('message', handleMessage);
     };
   }, [handleMarkCompleted]);
-
-  // 2. YouTube Iframe API listener
-  useEffect(() => {
-    if (!window.YT) {
-      const tag = document.createElement('script');
-      tag.src = 'https://www.youtube.com/iframe_api';
-      const firstScriptTag = document.getElementsByTagName('script')[0];
-      firstScriptTag?.parentNode?.insertBefore(tag, firstScriptTag);
-    }
-
-    let playerInstance = null;
-    let isMounted = true;
-
-    const setupPlayer = () => {
-      if (!isMounted || !iframeRef.current || !window.YT || !window.YT.Player) return;
-      try {
-        playerInstance = new window.YT.Player(iframeRef.current, {
-          events: {
-            onStateChange: (event) => {
-              if (event.data === 0) { // 0 = YT.PlayerState.ENDED
-                console.log('YouTube video ended detected via YT.Player API');
-                handleMarkCompleted();
-              }
-            },
-          },
-        });
-      } catch (err) {
-        // Fallback to postMessage listener
-      }
-    };
-
-    if (window.YT && window.YT.Player) {
-      setupPlayer();
-    } else {
-      const prevCallback = window.onYouTubeIframeAPIReady;
-      window.onYouTubeIframeAPIReady = () => {
-        if (prevCallback) prevCallback();
-        setupPlayer();
-      };
-    }
-
-    return () => {
-      isMounted = false;
-      if (playerInstance && typeof playerInstance.destroy === 'function') {
-        try { playerInstance.destroy(); } catch (e) {}
-      }
-    };
-  }, [videoId, handleMarkCompleted]);
-
-  const handleIframeLoad = () => {
-    if (iframeRef.current?.contentWindow) {
-      try {
-        iframeRef.current.contentWindow.postMessage(
-          JSON.stringify({ event: 'listening', id: videoId }),
-          '*'
-        );
-      } catch (e) {}
-    }
-  };
 
   const watchUrl = videoId
     ? `https://www.youtube.com/watch?v=${videoId}`
@@ -149,6 +149,9 @@ function YouTubePlayer({ video, onVideoEnded }) {
       </div>
     );
   }
+
+  const origin = typeof window !== 'undefined' && window.location?.origin ? window.location.origin : '';
+  const embedUrl = `https://www.youtube-nocookie.com/embed/${videoId}?enablejsapi=1&origin=${encodeURIComponent(origin)}&rel=0&modestbranding=1&playsinline=1`;
 
   return (
     <div className="youtube-player-card">
@@ -179,14 +182,13 @@ function YouTubePlayer({ video, onVideoEnded }) {
         ) : (
           <iframe
             ref={iframeRef}
-            key={videoId}
             id={`yt-iframe-${videoId}`}
             className="youtube-embedded-iframe"
-            src={`https://www.youtube-nocookie.com/embed/${videoId}?enablejsapi=1&origin=${encodeURIComponent(typeof window !== 'undefined' ? window.location.origin : '')}&rel=0&modestbranding=1&playsinline=1`}
+            src={embedUrl}
             title={video?.title || 'Video player'}
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             allowFullScreen
-            onLoad={handleIframeLoad}
+            onLoad={sendListeningHandshake}
           />
         )}
       </div>
@@ -223,6 +225,15 @@ function YouTubePlayer({ video, onVideoEnded }) {
         </div>
       </div>
     </div>
+  );
+}
+
+function YouTubePlayer(props) {
+  const videoId = extractVideoId(props.video?.url);
+  return (
+    <YouTubePlayerErrorBoundary resetKey={videoId} onVideoEnded={props.onVideoEnded}>
+      <YouTubePlayerInner {...props} />
+    </YouTubePlayerErrorBoundary>
   );
 }
 
