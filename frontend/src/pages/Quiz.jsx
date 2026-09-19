@@ -424,9 +424,7 @@ function Quiz() {
                     backgroundColor: isCorrect ? '#f0fdf4' : '#fef2f2'
                   }}>
                     <div className="question-header">
-                      <span className="question-number">
-                        <span className="question-number-icon">{index + 1}</span>
-                      </span>
+                      <span className="question-number-icon">{index + 1}</span>
                       <span className="question-points" style={{ color: isCorrect ? '#10b981' : '#ef4444' }}>
                         {isCorrect ? '✓ Correct' : '✗ Incorrect'}
                       </span>
@@ -527,9 +525,7 @@ function Quiz() {
 
                 <div key={currentQuestion.id} className="question-card card">
                   <div className="question-header">
-                    <span className="question-number">
-                      <span className="question-number-icon">{currentQuestionIndex + 1}</span>
-                    </span>
+                    <span className="question-number-icon">{currentQuestionIndex + 1}</span>
                     <span className="question-points">
                       {Number(currentQuestion.points) || 1} point{(Number(currentQuestion.points) || 1) > 1 ? 's' : ''}
                     </span>
