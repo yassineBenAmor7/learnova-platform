@@ -456,6 +456,7 @@ function LearningPath() {
   const currentSession = pathData?.sessions?.find((session) => session.id === currentSessionId);
   const currentSessionIndex = pathData?.sessions?.findIndex((s) => s.id === currentSessionId);
   const nextSession = pathData?.sessions?.[currentSessionIndex + 1];
+  const prevSession = currentSessionIndex > 0 ? pathData?.sessions?.[currentSessionIndex - 1] : null;
   const progressPercentage = Math.round(pathData?.enrollment?.progress?.percentage || 0);
   const courseTitle = pathData?.enrollment?.course?.title || 'Course';
   const quizzes = pathData?.quizzes || pathData?.enrollment?.course?.quizzes || [];
@@ -754,15 +755,23 @@ function LearningPath() {
 
                         {/* Video Controls & Next Step Button */}
                         <div className="video-bottom-controls">
-                          {prevVideoInSession && (
+                          {prevVideoInSession ? (
                             <button
                               type="button"
                               className="btn btn-secondary btn-video-step"
                               onClick={() => setActiveVideoId(prevVideoInSession.id)}
                             >
-                              <ChevronLeft size={16} /> Chapitre précédent
+                              <ChevronLeft size={16} /> Previous chapter
                             </button>
-                          )}
+                          ) : prevSession ? (
+                            <button
+                              type="button"
+                              className="btn btn-secondary btn-video-step"
+                              onClick={() => handleSessionSelect(prevSession.id)}
+                            >
+                              <ChevronLeft size={16} /> Previous session
+                            </button>
+                          ) : null}
                           
                           {nextVideoInSession ? (
                             <button
@@ -774,10 +783,35 @@ function LearningPath() {
                                   setActiveVideoId(nextVideoInSession.id);
                                 }
                               }}
-                              title={!isVideoDone(activeVideo) ? 'Terminez la vidéo pour débloquer le chapitre suivant' : 'Passer au chapitre suivant'}
+                              title={!isVideoDone(activeVideo) ? 'Terminez la vidéo pour débloquer le chapitre suivant' : 'Next chapter'}
                               style={{ marginLeft: 'auto' }}
                             >
-                              <span>Passer à la vidéo suivante ({nextVideoInSession.title})</span>
+                              <span>Next chapter</span>
+                              <ChevronRight size={16} />
+                            </button>
+                          ) : nextSession ? (
+                            <button
+                              type="button"
+                              className={`btn ${isVideoDone(activeVideo) ? 'btn-primary' : 'btn-secondary'} btn-video-step`}
+                              disabled={!isVideoDone(activeVideo)}
+                              onClick={() => {
+                                if (!isVideoDone(activeVideo)) return;
+                                if (hasQuiz && !sessionQuizPassed) {
+                                  toast.info('Passez et réussissez le quiz pratique (≥ 70%) pour valider et débloquer la session suivante.');
+                                  setActiveTab('quiz');
+                                  return;
+                                }
+                                if (hasContent && !currentSession?.readingCompleted && !readingMarked) {
+                                  toast.info('Lisez les notes de cours pour compléter votre apprentissage.');
+                                  setActiveTab('text');
+                                  return;
+                                }
+                                handleSessionSelect(nextSession.id);
+                              }}
+                              title={!isVideoDone(activeVideo) ? 'Terminez la vidéo pour débloquer la session suivante' : 'Next session'}
+                              style={{ marginLeft: 'auto' }}
+                            >
+                              <span>Next session</span>
                               <ChevronRight size={16} />
                             </button>
                           ) : isVideoDone(activeVideo) ? (
@@ -788,7 +822,7 @@ function LearningPath() {
                                 onClick={handleQuizTabClick}
                                 style={{ marginLeft: 'auto' }}
                               >
-                                <span>Toutes les vidéos terminées ! Passer au Quiz pratique →</span>
+                                <span>Passer au Quiz pratique de la session →</span>
                               </button>
                             ) : hasContent && !currentSession?.readingCompleted ? (
                               <button
@@ -797,7 +831,20 @@ function LearningPath() {
                                 onClick={() => setActiveTab('text')}
                                 style={{ marginLeft: 'auto' }}
                               >
-                                <span>Toutes les vidéos terminées ! Lire les notes de cours →</span>
+                                <span>Lire les notes de cours →</span>
+                              </button>
+                            ) : (pathData?.finalExamUnlocked || finalExamPassed) ? (
+                              <button
+                                type="button"
+                                className="btn btn-primary btn-video-step"
+                                onClick={() => {
+                                  const exam = quizzes.find(q => q.isExamMode);
+                                  if (exam) navigate(`/exam/${exam.id}`);
+                                  else navigate(`/certificates`);
+                                }}
+                                style={{ marginLeft: 'auto' }}
+                              >
+                                <span>Final Exam & Certification →</span>
                               </button>
                             ) : null
                           ) : null}
@@ -861,17 +908,52 @@ function LearningPath() {
                         )}
                         <ActiveVideoDetails video={activeVideo} />
 
-                        {/* Next Step for single video */}
-                        {isVideoDone(currentSession.videos[0]) && (
-                          <div className="video-bottom-controls">
-                            {hasQuiz && !sessionQuizPassed ? (
+                        {/* Video Controls for single video */}
+                        <div className="video-bottom-controls">
+                          {prevSession && (
+                            <button
+                              type="button"
+                              className="btn btn-secondary btn-video-step"
+                              onClick={() => handleSessionSelect(prevSession.id)}
+                            >
+                              <ChevronLeft size={16} /> Previous session
+                            </button>
+                          )}
+
+                          {nextSession ? (
+                            <button
+                              type="button"
+                              className={`btn ${isVideoDone(currentSession.videos[0]) ? 'btn-primary' : 'btn-secondary'} btn-video-step`}
+                              disabled={!isVideoDone(currentSession.videos[0])}
+                              onClick={() => {
+                                if (!isVideoDone(currentSession.videos[0])) return;
+                                if (hasQuiz && !sessionQuizPassed) {
+                                  toast.info('Passez et réussissez le quiz pratique (≥ 70%) pour valider et débloquer la session suivante.');
+                                  setActiveTab('quiz');
+                                  return;
+                                }
+                                if (hasContent && !currentSession?.readingCompleted && !readingMarked) {
+                                  toast.info('Lisez les notes de cours pour compléter votre apprentissage.');
+                                  setActiveTab('text');
+                                  return;
+                                }
+                                handleSessionSelect(nextSession.id);
+                              }}
+                              title={!isVideoDone(currentSession.videos[0]) ? 'Terminez la vidéo pour débloquer la session suivante' : 'Next session'}
+                              style={{ marginLeft: 'auto' }}
+                            >
+                              <span>Next session</span>
+                              <ChevronRight size={16} />
+                            </button>
+                          ) : isVideoDone(currentSession.videos[0]) ? (
+                            hasQuiz && !sessionQuizPassed ? (
                               <button
                                 type="button"
                                 className="btn btn-primary btn-video-step"
                                 onClick={handleQuizTabClick}
                                 style={{ marginLeft: 'auto' }}
                               >
-                                <span>Vidéo terminée ! Passer au Quiz pratique de la session →</span>
+                                <span>Passer au Quiz pratique de la session →</span>
                               </button>
                             ) : hasContent && !currentSession?.readingCompleted ? (
                               <button
@@ -880,11 +962,24 @@ function LearningPath() {
                                 onClick={() => setActiveTab('text')}
                                 style={{ marginLeft: 'auto' }}
                               >
-                                <span>Vidéo terminée ! Lire les notes de cours →</span>
+                                <span>Lire les notes de cours →</span>
                               </button>
-                            ) : null}
-                          </div>
-                        )}
+                            ) : (pathData?.finalExamUnlocked || finalExamPassed) ? (
+                              <button
+                                type="button"
+                                className="btn btn-primary btn-video-step"
+                                onClick={() => {
+                                  const exam = quizzes.find(q => q.isExamMode);
+                                  if (exam) navigate(`/exam/${exam.id}`);
+                                  else navigate(`/certificates`);
+                                }}
+                                style={{ marginLeft: 'auto' }}
+                              >
+                                <span>Final Exam & Certification →</span>
+                              </button>
+                            ) : null
+                          ) : null}
+                        </div>
                       </div>
                       
                       <div className="video-playlist-sidebar">
