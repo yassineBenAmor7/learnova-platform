@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { learningPathService } from '../services/learningPath.service';
 import { courseService } from '../services/course.service';
@@ -9,7 +9,7 @@ import { useToast } from '../contexts/ToastContext';
 import VideoPlayer from '../components/VideoPlayer/VideoPlayer';
 import YouTubePlayer from '../components/YouTubePlayer/YouTubePlayer';
 import Sidebar from '../components/Sidebar/Sidebar';
-import { Award, CheckCircle, HelpCircle, Clock, Lock, PlayCircle, Info, BookOpen } from 'lucide-react';
+import { Award, CheckCircle, HelpCircle, Clock, Lock, PlayCircle, Info, BookOpen, ChevronLeft, ChevronRight } from 'lucide-react';
 import './LearningPath.css';
 
 // Helper to extract clean embeddable URLs for YouTube and Vimeo
@@ -169,6 +169,7 @@ function LearningPath() {
   // Tabbed Workspace states
   const [activeTab, setActiveTab] = useState('video'); // 'video' | 'text' | 'quiz' | 'overview'
   const [activeVideoId, setActiveVideoId] = useState(null);
+  const previousSessionIdRef = useRef(null);
 
   const selectSession = useCallback((sessions, sessionParam) => {
     if (!sessions?.length) {
@@ -384,37 +385,44 @@ function LearningPath() {
   };
 
   const handleVideoEnded = async () => {
-    if (!activeVideoId || previewMode) return;
+    const currentVid = activeVideo;
+    if (!currentVid || previewMode) return;
 
     try {
+      // 1. Immediately unlock locally so UI transitions and locks open instantaneously
+      setCompletedVideoIds((prev) => new Set([...prev, currentVid.id]));
+
+      // 2. Persist watch progress in backend
       await videoService.updateWatchProgress(
-        activeVideoId,
-        Math.max(Math.round(activeVideo?.duration || 0), 1),
+        currentVid.id,
+        Math.max(Math.round(currentVid.duration || 0), 1),
         true,
       );
-      setCompletedVideoIds((prev) => new Set([...prev, activeVideoId]));
-      
-      const currentVideoIndex = currentSession?.videos?.findIndex((v) => v.id === activeVideoId);
+
+      const currentVideoIndex = currentSession?.videos?.findIndex((v) => v.id === currentVid.id);
       const nextVideo = currentSession?.videos?.[currentVideoIndex + 1];
 
-      await learningPathService.tryAutoComplete(currentSessionId);
-      await loadLearningPath();
-
+      // 3. Immediately switch to next video if available
       if (nextVideo) {
-        toast.success('Vidéo terminée ! Le chapitre suivant est maintenant débloqué.');
+        toast.success(`Vidéo terminée ! Passage au chapitre suivant : ${nextVideo.title}`);
         setActiveVideoId(nextVideo.id);
       } else {
         // Last video in the session completed
-        if (hasContent && !currentSession?.readingCompleted && !readingMarked) {
-          toast.info('Toutes les vidéos sont terminées ! Lisez les notes de cours pour compléter votre apprentissage.');
-          setActiveTab('text');
-        } else if (hasQuiz && !sessionQuizPassed) {
-          toast.success('Toutes les vidéos sont terminées ! Réussissez le quiz pratique (≥ 70%) pour débloquer la session suivante.');
+        toast.success('Toutes les vidéos de cette session sont terminées !');
+        if (hasQuiz && !sessionQuizPassed) {
+          toast.info('Passez le quiz pratique (≥ 70%) pour valider cette session.');
           setActiveTab('quiz');
+        } else if (hasContent && !currentSession?.readingCompleted && !readingMarked) {
+          toast.info('Lisez les notes de cours pour compléter votre apprentissage.');
+          setActiveTab('text');
         } else {
           toast.success('Toutes les conditions de cette session sont validées !');
         }
       }
+
+      // 4. Sync session completion in background
+      await learningPathService.tryAutoComplete(currentSessionId);
+      await loadLearningPath();
     } catch (err) {
       console.error('Failed to mark video as completed:', err);
     }
@@ -514,6 +522,11 @@ function LearningPath() {
   const hasContent = !!currentSession?.content;
   const hasQuiz = !!sessionQuiz;
   const activeVideo = currentSession?.videos?.find(v => v.id === activeVideoId) || currentSession?.videos?.[0];
+  const activeVideoIndex = currentSession?.videos?.findIndex((v) => v.id === activeVideo?.id);
+  const prevVideoInSession = activeVideoIndex > 0 ? currentSession?.videos?.[activeVideoIndex - 1] : null;
+  const nextVideoInSession = activeVideoIndex >= 0 && activeVideoIndex < ((currentSession?.videos?.length || 0) - 1)
+    ? currentSession?.videos?.[activeVideoIndex + 1]
+    : null;
   const canAccessCurrentSession = !!currentSession && (currentSession.canAccess || currentSession.isCompleted || !currentSession.isLocked);
   const allVideosWatched = (currentSession?.videos || []).length === 0 || (currentSession?.videos || []).every((video) => video.isCompleted);
   const canOpenSessionQuiz = hasQuiz && allVideosWatched;
@@ -539,10 +552,16 @@ function LearningPath() {
   }, [currentSessionId, currentSession]);
 
   useEffect(() => {
-    if (currentSession) {
+    if (!currentSession) return;
+
+    const sessionChanged = previousSessionIdRef.current !== currentSessionId;
+    if (sessionChanged) {
+      previousSessionIdRef.current = currentSessionId;
       if (currentSession.videos && currentSession.videos.length > 0) {
         setActiveTab('video');
-        setActiveVideoId(currentSession.videos[0].id);
+        // Find first incomplete video, or default to video 0
+        const firstIncomplete = currentSession.videos.find(v => !isVideoDone(v) && !isVideoLockedInSession(v, currentSession)) || currentSession.videos[0];
+        setActiveVideoId(firstIncomplete.id);
       } else if (currentSession.content) {
         setActiveTab('text');
         setActiveVideoId(null);
@@ -550,8 +569,16 @@ function LearningPath() {
         setActiveTab('overview');
         setActiveVideoId(null);
       }
+    } else {
+      // Same session: ensure activeVideoId exists in currentSession.videos
+      if (currentSession.videos && currentSession.videos.length > 0) {
+        const videoExists = currentSession.videos.some(v => v.id === activeVideoId);
+        if (!videoExists && activeVideoId !== null) {
+          setActiveVideoId(currentSession.videos[0].id);
+        }
+      }
     }
-  }, [currentSessionId, currentSession, pathData]);
+  }, [currentSessionId, currentSession]);
 
   // Auto-mark reading as complete if content is short when opening text tab
   useEffect(() => {
@@ -724,6 +751,57 @@ function LearningPath() {
                           </div>
                         )}
                         <ActiveVideoDetails video={activeVideo} />
+
+                        {/* Video Controls & Next Step Button */}
+                        <div className="video-bottom-controls">
+                          {prevVideoInSession && (
+                            <button
+                              type="button"
+                              className="btn btn-secondary btn-video-step"
+                              onClick={() => setActiveVideoId(prevVideoInSession.id)}
+                            >
+                              <ChevronLeft size={16} /> Chapitre précédent
+                            </button>
+                          )}
+                          
+                          {nextVideoInSession ? (
+                            <button
+                              type="button"
+                              className={`btn ${isVideoDone(activeVideo) ? 'btn-primary' : 'btn-secondary'} btn-video-step`}
+                              disabled={!isVideoDone(activeVideo)}
+                              onClick={() => {
+                                if (isVideoDone(activeVideo)) {
+                                  setActiveVideoId(nextVideoInSession.id);
+                                }
+                              }}
+                              title={!isVideoDone(activeVideo) ? 'Terminez la vidéo pour débloquer le chapitre suivant' : 'Passer au chapitre suivant'}
+                              style={{ marginLeft: 'auto' }}
+                            >
+                              <span>Passer à la vidéo suivante ({nextVideoInSession.title})</span>
+                              <ChevronRight size={16} />
+                            </button>
+                          ) : isVideoDone(activeVideo) ? (
+                            hasQuiz && !sessionQuizPassed ? (
+                              <button
+                                type="button"
+                                className="btn btn-primary btn-video-step"
+                                onClick={handleQuizTabClick}
+                                style={{ marginLeft: 'auto' }}
+                              >
+                                <span>Toutes les vidéos terminées ! Passer au Quiz pratique →</span>
+                              </button>
+                            ) : hasContent && !currentSession?.readingCompleted ? (
+                              <button
+                                type="button"
+                                className="btn btn-primary btn-video-step"
+                                onClick={() => setActiveTab('text')}
+                                style={{ marginLeft: 'auto' }}
+                              >
+                                <span>Toutes les vidéos terminées ! Lire les notes de cours →</span>
+                              </button>
+                            ) : null
+                          ) : null}
+                        </div>
                       </div>
                       
                       <div className="video-playlist-sidebar">
@@ -782,6 +860,31 @@ function LearningPath() {
                           </div>
                         )}
                         <ActiveVideoDetails video={activeVideo} />
+
+                        {/* Next Step for single video */}
+                        {isVideoDone(currentSession.videos[0]) && (
+                          <div className="video-bottom-controls">
+                            {hasQuiz && !sessionQuizPassed ? (
+                              <button
+                                type="button"
+                                className="btn btn-primary btn-video-step"
+                                onClick={handleQuizTabClick}
+                                style={{ marginLeft: 'auto' }}
+                              >
+                                <span>Vidéo terminée ! Passer au Quiz pratique de la session →</span>
+                              </button>
+                            ) : hasContent && !currentSession?.readingCompleted ? (
+                              <button
+                                type="button"
+                                className="btn btn-primary btn-video-step"
+                                onClick={() => setActiveTab('text')}
+                                style={{ marginLeft: 'auto' }}
+                              >
+                                <span>Vidéo terminée ! Lire les notes de cours →</span>
+                              </button>
+                            ) : null}
+                          </div>
+                        )}
                       </div>
                       
                       <div className="video-playlist-sidebar">

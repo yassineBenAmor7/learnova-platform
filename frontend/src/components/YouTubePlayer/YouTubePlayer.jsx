@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { ExternalLink, CheckCircle, AlertTriangle } from 'lucide-react';
 import './YouTubePlayer.css';
 
@@ -23,6 +23,7 @@ function YouTubePlayer({ video, onVideoEnded }) {
   const [videoId, setVideoId] = useState(null);
   const [error, setError] = useState(null);
   const [isCompleted, setIsCompleted] = useState(false);
+  const iframeRef = useRef(null);
 
   useEffect(() => {
     const id = extractVideoId(video?.url);
@@ -37,6 +38,92 @@ function YouTubePlayer({ video, onVideoEnded }) {
       onVideoEnded();
     }
   }, [onVideoEnded]);
+
+  // 1. PostMessage listener for YouTube state change to ENDED (state 0)
+  useEffect(() => {
+    const handleMessage = (event) => {
+      try {
+        let data = event.data;
+        if (typeof data === 'string') {
+          data = JSON.parse(data);
+        }
+        // State 0 is ENDED in YouTube Player API
+        if (
+          (data?.event === 'onStateChange' && data?.info === 0) ||
+          (data?.info?.playerState === 0)
+        ) {
+          console.log('YouTube video ended event detected automatically via postMessage');
+          handleMarkCompleted();
+        }
+      } catch (e) {
+        // Non-JSON message, ignore safely
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => {
+      window.removeEventListener('message', handleMessage);
+    };
+  }, [handleMarkCompleted]);
+
+  // 2. YouTube Iframe API listener
+  useEffect(() => {
+    if (!window.YT) {
+      const tag = document.createElement('script');
+      tag.src = 'https://www.youtube.com/iframe_api';
+      const firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag?.parentNode?.insertBefore(tag, firstScriptTag);
+    }
+
+    let playerInstance = null;
+    let isMounted = true;
+
+    const setupPlayer = () => {
+      if (!isMounted || !iframeRef.current || !window.YT || !window.YT.Player) return;
+      try {
+        playerInstance = new window.YT.Player(iframeRef.current, {
+          events: {
+            onStateChange: (event) => {
+              if (event.data === 0) { // 0 = YT.PlayerState.ENDED
+                console.log('YouTube video ended detected via YT.Player API');
+                handleMarkCompleted();
+              }
+            },
+          },
+        });
+      } catch (err) {
+        // Fallback to postMessage listener
+      }
+    };
+
+    if (window.YT && window.YT.Player) {
+      setupPlayer();
+    } else {
+      const prevCallback = window.onYouTubeIframeAPIReady;
+      window.onYouTubeIframeAPIReady = () => {
+        if (prevCallback) prevCallback();
+        setupPlayer();
+      };
+    }
+
+    return () => {
+      isMounted = false;
+      if (playerInstance && typeof playerInstance.destroy === 'function') {
+        try { playerInstance.destroy(); } catch (e) {}
+      }
+    };
+  }, [videoId, handleMarkCompleted]);
+
+  const handleIframeLoad = () => {
+    if (iframeRef.current?.contentWindow) {
+      try {
+        iframeRef.current.contentWindow.postMessage(
+          JSON.stringify({ event: 'listening', id: videoId }),
+          '*'
+        );
+      } catch (e) {}
+    }
+  };
 
   const watchUrl = videoId
     ? `https://www.youtube.com/watch?v=${videoId}`
@@ -91,12 +178,15 @@ function YouTubePlayer({ video, onVideoEnded }) {
           </div>
         ) : (
           <iframe
+            ref={iframeRef}
             key={videoId}
+            id={`yt-iframe-${videoId}`}
             className="youtube-embedded-iframe"
-            src={`https://www.youtube-nocookie.com/embed/${videoId}?rel=0&modestbranding=1&playsinline=1`}
+            src={`https://www.youtube-nocookie.com/embed/${videoId}?enablejsapi=1&origin=${encodeURIComponent(typeof window !== 'undefined' ? window.location.origin : '')}&rel=0&modestbranding=1&playsinline=1`}
             title={video?.title || 'Video player'}
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             allowFullScreen
+            onLoad={handleIframeLoad}
           />
         )}
       </div>
@@ -116,7 +206,11 @@ function YouTubePlayer({ video, onVideoEnded }) {
           >
             <ExternalLink size={14} /> Voir sur YouTube
           </a>
-          {!isCompleted && (
+          {isCompleted ? (
+            <span className="youtube-aux-completed-tag" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: '#10b981', fontWeight: 600, fontSize: '0.85rem' }}>
+              <CheckCircle size={15} /> Leçon validée
+            </span>
+          ) : (
             <button
               type="button"
               className="youtube-aux-complete-btn"

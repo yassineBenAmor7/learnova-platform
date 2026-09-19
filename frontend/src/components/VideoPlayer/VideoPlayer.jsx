@@ -20,11 +20,11 @@ function VideoPlayer({ video, onProgressUpdate, onVideoEnded }) {
         onProgressUpdate(video.currentTime, video.duration);
       }
       
-      // Check if video reached 99% completion (when user seeks to end)
+      // Check if video reached completion (when user watches or seeks to end)
       if (video.duration > 0 && !video.hasAttribute('data-ended')) {
         const progressPercent = (video.currentTime / video.duration) * 100;
-        if (progressPercent >= 99) {
-          console.log('Video reached 99% completion, marking as completed');
+        if (progressPercent >= 95 || (video.duration - video.currentTime) <= 2) {
+          console.log('Video reached completion threshold, marking as completed');
           video.setAttribute('data-ended', 'true');
           if (onVideoEnded) {
             onVideoEnded();
