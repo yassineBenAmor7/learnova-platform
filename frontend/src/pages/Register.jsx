@@ -39,6 +39,13 @@ function Register() {
       return;
     }
 
+    const trimmedEmail = formData.email?.trim().toLowerCase();
+    const trustedEmailRegex = /^[a-zA-Z0-9._%+-]+@(gmail\.com|outlook\.(com|fr)|hotmail\.(com|fr)|yahoo\.(com|fr)|icloud\.com)$/i;
+    if (!trimmedEmail || !trustedEmailRegex.test(trimmedEmail)) {
+      setError('Seules les adresses email de confiance (Gmail, Outlook, Hotmail, Yahoo, iCloud) sont autorisées.');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -106,7 +113,7 @@ function Register() {
               value={formData.email}
               onChange={handleChange}
               required
-              placeholder="your@email.com"
+              placeholder="votre.email@gmail.com"
             />
           </div>
 

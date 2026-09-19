@@ -14,7 +14,7 @@ import {
 import './Profile.css';
 
 function Profile() {
-  const { user, refreshUser } = useAuth();
+  const { user, isAdmin, refreshUser } = useAuth();
   const toast = useToast();
   const { confirm } = useConfirm();
   const [activeTab, setActiveTab] = useState('profile');
@@ -300,6 +300,24 @@ function Profile() {
       }
       if (formData.newPassword !== formData.confirmPassword) {
         setError('New passwords do not match');
+        return;
+      }
+    }
+
+    if (formData.email) {
+      const trimmedEmail = formData.email.trim().toLowerCase();
+      const trustedLearnerRegex = /^[a-zA-Z0-9._%+-]+@(gmail\.com|outlook\.(com|fr)|hotmail\.(com|fr)|yahoo\.(com|fr)|icloud\.com)$/i;
+      const trustedAdminRegex = /^[a-zA-Z0-9._%+-]+@(learnova\.com|gmail\.com|outlook\.(com|fr)|hotmail\.(com|fr)|yahoo\.(com|fr)|icloud\.com)$/i;
+      const isValid = isAdmin
+        ? trustedAdminRegex.test(trimmedEmail)
+        : trustedLearnerRegex.test(trimmedEmail);
+
+      if (!isValid) {
+        setError(
+          isAdmin
+            ? 'Les administrateurs doivent utiliser une adresse officielle @learnova.com ou un fournisseur de confiance (Gmail, Outlook, Yahoo, iCloud).'
+            : 'Seules les adresses email de confiance (Gmail, Outlook, Hotmail, Yahoo, iCloud) sont autorisées.'
+        );
         return;
       }
     }

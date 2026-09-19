@@ -44,6 +44,27 @@ export class UsersService {
     const { currentPassword, newPassword, ...updateData } = data;
 
     if (updateData.email) {
+      const trimmedEmail = updateData.email.trim().toLowerCase();
+      const currentUser = await this.prisma.client.user.findUnique({
+        where: { id },
+        include: { role: true },
+      });
+      const trustedLearnerRegex = /^[a-zA-Z0-9._%+-]+@(gmail\.com|outlook\.(com|fr)|hotmail\.(com|fr)|yahoo\.(com|fr)|icloud\.com)$/i;
+      const trustedAdminRegex = /^[a-zA-Z0-9._%+-]+@(learnova\.com|gmail\.com|outlook\.(com|fr)|hotmail\.(com|fr)|yahoo\.(com|fr)|icloud\.com)$/i;
+      const isAdmin = currentUser?.role?.name === 'ADMIN' || currentUser?.roleId === 1;
+      const isValidEmail = isAdmin
+        ? trustedAdminRegex.test(trimmedEmail)
+        : trustedLearnerRegex.test(trimmedEmail);
+
+      if (!isValidEmail) {
+        throw new BadRequestException(
+          isAdmin
+            ? 'Les administrateurs doivent utiliser une adresse officielle @learnova.com ou un fournisseur de confiance (Gmail, Outlook, Yahoo, iCloud)'
+            : 'Seules les adresses email de confiance (Gmail, Outlook, Hotmail, Yahoo, iCloud) sont autorisées'
+        );
+      }
+      updateData.email = trimmedEmail;
+
       const existingUser = await this.prisma.client.user.findUnique({
         where: { email: updateData.email },
       });
@@ -342,6 +363,23 @@ export class UsersService {
   }
 
   async createUserByAdmin(createUserData: { firstName: string; lastName: string; email: string; password: string; roleId: number }) {
+    const trimmedEmail = createUserData.email?.trim().toLowerCase();
+    const isLearner = createUserData.roleId === 2;
+    const trustedLearnerRegex = /^[a-zA-Z0-9._%+-]+@(gmail\.com|outlook\.(com|fr)|hotmail\.(com|fr)|yahoo\.(com|fr)|icloud\.com)$/i;
+    const trustedAdminRegex = /^[a-zA-Z0-9._%+-]+@(learnova\.com|gmail\.com|outlook\.(com|fr)|hotmail\.(com|fr)|yahoo\.(com|fr)|icloud\.com)$/i;
+    const isValidEmail = isLearner
+      ? trustedLearnerRegex.test(trimmedEmail)
+      : trustedAdminRegex.test(trimmedEmail);
+
+    if (!trimmedEmail || !isValidEmail) {
+      throw new BadRequestException(
+        isLearner
+          ? 'Seules les adresses email de confiance (Gmail, Outlook, Hotmail, Yahoo, iCloud) sont autorisées pour les apprenants'
+          : 'Les administrateurs doivent utiliser une adresse officielle @learnova.com ou un fournisseur de confiance (Gmail, Outlook, Yahoo, iCloud)'
+      );
+    }
+    createUserData.email = trimmedEmail;
+
     // Check if email already exists
     const existingUser = await this.prisma.client.user.findUnique({
       where: { email: createUserData.email },

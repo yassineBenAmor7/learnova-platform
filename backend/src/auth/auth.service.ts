@@ -26,7 +26,12 @@ export class AuthService {
   ) {}
 
   async register(data: RegisterData) {
-    const existingUser = await this.usersService.findByEmail(data.email);
+    const trimmedEmail = data.email?.trim().toLowerCase();
+    if (!trimmedEmail || !/^[a-zA-Z0-9._%+-]+@(gmail\.com|outlook\.(com|fr)|hotmail\.(com|fr)|yahoo\.(com|fr)|icloud\.com)$/i.test(trimmedEmail)) {
+      throw new BadRequestException('Seules les adresses email de confiance (Gmail, Outlook, Hotmail, Yahoo, iCloud) sont autorisées');
+    }
+
+    const existingUser = await this.usersService.findByEmail(trimmedEmail);
 
     if (existingUser) {
       throw new ConflictException('Cet email est déjà utilisé par un autre compte');

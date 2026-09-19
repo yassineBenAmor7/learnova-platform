@@ -495,10 +495,19 @@ const Admin = () => {
       return;
     }
     
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(newUser.email)) {
-      toast.error('Validation failed: Please enter a valid email address');
+    // Email validation (Learner: trusted providers, Admin: @learnova.com or trusted providers)
+    const emailTrimmed = newUser.email.trim();
+    const isLearner = newUser.role === 'LEARNER';
+    const trustedLearnerRegex = /^[a-zA-Z0-9._%+-]+@(gmail\.com|outlook\.(com|fr)|hotmail\.(com|fr)|yahoo\.(com|fr)|icloud\.com)$/i;
+    const trustedAdminRegex = /^[a-zA-Z0-9._%+-]+@(learnova\.com|gmail\.com|outlook\.(com|fr)|hotmail\.(com|fr)|yahoo\.(com|fr)|icloud\.com)$/i;
+    const emailRegex = isLearner ? trustedLearnerRegex : trustedAdminRegex;
+
+    if (!emailRegex.test(emailTrimmed)) {
+      toast.error(
+        isLearner
+          ? 'Validation failed: Les apprenants doivent avoir une adresse de confiance (Gmail, Outlook, Hotmail, Yahoo, iCloud)'
+          : 'Validation failed: L\'administrateur doit avoir une adresse @learnova.com ou un fournisseur de confiance'
+      );
       return;
     }
     
@@ -2832,7 +2841,7 @@ const Admin = () => {
           <div>
             <div className="ai-studio-badge">
               <Sparkles size={16} />
-              <span>Learnova AI • Section 5.3</span>
+              <span>Learnova AI Studio</span>
             </div>
             <h2>AI Quiz Generator Studio</h2>
             <p className="section-desc">
@@ -3145,7 +3154,7 @@ const Admin = () => {
 
             {/* AI Intelligence Section */}
             <div className="nav-section-divider">
-              <span className="nav-section-label">AI Studio (Section 5)</span>
+              <span className="nav-section-label">AI Studio</span>
             </div>
 
             <button 
@@ -4784,7 +4793,7 @@ const Admin = () => {
                     type="email"
                     value={newUser.email}
                     onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-                    placeholder="Enter email"
+                    placeholder={newUser.role === 'ADMIN' ? 'admin@learnova.com' : 'apprenant@gmail.com'}
                     required
                     autoComplete="off"
                   />
