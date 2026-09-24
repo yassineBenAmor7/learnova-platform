@@ -80,9 +80,6 @@ function Certificates() {
           <button onClick={handleBack} className="btn btn-secondary">
             ← Back to Certificates
           </button>
-          <button onClick={handleDownload} className="btn btn-primary">
-            Download PDF
-          </button>
         </div>
         <Certificate 
           certificate={selectedCertificate}
@@ -172,8 +169,8 @@ function Certificates() {
                   {certificate.course?.title || 'Course Certificate'}
                 </h3>
                 <div className="credential-recipient-row">
-                  <span className="recipient-label">Awarded to:</span>
-                  <span className="recipient-name">{certificate.user?.firstName} {certificate.user?.lastName}</span>
+                  <span className="recipient-label">Awarded to</span>
+                  <strong className="recipient-candidate-name">{certificate.user?.firstName} {certificate.user?.lastName}</strong>
                 </div>
 
                 <div className="cert-meta-row">
