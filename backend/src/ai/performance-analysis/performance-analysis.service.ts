@@ -7,7 +7,10 @@ export interface DomainPerformance {
   quizzesTaken: number;
   quizzesPassed: number;
   averageScore: number;
+  avgQuizScore?: number;
   masteryStatus: 'EXCELLENT' | 'PROFICIENT' | 'NEEDS_ATTENTION' | 'NOT_STARTED';
+  masteryLevel?: string;
+  recommendation?: string;
 }
 
 export interface DetectedDifficulty {
@@ -38,6 +41,21 @@ export interface PerformanceAnalysisReport {
   currentStreakDays: number;
   retentionRisk: 'LOW' | 'MODERATE' | 'HIGH';
   retentionRiskReason: string;
+  riskScore?: number;
+  overallSummary?: {
+    globalMasteryIndex: number;
+    quizzesPassed: number;
+    totalQuizzesAttempted: number;
+    averageQuizScore: number;
+    completedCourses: number;
+    totalEnrollments: number;
+  };
+  riskDiagnosis?: {
+    retentionRisk: 'LOW' | 'MODERATE' | 'HIGH';
+    riskScore: number;
+    primaryConcern: string;
+    factors: string[];
+  };
   domainsAnalysis: DomainPerformance[];
   detectedDifficulties: DetectedDifficulty[];
   prescriptiveRecommendations: PrescriptiveRecommendation[];
@@ -123,13 +141,22 @@ export class PerformanceAnalysisService {
       else if (avg >= 70) status = 'PROFICIENT';
       else status = 'NEEDS_ATTENTION';
 
+      const rec = avg >= 85
+        ? `Outstanding domain mastery. Ready for advanced capstones.`
+        : avg >= 70
+        ? `Solid proficiency (${stats.passed}/${stats.total} passed). Continue steady progression.`
+        : `Needs consolidation (${stats.passed}/${stats.total} passed). Review study notes and retry quizzes.`;
+
       return {
         domain,
         domainLabel: domain.replace(/_/g, ' '),
         quizzesTaken: stats.total,
         quizzesPassed: stats.passed,
         averageScore: avg,
+        avgQuizScore: avg,
         masteryStatus: status,
+        masteryLevel: status,
+        recommendation: rec,
       };
     });
 
@@ -216,6 +243,9 @@ export class PerformanceAnalysisService {
       });
     }
 
+    const riskScore = retentionRisk === 'HIGH' ? 85 : retentionRisk === 'MODERATE' ? 45 : 10;
+    const completedCoursesCount = user.enrollments.filter(e => (e.progress?.percentage ?? 0) >= 100).length;
+
     return {
       userId: user.id,
       userName: `${user.firstName} ${user.lastName}`.trim(),
@@ -227,6 +257,21 @@ export class PerformanceAnalysisService {
       currentStreakDays,
       retentionRisk,
       retentionRiskReason,
+      riskScore,
+      overallSummary: {
+        globalMasteryIndex,
+        quizzesPassed: totalQuizzesPassed,
+        totalQuizzesAttempted: totalQuizzesTaken,
+        averageQuizScore: globalMasteryIndex,
+        completedCourses: completedCoursesCount,
+        totalEnrollments: user.enrollments.length,
+      },
+      riskDiagnosis: {
+        retentionRisk,
+        riskScore,
+        primaryConcern: retentionRiskReason,
+        factors: detectedDifficulties.map(d => d.description),
+      },
       domainsAnalysis,
       detectedDifficulties: detectedDifficulties.slice(0, 5),
       prescriptiveRecommendations,

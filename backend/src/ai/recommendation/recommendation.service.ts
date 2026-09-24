@@ -6,12 +6,16 @@ export interface RecommendedCourseItem {
   title: string;
   description: string;
   thumbnail: string | null;
+  thumbnailUrl?: string | null;
   domain: string;
+  category?: string;
   level: string;
   price: number;
   isPaid: boolean;
   matchScore: number;
+  matchPercentage?: number;
   reason: string;
+  primaryReason?: string;
   tags: string[];
   enrollmentCount: number;
 }
@@ -162,12 +166,16 @@ export class RecommendationService {
         title: course.title,
         description: course.description,
         thumbnail: course.thumbnail,
+        thumbnailUrl: course.thumbnail,
         domain: course.domain,
+        category: course.domain.replace(/_/g, ' '),
         level: course.level,
         price: course.price,
         isPaid: course.isPaid,
         matchScore,
+        matchPercentage: matchScore,
         reason,
+        primaryReason: reason,
         tags,
         enrollmentCount: course.enrollments.length,
       };
@@ -226,20 +234,28 @@ export class RecommendationService {
       }
     }
 
-    const recommendations: RecommendedCourseItem[] = diversePicks.map((course, idx) => ({
-      courseId: course.id,
-      title: course.title,
-      description: course.description,
-      thumbnail: course.thumbnail,
-      domain: course.domain,
-      level: course.level,
-      price: course.price,
-      isPaid: course.isPaid,
-      matchScore: 95 - idx * 2,
-      reason: `Flagship course recommended to start your learning path in ${course.domain.replace('_', ' ')}.`,
-      tags: [course.domain.replace('_', ' '), course.level, "Editor's Pick"],
-      enrollmentCount: course.enrollments.length,
-    }));
+    const recommendations: RecommendedCourseItem[] = diversePicks.map((course, idx) => {
+      const matchScore = 95 - idx * 2;
+      const reason = `Flagship course recommended to start your learning path in ${course.domain.replace(/_/g, ' ')}.`;
+      return {
+        courseId: course.id,
+        title: course.title,
+        description: course.description,
+        thumbnail: course.thumbnail,
+        thumbnailUrl: course.thumbnail,
+        domain: course.domain,
+        category: course.domain.replace(/_/g, ' '),
+        level: course.level,
+        price: course.price,
+        isPaid: course.isPaid,
+        matchScore,
+        matchPercentage: matchScore,
+        reason,
+        primaryReason: reason,
+        tags: [course.domain.replace(/_/g, ' '), course.level, "Editor's Pick"],
+        enrollmentCount: course.enrollments.length,
+      };
+    });
 
     return {
       recommendations,
