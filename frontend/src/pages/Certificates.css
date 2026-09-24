@@ -285,25 +285,51 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 0.45rem;
   min-width: 0;
 }
 
-.cert-course-title {
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--text-primary, #0f172a);
-  margin: 0;
-  line-height: 1.35;
+.credential-type-label {
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--primary, #2563eb);
+  text-transform: uppercase;
 }
 
-.cert-recipient-name {
-  font-size: 0.875rem;
+.credential-course-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-primary, #0f172a) !important;
+  margin: 0 !important;
+  line-height: 1.35 !important;
+  letter-spacing: -0.015em;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  text-align: left !important;
+  transition: color 0.2s ease;
+}
+
+.credential-course-title:hover {
+  color: var(--primary, #2563eb) !important;
+}
+
+.credential-recipient-row {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.9rem;
   color: var(--text-secondary, #64748b);
-  margin: 0;
+  margin-top: 0.15rem;
 }
 
-.cert-recipient-name strong {
+.recipient-label {
+  color: var(--text-tertiary, #94a3b8);
+}
+
+.recipient-name {
+  font-weight: 700;
   color: var(--text-primary, #0f172a);
 }
 

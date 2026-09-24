@@ -167,12 +167,14 @@ function Certificates() {
 
               {/* Card main content */}
               <div className="cert-content-wrapper">
-                <h3 className="cert-course-title" title={certificate.course?.title || 'Course Certificate'}>
+                <span className="credential-type-label">CERTIFICATE OF COMPLETION</span>
+                <h3 className="credential-course-title" title={certificate.course?.title || 'Course Certificate'}>
                   {certificate.course?.title || 'Course Certificate'}
                 </h3>
-                <p className="cert-recipient-name">
-                  Awarded to <strong>{certificate.user?.firstName} {certificate.user?.lastName}</strong>
-                </p>
+                <div className="credential-recipient-row">
+                  <span className="recipient-label">Awarded to:</span>
+                  <span className="recipient-name">{certificate.user?.firstName} {certificate.user?.lastName}</span>
+                </div>
 
                 <div className="cert-meta-row">
                   <div className="cert-meta-item">
