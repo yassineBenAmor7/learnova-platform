@@ -25,15 +25,19 @@ function YouTubePlayerInner({ video, onVideoEnded }) {
   const [error, setError] = useState(null);
   const [isCompleted, setIsCompleted] = useState(false);
   const iframeRef = useRef(null);
+  const completedTriggeredRef = useRef(false);
 
   useEffect(() => {
     const id = extractVideoId(video?.url);
     setVideoId(id);
     setError(null);
     setIsCompleted(!!video?.isCompleted);
+    completedTriggeredRef.current = !!video?.isCompleted;
   }, [video?.url, video?.isCompleted]);
 
   const handleMarkCompleted = useCallback(() => {
+    if (completedTriggeredRef.current) return;
+    completedTriggeredRef.current = true;
     setIsCompleted(true);
     if (onVideoEnded) {
       onVideoEnded();
@@ -73,6 +77,8 @@ function YouTubePlayerInner({ video, onVideoEnded }) {
   // PostMessage listener for YouTube events (no direct DOM mutation, 100% React compatible)
   useEffect(() => {
     const handleMessage = (event) => {
+      if (completedTriggeredRef.current) return;
+
       if (
         event.origin &&
         !event.origin.includes('youtube.com') &&

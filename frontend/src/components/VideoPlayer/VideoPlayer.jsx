@@ -9,10 +9,24 @@ function VideoPlayer({ video, onProgressUpdate, onVideoEnded }) {
   const [isMuted, setIsMuted] = useState(false);
   const [videoError, setVideoError] = useState(false);
   const videoRef = useRef(null);
+  const endedTriggeredRef = useRef(false);
+
+  useEffect(() => {
+    endedTriggeredRef.current = !!video?.isCompleted;
+  }, [video?.id, video?.url, video?.isCompleted]);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
+
+    const triggerEnded = () => {
+      if (endedTriggeredRef.current) return;
+      endedTriggeredRef.current = true;
+      video.setAttribute('data-ended', 'true');
+      if (onVideoEnded) {
+        onVideoEnded();
+      }
+    };
 
     const handleTimeUpdate = () => {
       setCurrentTime(video.currentTime);
@@ -21,14 +35,11 @@ function VideoPlayer({ video, onProgressUpdate, onVideoEnded }) {
       }
       
       // Check if video reached completion (when user watches or seeks to end)
-      if (video.duration > 0 && !video.hasAttribute('data-ended')) {
+      if (video.duration > 0 && !endedTriggeredRef.current && !video.hasAttribute('data-ended')) {
         const progressPercent = (video.currentTime / video.duration) * 100;
         if (progressPercent >= 95 || (video.duration - video.currentTime) <= 2) {
           console.log('Video reached completion threshold, marking as completed');
-          video.setAttribute('data-ended', 'true');
-          if (onVideoEnded) {
-            onVideoEnded();
-          }
+          triggerEnded();
         }
       }
     };
@@ -41,11 +52,7 @@ function VideoPlayer({ video, onProgressUpdate, onVideoEnded }) {
     const handleEnded = () => {
       console.log('Video ended event triggered');
       setIsPlaying(false);
-      if (onVideoEnded && !video.hasAttribute('data-ended')) {
-        console.log('Calling onVideoEnded callback');
-        video.setAttribute('data-ended', 'true');
-        onVideoEnded();
-      }
+      triggerEnded();
     };
 
     const handleError = () => {

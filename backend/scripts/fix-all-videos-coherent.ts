@@ -169,131 +169,131 @@ function generateCoherentSessionVideos(
 
   return [
     {
-      title: `${cleanTitle}: Principes Fondamentaux & Cadre Théorique`,
+      title: `${cleanTitle}: Fundamental Principles & Theoretical Framework`,
       url: `https://www.youtube.com/watch?v=${uniqueVideoIds[0]}`,
       duration: 720 + ((hash * 3) % 360),
       orderNumber: 1,
-      description: `Introduction théorique et conceptuelle à ${cleanTitle}. Ce module pose les bases indispensables, les terminologies clés et les modèles directeurs appliqués dans le cadre du cours "${courseTitle}".`,
-      content: `### Objectifs Pédagogiques du Module
-- Maîtriser le vocabulaire technique, les définitions normalisées et les concepts cardinaux liés à **${cleanTitle}**.
-- Comprendre les fondations structurelles régissant ce domaine au sein du programme **${courseTitle}**.
-- Savoir identifier les cas d'usage primaires et les contraintes opérationnelles initiales.
+      description: `Theoretical and conceptual introduction to ${cleanTitle}. This module establishes foundational concepts, key terminologies, and governing models applied within "${courseTitle}".`,
+      content: `### Pedagogical Objectives of the Module
+- Master the technical terminology, standard definitions, and cardinal concepts of **${cleanTitle}**.
+- Understand the structural foundations governing this domain within the **${courseTitle}** curriculum.
+- Identify primary use cases, architectural patterns, and initial operational constraints.
 
-### Concepts Clés & Modèles Théoriques
-Dans cette première leçon, nous étudions l'architecture fondamentale sous-jacente. La maîtrise de **${cleanTitle}** repose sur trois piliers indispensables :
-1. **L'assise conceptuelle** : Délimitation précise du périmètre d'action, identification des variables clés et modélisation des flux logiques.
-2. **Le respect des standards de l'industrie** : Alignement avec les spécifications techniques modernes, normes de conformité et conventions de l'écosystème.
-3. **L'interaction systémique** : Manière dont ce composant s'intègre harmonieusement dans les processus globaux du cours *${courseTitle}*.
+### Core Concepts & Theoretical Models
+In this foundational lesson, we analyze the underlying core architecture. Mastering **${cleanTitle}** relies on three essential pillars:
+1. **Conceptual Grounding**: Precise scope definition, identifying critical variables, and modeling logical workflows.
+2. **Adherence to Industry Standards**: Alignment with modern engineering specifications, compliance frameworks, and ecosystem best practices.
+3. **Systemic Interaction**: How this component integrates seamlessly within the overarching processes of *${courseTitle}*.
 
-> **Règle d'or :** Une exécution technique réussie découle toujours d'une compréhension rigoureuse des principes directeurs plutôt que d'une simple récitation mécanique de recettes.
+> **Guiding Principle:** Exceptional technical execution always stems from a rigorous understanding of first principles rather than mechanical memorization of recipes.
 
-### Mécanismes & Architecture Fonctionnelle
-Voici le cycle de traitement et d'application préconisé :
-- **Phase d'initialisation** : Analyse des prérequis, dimensionnement des paramètres et validation des entrées.
-- **Phase de traitement** : Exécution des règles métiers et isolation des responsabilités unitaires.
-- **Phase de contrôle** : Validation d'intégrité, traçabilité des opérations et monitoring.
+### Operational Architecture & Execution Lifecycle
+The recommended execution and deployment lifecycle consists of:
+- **Initialization Phase**: Requirements validation, parameter scoping, and rigorous input sanitation.
+- **Processing Phase**: Domain business rule evaluation and strict isolation of single responsibilities.
+- **Verification Phase**: Integrity assurance, end-to-end traceability, and observability monitoring.
 
-### Recommandations & Pièges Courants à Éviter
-- **Piège classique** : Négliger les contraintes limites et les cas particuliers lors de la modélisation initiale.
-- **Bonne pratique** : Documenter systématiquement les choix d'architecture et valider les hypothèses à l'aide de métriques concrètes dès le premier jalon.
+### Professional Recommendations & Common Pitfalls to Avoid
+- **Classic Pitfall**: Overlooking boundary constraints and edge cases during preliminary modeling.
+- **Best Practice**: Systematically document architectural decisions and validate hypotheses using concrete baseline metrics from milestone one.
 
-### Synthèse & Prochaine Étape
-Vous disposez désormais du socle théorique nécessaire sur **${cleanTitle}**. La prochaine leçon approfondira les méthodologies avancées et les cadres d'exécution pratiques.`,
+### Summary & Next Step
+You now possess the foundational theoretical groundwork for **${cleanTitle}**. The next lesson delves into advanced methodologies, frameworks, and practical execution models.`,
     },
     {
-      title: `${cleanTitle}: Méthodologies, Frameworks & Analyse Approfondie`,
+      title: `${cleanTitle}: Methodologies, Frameworks & In-Depth Analysis`,
       url: `https://www.youtube.com/watch?v=${uniqueVideoIds[1]}`,
       duration: 840 + ((hash * 5) % 420),
       orderNumber: 2,
-      description: `Décomposition méthodologique détaillée de ${cleanTitle}. Découvrez les frameworks standards, les protocoles de mise en œuvre et l'analyse comparative des compromis d'exécution.`,
-      content: `### Objectifs Pédagogiques du Module
-- Analyser en profondeur les frameworks d'ingénierie et méthodologies professionnelles éprouvées pour **${cleanTitle}**.
-- Évaluer rationnellement les compromis (coût, vélocité, maintenabilité, robustesse) propres à **${courseTitle}**.
-- Structurer un protocole décisionnel reproductible en contexte professionnel réel.
+      description: `In-depth methodological breakdown of ${cleanTitle}. Explore industry-standard frameworks, implementation protocols, and comparative trade-off analysis.`,
+      content: `### Pedagogical Objectives of the Module
+- Deeply evaluate proven engineering frameworks and professional methodologies for **${cleanTitle}**.
+- Rationally assess engineering trade-offs (cost, velocity, maintainability, robustness) within **${courseTitle}**.
+- Structure a repeatable, evidence-based decision protocol for real-world production environments.
 
-### Décomposition Méthodologique
-L'approche systématique appliquée aux problématiques de **${cleanTitle}** se déploie selon une séquence structurée :
-- **Étape 1 : Diagnostic & Audit** — Cartographie de l'existant, recueil des spécifications critiques et élimination des goulets d'étranglement potentiels.
-- **Étape 2 : Sélection du Framework** — Choix de la structure de travail la plus adaptée selon les contraintes de scalabilité et de délais.
-- **Étape 3 : Structuration Modulaire** — Découpage en sous-ensembles modulaires à faible couplage et forte cohésion.
+### Methodological Breakdown
+The systematic workflow applied to challenges in **${cleanTitle}** unfolds across three structured phases:
+- **Phase 1: Diagnosis & Baseline Audit** — Comprehensive mapping of current state, gathering critical specifications, and eliminating potential bottlenecks.
+- **Phase 2: Framework Selection** — Choosing the optimal paradigm based on scalability targets, SLAs, and development timelines.
+- **Phase 3: Modular Structuring** — Decomposing complex problems into loosely coupled, highly cohesive subsystems.
 
-> **Citation méthodologique :** *"La simplicité est la condition préalable à la fiabilité."* — Une solution élégante minimise la complexité accidentelle au profit de la robustesse.
+> **Engineering Maxim:** *"Simplicity is a prerequisite for reliability."* — An elegant architecture minimizes accidental complexity in favor of long-term maintainability.
 
-### Analyse Comparative & Matrice de Décision
-Dans tout projet lié à **${courseTitle}**, le praticien doit arbitrer entre plusieurs trajectoires :
-- **Vitesse vs Précision** : Choisir une approche itérative rapide pour les prototypes ou une approche rigoureusement validée pour la production.
-- **Flexibilité vs Spécialisation** : Privilégier des composants génériques réutilisables ou des modules sur-mesure hyper-optimisés.
+### Comparative Analysis & Decision Matrix
+Throughout **${courseTitle}**, practitioners must navigate trade-offs:
+- **Speed vs. Precision**: Agile prototyping for discovery versus verified, battle-tested pipelines for mission-critical deployments.
+- **Generality vs. Specialization**: Reusable generic abstractions versus domain-optimized high-performance components.
 
-### Recommandations Professionnelles
-- Établissez des conventions claires au sein de votre équipe avant de commencer l'implémentation.
-- Automatisez les vérifications récurrentes pour garantir que la conformité méthodologique ne dépende pas de l'effort individuel ponctuel.
+### Professional Recommendations
+- Establish explicit conventions and standards across the engineering team before starting implementation.
+- Automate continuous validation so methodological compliance does not depend on sporadic manual discipline.
 
-### Synthèse & Prochaine Étape
-Avec cette maîtrise méthodologique, vous êtes prêts à passer à la phase de concrétisation technique dans l'atelier pratique de la leçon suivante.`,
+### Summary & Next Step
+With this methodological mastery, you are fully prepared to transition into hands-on implementation in the following workshop.`,
     },
     {
-      title: `${cleanTitle}: Atelier Pratique d'Implémentation Étape par Étape`,
+      title: `${cleanTitle}: Practical Step-by-Step Implementation Workshop`,
       url: `https://www.youtube.com/watch?v=${uniqueVideoIds[2]}`,
       duration: 900 + ((hash * 7) % 360),
       orderNumber: 3,
-      description: `Mise en application guidée et concrète de ${cleanTitle}. Suivez pas à pas la configuration, la construction et le déploiement d'un résultat opérationnel conforme aux standards de l'industrie.`,
-      content: `### Objectifs de l'Atelier Pratique
-- Réaliser une implémentation pas à pas de **${cleanTitle}** prête pour un environnement de production.
-- Manipuler les outils, syntaxes et configurations recommandées dans le cadre de **${courseTitle}**.
-- Savoir tester, diagnostiquer et corriger les anomalies d'exécution en temps réel.
+      description: `Guided hands-on application of ${cleanTitle}. Follow step-by-step configuration, build, and deployment of production-grade solutions conforming to industry benchmarks.`,
+      content: `### Workshop Learning Objectives
+- Execute an end-to-end implementation of **${cleanTitle}** ready for enterprise deployment.
+- Hands-on application of recommended tools, syntax, and configurations within **${courseTitle}**.
+- Diagnose, profile, and troubleshoot execution anomalies in real time.
 
-### Protocole d'Implémentation Pas à Pas
-Suivez rigoureusement les étapes suivantes pour exécuter le déploiement technique :
+### Step-by-Step Implementation Protocol
+Carefully follow these execution steps to deploy the technical solution:
 
-1. **Préparation de l'Environnement** :
-   - Vérifier les prérequis logiciels et l'accès aux variables de configuration requises.
-   - Initialiser l'espace de travail et isoler les dépendances contextuelles.
+1. **Environment Preparation**:
+   - Verify software prerequisites, credentials, and contextual runtime variables.
+   - Initialize isolated workspace and manage dependency lifecycles cleanly.
 
-2. **Construction & Assemblage** :
-   - Mettre en place le composant principal selon les spécifications établies.
-   - Injecter les paramètres de contrôle et configurer la gestion des exceptions.
+2. **Construction & Assembly**:
+   - Assemble primary architectural components according to specifications.
+   - Inject defensive control parameters and robust exception handling.
 
-3. **Validation & Recette** :
-   - Exécuter la suite de tests unitaires et de cohérence logique.
-   - Valider la conformité des sorties par rapport aux critères de succès attendus.
+3. **Validation & Quality Assurance**:
+   - Execute unit test suites and logical regression verifications.
+   - Validate performance output against defined acceptance criteria.
 
-> **Conseil pratique :** Testez toujours chaque bloc unitairement avant de passer à l'assemblage global pour localiser immédiatement d'éventuelles régressions.
+> **Hands-On Tip:** Always test each building block in isolation before full end-to-end integration to localize regressions immediately.
 
-### Dépannage des Erreurs Fréquentes
-- **Erreur de configuration / variable manquante** : Vérifiez toujours la présence et le typage exact de vos paramètres d'entrée.
-- **Conflit de dépendances** : Isolez vos modules pour éviter les effets de bord indésirables entre composants connexes.
+### Common Troubleshooting Scenarios
+- **Configuration & Typing Discrepancies**: Always enforce schema contracts and parameter type validation.
+- **Dependency Conflicts**: Maintain strict version locks and isolated environments to avoid unintended side effects.
 
-### Synthèse Technique
-Vous avez concrétisé les concepts de **${cleanTitle}** en un artefact fonctionnel. La dernière leçon couvrira les scénarios avancés et les études de cas réelles.`,
+### Technical Synthesis
+You have successfully translated the concepts of **${cleanTitle}** into a functional, validated implementation. The final lesson explores real-world case studies and advanced scenarios.`,
     },
     {
-      title: `${cleanTitle}: Études de Cas Réelles & Bonnes Pratiques Industrielles`,
+      title: `${cleanTitle}: Real-World Case Studies & Industry Best Practices`,
       url: `https://www.youtube.com/watch?v=${uniqueVideoIds[3]}`,
       duration: 960 + ((hash * 11) % 480),
       orderNumber: 4,
-      description: `Étude de cas approfondie, gestion des cas limites et optimisation avancée pour ${cleanTitle}. Synthétisez vos connaissances à travers des scénarios d'entreprise réels tirés de ${courseTitle}.`,
-      content: `### Objectifs du Module Avancé
-- Analyser une étude de cas d'entreprise réelle illustrant les défis majeurs de **${cleanTitle}**.
-- Anticiper et gérer les cas limites (edge cases), les pics de charge et les scénarios de défaillance.
-- Formaliser une stratégie de gouvernance pérenne conforme aux exigences de **${courseTitle}**.
+      description: `Deep-dive case study, edge case resilience, and advanced optimization for ${cleanTitle}. Synthesize your skills with real-world scenarios from ${courseTitle}.`,
+      content: `### Advanced Module Objectives
+- Analyze a real-world enterprise case study illustrating pivotal challenges in **${cleanTitle}**.
+- Anticipate and resolve edge cases, peak concurrency spikes, and system failure modes.
+- Formalize a sustainable governance and resilience strategy compliant with **${courseTitle}** standards.
 
-### Étude de Cas Réelle : Analyse & Résolution
-Examinons un scénario emblématique rencontré par une organisation de premier plan :
-- **Contexte initial** : Confrontée à une transition d'échelle, l'équipe technique a constaté des inefficiences critiques dans la gestion de **${cleanTitle}**.
-- **Diagnostic posé** : Manque de modularité, absence de garde-fous automatisés et dépendance excessive à des interventions manuelles chronophages.
-- **Solution déployée** : Refonte architecturale complète basée sur les principes étudiés dans ce cours, déploiement de contrôles continus et documentation vivante.
-- **Résultats obtenus** : Réduction de 65% des incidents opérationnels, amélioration drastique des délais de livraison et conformité totale aux exigences d'audit.
+### Real-World Case Study: Analysis & Resolution
+Let us examine an industry benchmark scenario encountered by a high-scale enterprise:
+- **Initial Challenge**: Facing hyper-growth, the engineering team experienced severe bottlenecks in the operational pipeline of **${cleanTitle}**.
+- **Root-Cause Diagnosis**: Tight coupling, lack of automated circuit breakers, and over-reliance on manual interventions.
+- **Deployed Solution**: Complete architectural refactoring based on principles covered in this course, introducing automated health checks and comprehensive telemetry.
+- **Measurable Outcomes**: 65% reduction in operational incidents, drastic improvement in delivery throughput, and full regulatory audit compliance.
 
-> **Leçon d'excellence :** Dans les environnements à haute exigence, la résilience d'un système se mesure à sa capacité à gérer gracieusement les anomalies imprévues sans interruption de service.
+> **Hallmark of Excellence:** In mission-critical environments, system resilience is measured by the ability to gracefully degrade under adverse conditions without downtime.
 
-### Matrice de Gouvernance & Gestion des Risques
-Pour pérenniser votre dispositif dans **${courseTitle}**, appliquez les règles suivantes :
-- **Auditabilité** : Conserver un journal d'événements exhaustif et non modifiable.
-- **Sécurité par conception (Security by Design)** : Ne jamais faire confiance aveuglément aux données entrantes.
-- **Amélioration continue** : Réviser trimestriellement les métriques d'efficacité opérationnelle.
+### Governance Matrix & Risk Management
+To ensure enduring stability throughout **${courseTitle}**, adhere to the following core tenets:
+- **Auditability**: Maintain immutable, structured audit logs and end-to-end telemetry.
+- **Security by Design**: Enforce zero-trust principles across all internal and external data boundaries.
+- **Continuous Improvement**: Review operational efficiency metrics and error budgets on a regular cadence.
 
-### Synthèse Finale du Chapitre
-Félicitations pour avoir complété ce chapitre consacré à **${cleanTitle}** ! Vous êtes désormais armé pour aborder le Quiz de Pratique associé avec un haut niveau de confiance et de maîtrise.`,
+### Chapter Completion Summary
+Congratulations on completing this chapter on **${cleanTitle}**! You are now fully prepared to take the associated Practice Quiz with high confidence and mastery.`,
     },
   ];
 }

@@ -170,6 +170,11 @@ function LearningPath() {
   const [activeTab, setActiveTab] = useState('video'); // 'video' | 'text' | 'quiz' | 'overview'
   const [activeVideoId, setActiveVideoId] = useState(null);
   const previousSessionIdRef = useRef(null);
+  const completingVideoIdRef = useRef(null);
+
+  useEffect(() => {
+    completingVideoIdRef.current = null;
+  }, [activeVideoId]);
 
   const selectSession = useCallback((sessions, sessionParam) => {
     if (!sessions?.length) {
@@ -387,6 +392,12 @@ function LearningPath() {
   const handleVideoEnded = async () => {
     const currentVid = activeVideo;
     if (!currentVid || previewMode) return;
+
+    // Guard against duplicate triggers for the same video
+    if (completingVideoIdRef.current === currentVid.id) {
+      return;
+    }
+    completingVideoIdRef.current = currentVid.id;
 
     try {
       // 1. Immediately unlock locally so UI transitions and locks open instantaneously
