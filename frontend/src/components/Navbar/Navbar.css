@@ -48,13 +48,6 @@
   opacity: 0.9;
 }
 
-.logo-dot {
-  background: linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #3b82f6 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: #3b82f6;
-}
-
 .navbar-menu {
   display: flex;
   align-items: center;

@@ -21,7 +21,7 @@ const Navbar = () => {
       <div className="navbar-content">
         <Link to={isAuthenticated ? (isAdmin ? '/admin' : '/dashboard') : '/'} className="navbar-logo">
           <img src="/logo.svg" alt="Learnova Logo" className="navbar-brand-img" />
-          <span>Learnova<span className="logo-dot">.</span></span>
+          <span>Learnova</span>
         </Link>
 
         <div className="navbar-menu">
