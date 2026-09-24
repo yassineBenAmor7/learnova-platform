@@ -21,6 +21,7 @@ function Exam() {
   const [showReview, setShowReview] = useState(false);
   const [examBlocked, setExamBlocked] = useState(false);
   const [blockReason, setBlockReason] = useState(null);
+  const [generatingCert, setGeneratingCert] = useState(false);
 
   useEffect(() => {
     loadExam();
@@ -131,6 +132,16 @@ function Exam() {
       
       setResult(res);
       window.scrollTo(0, 0);
+
+      // Pre-generate certificate automatically upon passing
+      if (res?.passed && quiz?.courseId) {
+        try {
+          const learningPathService = (await import('../services/learning-path.service')).default;
+          await learningPathService.checkAndGenerateCertificate(quiz.courseId);
+        } catch (certErr) {
+          console.error('Auto certificate generation error:', certErr);
+        }
+      }
     } catch (err) {
       toastError(err.message || 'Failed to submit exam', 5000);
       console.error(err);
@@ -205,24 +216,35 @@ function Exam() {
             {result.passed && (
               <button
                 type="button"
+                disabled={generatingCert}
                 onClick={async () => {
                   try {
-                    const learningPathService = (await import('../services/learning-path.service')).default;
-                    const res = await learningPathService.checkAndGenerateCertificate(quiz.courseId);
-                    if (res?.certificate || res?.success || res?.message?.includes('Certificate generated') || res?.message?.includes('Certificate already issued')) {
+                    setGeneratingCert(true);
+                    const courseId = quiz?.courseId;
+                    if (!courseId) {
+                      toastError('Course ID not found');
                       navigate('/certificates');
-                    } else {
-                      navigate('/certificates');
+                      return;
                     }
+                    const learningPathService = (await import('../services/learning-path.service')).default;
+                    const res = await learningPathService.checkAndGenerateCertificate(courseId);
+                    if (res?.certificate || res?.success || res?.message?.includes('Certificate generated') || res?.message?.includes('Certificate already issued')) {
+                      toastSuccess('Your official certificate is ready!');
+                    } else {
+                      toastError(res?.message || 'Unable to generate certificate');
+                    }
+                    navigate('/certificates');
                   } catch (err) {
                     console.error('Failed to generate certificate:', err);
                     navigate('/certificates');
+                  } finally {
+                    setGeneratingCert(false);
                   }
                 }}
                 className="btn btn-primary"
-                style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#ffffff', border: 'none', fontWeight: 800, padding: '0.75rem 1.5rem', borderRadius: '12px' }}
+                style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#ffffff', border: 'none', fontWeight: 800, padding: '0.75rem 1.5rem', borderRadius: '12px', cursor: generatingCert ? 'not-allowed' : 'pointer' }}
               >
-                Get Official Certificate →
+                {generatingCert ? 'Issuing Certificate...' : 'Get Official Certificate →'}
               </button>
             )}
             <Link to={quiz?.courseId ? `/learning-path/${quiz.courseId}` : "/courses"} className="btn btn-secondary">

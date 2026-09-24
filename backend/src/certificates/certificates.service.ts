@@ -37,7 +37,9 @@ export class CertificatesService {
       where: { userId },
       include: {
         course: true,
+        user: true,
       },
+      orderBy: { issuedAt: 'desc' },
     });
   }
 

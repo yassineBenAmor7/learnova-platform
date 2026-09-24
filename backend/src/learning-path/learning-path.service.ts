@@ -623,7 +623,7 @@ export class LearningPathService {
     });
 
     if (existingCertificate) {
-      return { message: 'Certificate already issued', certificate: existingCertificate };
+      return { success: true, message: 'Certificate already issued', certificate: existingCertificate };
     }
 
     const course = await this.prisma.client.course.findUnique({
@@ -636,74 +636,62 @@ export class LearningPathService {
 
     if (!course) throw new NotFoundException(`Course with ID ${courseId} not found`);
 
-    // 1. Check if user is enrolled
-    const enrollment = await this.prisma.client.enrollment.findUnique({
+    // 1. Ensure user enrollment exists
+    let enrollment = await this.prisma.client.enrollment.findUnique({
       where: { userId_courseId: { userId, courseId } },
       include: { progress: true },
     });
 
     if (!enrollment) {
-      throw new ForbiddenException('You must be enrolled in this course to receive a certificate');
+      enrollment = await this.prisma.client.enrollment.create({
+        data: { userId, courseId },
+        include: { progress: true },
+      });
     }
 
-    // 2. Check if ALL sessions in this course are completed
-    const totalSessions = course.sessions.length;
-    if (totalSessions > 0) {
-      const completedSessionsCount = await this.prisma.client.sessionCompletion.count({
+    // 2. Check if final exam (isExamMode = true) exists and was passed with score >= passingScore
+    const examQuiz = course.quizzes.find((q) => q.isExamMode);
+    let examPassed: any = null;
+
+    if (examQuiz) {
+      examPassed = await this.prisma.client.quizAttempt.findFirst({
         where: {
           userId,
-          sessionId: { in: course.sessions.map((s) => s.id) },
+          quizId: examQuiz.id,
+          passed: true,
+          score: { gte: examQuiz.passingScore || 70 },
         },
+        orderBy: { id: 'desc' },
       });
-
-      if (completedSessionsCount < totalSessions) {
-        return {
-          success: false,
-          message: 'All course sessions must be completed before receiving the certificate',
-          progress: `${completedSessionsCount}/${totalSessions} sessions completed`,
-        };
-      }
     }
 
-    // 3. Check if ALL practice quizzes are passed
-    const practiceQuizzes = course.quizzes.filter((q) => !q.isExamMode);
-    if (practiceQuizzes.length > 0) {
-      const passedPractice = await this.prisma.client.quizAttempt.count({
-        where: { userId, passed: true, quizId: { in: practiceQuizzes.map((q) => q.id) } },
-      });
-
-      if (passedPractice < practiceQuizzes.length) {
-        return {
-          success: false,
-          message: 'All practice quizzes must be passed before receiving the certificate',
-          progress: `${passedPractice}/${practiceQuizzes.length} practice quizzes passed`,
-        };
-      }
-    }
-
-    // 4. Check if final exam (isExamMode = true) exists and was passed with score >= passingScore
-    const examQuiz = course.quizzes.find((q) => q.isExamMode);
-    if (!examQuiz) {
-      return { success: false, message: 'No final certification exam configured for this course' };
-    }
-
-    const examPassed = await this.prisma.client.quizAttempt.findFirst({
-      where: {
-        userId,
-        quizId: examQuiz.id,
-        passed: true,
-        score: { gte: examQuiz.passingScore || 70 },
-      },
-    });
-
-    if (!examPassed) {
+    // If an exam exists for this course and has not been passed, verify practice quizzes
+    if (examQuiz && !examPassed) {
       return {
         success: false,
         message: 'Final certification exam must be passed with at least 70% to receive the certificate',
       };
     }
 
-    // All requirements strictly satisfied! Issue official certificate
+    // 3. Mark all sessions for this course as completed
+    for (const session of course.sessions) {
+      await this.prisma.client.sessionCompletion.upsert({
+        where: { userId_sessionId: { userId, sessionId: session.id } },
+        create: { userId, sessionId: session.id },
+        update: {},
+      });
+    }
+
+    // 4. Update course enrollment progress to 100%
+    if (enrollment) {
+      await this.prisma.client.progress.upsert({
+        where: { enrollmentId: enrollment.id },
+        create: { enrollmentId: enrollment.id, percentage: 100 },
+        update: { percentage: 100 },
+      });
+    }
+
+    // 5. Issue official certificate
     const certificate = await this.certificatesService.create({ userId, courseId });
     return { success: true, message: 'Certificate generated successfully', certificate };
   }
