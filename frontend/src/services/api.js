@@ -26,7 +26,7 @@ export async function request(endpoint, options = {}) {
     const errorData = await response.json().catch(() => ({}));
     const errorMessage = Array.isArray(errorData.message)
       ? errorData.message.join(', ')
-      : errorData.message || 'Une erreur est survenue';
+      : errorData.message || 'An unexpected error occurred';
     throw new Error(errorMessage);
   }
   

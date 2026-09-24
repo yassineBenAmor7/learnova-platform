@@ -6,9 +6,9 @@ import {
 } from 'class-validator';
 
 export class RegisterDto {
-  @IsEmail({}, { message: 'Veuillez saisir une adresse email valide' })
+  @IsEmail({}, { message: 'Please enter a valid email address' })
   @Matches(/^[a-zA-Z0-9._%+-]+@(gmail\.com|outlook\.(com|fr)|hotmail\.(com|fr)|yahoo\.(com|fr)|icloud\.com)$/i, {
-    message: 'Seules les adresses de confiance (Gmail, Outlook, Hotmail, Yahoo, iCloud) sont autorisées',
+    message: 'Only trusted email addresses (Gmail, Outlook, Hotmail, Yahoo, iCloud) are allowed',
   })
   email: string;
 

@@ -368,7 +368,7 @@ function Dashboard() {
             <div className="section-header">
               <div className="ai-header-badge">
                 <Brain size={16} className="ai-sparkle-icon" />
-                <span>Diagnostic IA & Rétention</span>
+                <span>AI Diagnostics & Retention</span>
               </div>
               <h2 className="section-title">AI Learning Diagnosis & Retention Health</h2>
               <p className="section-subtitle">

@@ -28,14 +28,14 @@ function ChatbotPage() {
   const [messages, setMessages] = useState([
     {
       id: 1,
-      text: "Bonjour ! Je suis l'assistant pédagogique intelligent de **Learnova**.\n\nPosez-moi vos questions sur n'importe quel cours, demandez des explications conceptuelles ou faites-vous recommander votre prochaine étape d'apprentissage.",
+      text: "Hello! I am **Learnova's Intelligent AI Pedagogical Assistant**.\n\nAsk me questions about any course, request conceptual explanations, or get recommendations for your next learning step.",
       sender: 'bot',
       timestamp: new Date(),
       suggestions: [
-        'Recommande-moi une formation en Data Science',
-        'Quelles sont les conditions pour valider un examen ?',
-        'Explique-moi les principes de base du SQL',
-        'Comment fonctionne le calcul des séries quotidiennes ?',
+        'Recommend a Data Science course',
+        'What are the requirements to pass an exam?',
+        'Explain the core principles of SQL',
+        'How does the daily streak calculation work?',
       ],
     },
   ]);
@@ -97,7 +97,7 @@ function ChatbotPage() {
       console.error('Chatbot error:', error);
       const errorMsg = {
         id: Date.now() + 1,
-        text: "Désolé, une erreur temporaire est survenue lors de la communication avec le service d'IA. Veuillez réessayer.",
+        text: "Sorry, a temporary error occurred while communicating with the AI service. Please try again.",
         sender: 'bot',
         timestamp: new Date(),
       };
@@ -128,36 +128,36 @@ function ChatbotPage() {
             <div className="tutor-avatar">
               <Bot size={28} />
             </div>
-            <h3>Tuteur Virtuel IA</h3>
-            <p>Assistance pédagogique 24/7 alimentée par les contenus réels de Learnova.</p>
+            <h3>AI Virtual Tutor</h3>
+            <p>24/7 pedagogical assistance powered by Learnova's real course content.</p>
           </div>
 
           <div className="prompt-topics">
-            <h4>Thématiques Fréquentes</h4>
+            <h4>Common Topics</h4>
             <button
               className="topic-btn"
-              onClick={() => handleSendMessage('Quelles sont les formations les plus populaires en Informatique & Data ?')}
+              onClick={() => handleSendMessage('What are the most popular courses in IT & Data?')}
             >
               <BookOpen size={16} />
-              <span>Formations IT & Data</span>
+              <span>IT & Data Courses</span>
             </button>
             <button
               className="topic-btn"
-              onClick={() => handleSendMessage('Comment se déroule la certification avec QR Code ?')}
+              onClick={() => handleSendMessage('How does QR Code certification work?')}
             >
               <Award size={16} />
-              <span>Certifications & QR Code</span>
+              <span>Certificates & QR Code</span>
             </button>
             <button
               className="topic-btn"
-              onClick={() => handleSendMessage('Quelles sont les règles du Mode Examen chronométré ?')}
+              onClick={() => handleSendMessage('What are the rules of Timed Exam Mode?')}
             >
               <CheckCircle size={16} />
-              <span>Mode Examen & Seuil 70%</span>
+              <span>Exam Mode & 70% Pass</span>
             </button>
             <button
               className="topic-btn"
-              onClick={() => handleSendMessage('Comment progresser en niveau et débloquer des badges ?')}
+              onClick={() => handleSendMessage('How to level up and unlock badges?')}
             >
               <Sparkles size={16} />
               <span>Gamification & Streaks</span>
@@ -195,7 +195,7 @@ function ChatbotPage() {
 
                 {m.sources && m.sources.length > 0 && (
                   <div className="chatpage-sources">
-                    <span className="source-title">Documentation associée :</span>
+                    <span className="source-title">Related Documentation:</span>
                     {m.sources.map((s, idx) => (
                       <span key={idx} className="source-chip">
                         {s.courseTitle} {s.sessionTitle ? `— ${s.sessionTitle}` : ''}
@@ -245,12 +245,12 @@ function ChatbotPage() {
             type="text"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            placeholder="Posez une question sur nos formations ou vos cours..."
+            placeholder="Ask a question about our courses or curriculum..."
             disabled={isTyping}
           />
           <button type="submit" disabled={!inputValue.trim() || isTyping}>
             <Send size={18} />
-            <span>Envoyer</span>
+            <span>Send</span>
           </button>
         </form>
       </div>

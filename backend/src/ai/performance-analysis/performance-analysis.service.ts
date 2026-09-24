@@ -69,7 +69,7 @@ export class PerformanceAnalysisService {
     });
 
     if (!user) {
-      throw new NotFoundException(`Utilisateur avec l'ID ${userId} introuvable.`);
+      throw new NotFoundException(`User with ID ${userId} not found.`);
     }
 
     const totalQuizzesTaken = user.quizAttempts.length;
@@ -138,8 +138,8 @@ export class PerformanceAnalysisService {
         courseTitle: failed.quiz.course.title,
         quizTitle: failed.quiz.title,
         severity: failed.score < 50 ? 'HIGH' : 'MEDIUM',
-        description: `Score insuffisant (${Math.round(failed.score)}% obtenu vs 70% requis) lors de l'évaluation "${failed.quiz.title}".`,
-        recommendedAction: `Relisez attentivement les guides de cours de la formation "${failed.quiz.course.title}" avant de retenter le quiz.`,
+        description: `Insufficient score (${Math.round(failed.score)}% scored vs 70% required) on assessment "${failed.quiz.title}".`,
+        recommendedAction: `Carefully review the course study notes for "${failed.quiz.course.title}" before retrying the quiz.`,
       });
     }
 
@@ -152,15 +152,15 @@ export class PerformanceAnalysisService {
           courseId: enr.course.id,
           courseTitle: enr.course.title,
           severity: 'LOW',
-          description: `Progression interrompue à ${Math.round(p)}% sur "${enr.course.title}".`,
-          recommendedAction: `Planifiez une session de 20 minutes pour franchir l'étape suivante.`,
+          description: `Progress stalled at ${Math.round(p)}% on "${enr.course.title}".`,
+          recommendedAction: `Schedule a 20-minute session to reach the next milestone.`,
         });
       }
     }
 
     // 3. Retention / Dropout Risk Analysis
     let retentionRisk: 'LOW' | 'MODERATE' | 'HIGH' = 'LOW';
-    let retentionRiskReason = 'Activité régulière et engagement satisfaisant sur la plateforme.';
+    let retentionRiskReason = 'Regular activity and satisfactory engagement on the platform.';
 
     const lastActivity = user.gamification?.lastActivityDate;
     const now = new Date();
@@ -170,10 +170,10 @@ export class PerformanceAnalysisService {
 
     if (daysSinceActivity > 14 || (totalQuizzesTaken > 0 && overallSuccessRate < 40)) {
       retentionRisk = 'HIGH';
-      retentionRiskReason = `Aucune activité enregistrée depuis ${daysSinceActivity} jours et taux d'échec significatif.`;
+      retentionRiskReason = `No activity recorded for ${daysSinceActivity} days and notable assessment failure rate.`;
     } else if (daysSinceActivity > 5 || currentStreakDays === 0) {
       retentionRisk = 'MODERATE';
-      retentionRiskReason = `Ralentissement de la cadence d'apprentissage. Risque d'interruption de série.`;
+      retentionRiskReason = `Slowing study pace. Risk of breaking daily learning streak.`;
     }
 
     // 4. Prescriptive AI Recommendations
@@ -181,29 +181,29 @@ export class PerformanceAnalysisService {
 
     if (overallSuccessRate >= 80) {
       prescriptiveRecommendations.push(
-        'Vos résultats démontrent une excellente assimilation conceptuelle. Vous avez le niveau pour vous mesurer directement aux Examens Finaux certifiants de 40 questions.',
+        'Your performance demonstrates strong conceptual mastery. You are ready to tackle the 40-question Final Certification Exams directly.',
       );
     } else if (overallSuccessRate >= 70) {
       prescriptiveRecommendations.push(
-        'Vous validez régulièrement le seuil de 70%. Pour maximiser votre score, approfondissez les sections d\'études de cas réelles et les protocoles méthodologiques.',
+        'You consistently pass the 70% benchmark. To maximize your score, review real-world case studies and methodology sections.',
       );
     } else if (totalQuizzesTaken > 0) {
       prescriptiveRecommendations.push(
-        'Certains modules requièrent une consolidation. Prenez le temps de lire les notes Markdown sous chaque vidéo avant d\'initier une tentative d\'évaluation.',
+        'Some concepts require consolidation. Take time to read the study notes under each video before starting a quiz attempt.',
       );
     } else {
       prescriptiveRecommendations.push(
-        'Bienvenue sur Learnova ! Complétez votre première session et testez vos connaissances via le quiz pratique de 3 questions.',
+        'Welcome to Learnova! Complete your first session and validate your learning with the 3-question practice quiz.',
       );
     }
 
     if (currentStreakDays >= 3) {
       prescriptiveRecommendations.push(
-        `Excellente régularité avec ${currentStreakDays} jours consécutifs d'apprentissage ! Maintenez cette série pour débloquer le badge Streak Guardian.`,
+        `Great consistency with a ${currentStreakDays}-day learning streak! Keep it up to unlock the Streak Guardian badge.`,
       );
     } else {
       prescriptiveRecommendations.push(
-        'Étudier 15 minutes chaque jour renforce significativement la mémorisation à long terme et débloque rapidement des points d\'expérience.',
+        'Studying 15 minutes each day significantly enhances long-term retention and unlocks experience points faster.',
       );
     }
 

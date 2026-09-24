@@ -156,7 +156,7 @@ function VideoPlayer({ video, onProgressUpdate, onVideoEnded }) {
               onClick={onVideoEnded}
               style={{ marginTop: '1rem', background: '#10b981' }}
             >
-              ✓ Marquer comme terminée et continuer
+              ✓ Mark as completed and continue
             </button>
           )}
         </div>

@@ -59,8 +59,8 @@ export class UsersService {
       if (!isValidEmail) {
         throw new BadRequestException(
           isAdmin
-            ? 'Les administrateurs doivent utiliser une adresse officielle @learnova.com ou un fournisseur de confiance (Gmail, Outlook, Yahoo, iCloud)'
-            : 'Seules les adresses email de confiance (Gmail, Outlook, Hotmail, Yahoo, iCloud) sont autorisées'
+            ? 'Administrators must use an official @learnova.com address or a trusted provider (Gmail, Outlook, Yahoo, iCloud)'
+            : 'Only trusted email addresses (Gmail, Outlook, Hotmail, Yahoo, iCloud) are allowed'
         );
       }
       updateData.email = trimmedEmail;
@@ -70,13 +70,13 @@ export class UsersService {
       });
 
       if (existingUser && existingUser.id !== id) {
-        throw new BadRequestException('Cet email est déjà utilisé par un autre compte');
+        throw new BadRequestException('This email is already in use by another account');
       }
     }
 
     if (newPassword) {
       if (!currentPassword) {
-        throw new BadRequestException('Le mot de passe actuel est requis pour changer de mot de passe');
+        throw new BadRequestException('Current password is required to change password');
       }
 
       const user = await this.prisma.client.user.findUnique({
@@ -84,12 +84,12 @@ export class UsersService {
       });
 
       if (!user) {
-        throw new BadRequestException('Utilisateur introuvable');
+        throw new BadRequestException('User not found');
       }
 
       const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
       if (!isPasswordValid) {
-        throw new BadRequestException('Le mot de passe actuel est incorrect');
+        throw new BadRequestException('Current password is incorrect');
       }
 
       const BCRYPT_SALT_ROUNDS = 10;
@@ -316,19 +316,19 @@ export class UsersService {
     });
 
     if (!user) {
-      throw new BadRequestException('Utilisateur introuvable');
+      throw new BadRequestException('User not found');
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      throw new BadRequestException('Mot de passe incorrect');
+      throw new BadRequestException('Incorrect password');
     }
 
     await this.prisma.client.user.delete({
       where: { id: userId },
     });
 
-    return { message: 'Compte supprimé avec succès' };
+    return { message: 'Account deleted successfully' };
   }
 
   async getAllUsers(limit = 50, offset = 0) {
@@ -374,8 +374,8 @@ export class UsersService {
     if (!trimmedEmail || !isValidEmail) {
       throw new BadRequestException(
         isLearner
-          ? 'Seules les adresses email de confiance (Gmail, Outlook, Hotmail, Yahoo, iCloud) sont autorisées pour les apprenants'
-          : 'Les administrateurs doivent utiliser une adresse officielle @learnova.com ou un fournisseur de confiance (Gmail, Outlook, Yahoo, iCloud)'
+          ? 'Only trusted email addresses (Gmail, Outlook, Hotmail, Yahoo, iCloud) are allowed for learners'
+          : 'Administrators must use an official @learnova.com address or a trusted provider (Gmail, Outlook, Yahoo, iCloud)'
       );
     }
     createUserData.email = trimmedEmail;
@@ -386,7 +386,7 @@ export class UsersService {
     });
 
     if (existingUser) {
-      throw new BadRequestException('Cet email est déjà utilisé');
+      throw new BadRequestException('This email is already in use');
     }
 
     // Hash the password
@@ -416,7 +416,7 @@ export class UsersService {
       where: { id: userId },
     });
 
-    return { message: 'Utilisateur supprimé avec succès' };
+    return { message: 'User deleted successfully' };
   }
 
   async updateUserRole(userId: number, roleId: number) {
@@ -439,7 +439,7 @@ export class UsersService {
       });
 
       if (existingUser && existingUser.id !== userId) {
-        throw new BadRequestException('Cet email est déjà utilisé par un autre compte');
+        throw new BadRequestException('This email is already in use by another account');
       }
     }
 

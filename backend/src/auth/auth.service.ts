@@ -28,13 +28,13 @@ export class AuthService {
   async register(data: RegisterData) {
     const trimmedEmail = data.email?.trim().toLowerCase();
     if (!trimmedEmail || !/^[a-zA-Z0-9._%+-]+@(gmail\.com|outlook\.(com|fr)|hotmail\.(com|fr)|yahoo\.(com|fr)|icloud\.com)$/i.test(trimmedEmail)) {
-      throw new BadRequestException('Seules les adresses email de confiance (Gmail, Outlook, Hotmail, Yahoo, iCloud) sont autorisées');
+      throw new BadRequestException('Only trusted email addresses (Gmail, Outlook, Hotmail, Yahoo, iCloud) are allowed');
     }
 
     const existingUser = await this.usersService.findByEmail(trimmedEmail);
 
     if (existingUser) {
-      throw new ConflictException('Cet email est déjà utilisé par un autre compte');
+      throw new ConflictException('This email is already in use by another account');
     }
 
     const hashedPassword = await bcrypt.hash(data.password, BCRYPT_SALT_ROUNDS);
@@ -47,7 +47,7 @@ export class AuthService {
         where: { name: 'LEARNER' },
       });
       if (!learnerRole) {
-        throw new BadRequestException('Le rôle LEARNER est introuvable. Veuillez exécuter le seed.');
+        throw new BadRequestException('LEARNER role not found. Please run database seeding.');
       }
       roleId = learnerRole.id;
     }

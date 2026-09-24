@@ -18,12 +18,14 @@ import { ExamsModule } from './exams/exams.module';
 import { QuestionsModule } from './questions/questions.module';
 import { PaymentsModule } from './payments/payments.module';
 import { AiModule } from './ai/ai.module';
+import configuration from './config/configuration';
 import * as path from 'path';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      load: [configuration],
       envFilePath: path.join(process.cwd(), '.env'),
     }),
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 10 }]),

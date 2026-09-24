@@ -134,15 +134,15 @@ function YouTubePlayerInner({ video, onVideoEnded }) {
       <div className="youtube-player-card">
         <div className="youtube-error-box">
           <AlertTriangle size={32} className="error-icon" />
-          <p className="error-title">URL de vidéo invalide ou manquante</p>
-          <p className="error-url">{video?.url || 'Aucune URL spécifiée'}</p>
+          <p className="error-title">Invalid or missing video URL</p>
+          <p className="error-url">{video?.url || 'No URL specified'}</p>
           <div className="youtube-actions-bar">
             <button
               type="button"
               className="btn btn-secondary action-btn"
               onClick={handleMarkCompleted}
             >
-              <CheckCircle size={16} /> Marquer comme visionné
+              <CheckCircle size={16} /> Mark as watched
             </button>
           </div>
         </div>
@@ -159,7 +159,7 @@ function YouTubePlayerInner({ video, onVideoEnded }) {
         {error ? (
           <div className="youtube-error-box">
             <AlertTriangle size={32} className="error-icon" />
-            <p className="error-title">Impossible de lire la vidéo directement ici</p>
+            <p className="error-title">Unable to play video directly here</p>
             <p className="error-subtitle">{error}</p>
             <div className="youtube-actions-bar">
               <a
@@ -168,14 +168,14 @@ function YouTubePlayerInner({ video, onVideoEnded }) {
                 rel="noopener noreferrer"
                 className="btn btn-primary action-btn"
               >
-                <ExternalLink size={16} /> Ouvrir sur YouTube
+                <ExternalLink size={16} /> Open on YouTube
               </a>
               <button
                 type="button"
                 className="btn btn-success action-btn"
                 onClick={handleMarkCompleted}
               >
-                <CheckCircle size={16} /> Valider la leçon
+                <CheckCircle size={16} /> Complete lesson
               </button>
             </div>
           </div>
@@ -196,7 +196,7 @@ function YouTubePlayerInner({ video, onVideoEnded }) {
       {/* Auxiliary bar with quick actions */}
       <div className="youtube-aux-bar">
         <span className="youtube-badge">
-          Lecteur Haute Définition
+          High Definition Player
         </span>
         <div className="youtube-aux-actions">
           <a
@@ -204,22 +204,22 @@ function YouTubePlayerInner({ video, onVideoEnded }) {
             target="_blank"
             rel="noopener noreferrer"
             className="youtube-aux-link"
-            title="Visionner directement sur YouTube dans un nouvel onglet"
+            title="Watch directly on YouTube in a new tab"
           >
-            <ExternalLink size={14} /> Voir sur YouTube
+            <ExternalLink size={14} /> Watch on YouTube
           </a>
           {isCompleted ? (
             <span className="youtube-aux-completed-tag" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: '#10b981', fontWeight: 600, fontSize: '0.85rem' }}>
-              <CheckCircle size={15} /> Leçon validée
+              <CheckCircle size={15} /> Lesson completed
             </span>
           ) : (
             <button
               type="button"
               className="youtube-aux-complete-btn"
               onClick={handleMarkCompleted}
-              title="Marquer comme terminée pour avancer dans le chapitre"
+              title="Mark as completed to advance in this chapter"
             >
-              <CheckCircle size={14} /> Marquer comme terminée
+              <CheckCircle size={14} /> Mark as completed
             </button>
           )}
         </div>

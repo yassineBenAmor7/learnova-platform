@@ -36,13 +36,13 @@ function Chatbot({ courseId = null, sessionId = null }) {
   const [messages, setMessages] = useState([
     {
       id: 1,
-      text: "Bonjour ! Je suis l'assistant pédagogique intelligent de Learnova. Comment puis-je vous aider dans votre apprentissage aujourd'hui ?",
+      text: "Hello! I am Learnova's intelligent pedagogical assistant. How can I help you with your learning journey today?",
       sender: 'bot',
       timestamp: new Date(),
       suggestions: [
-        'Quels cours sont disponibles en Data & IA ?',
-        'Comment obtenir un certificat vérifiable ?',
-        'Quelles sont les règles du mode examen ?',
+        'Which courses are available in Data & AI?',
+        'How can I get a verifiable certificate?',
+        'What are the rules of the exam mode?',
       ],
     },
   ]);
@@ -91,7 +91,7 @@ function Chatbot({ courseId = null, sessionId = null }) {
       console.error('Chatbot query error:', error);
       const errorMessage = {
         id: Date.now() + 1,
-        text: "Désolé, une anomalie temporaire est survenue lors de la communication avec le service d'assistance. Veuillez réessayer dans un instant.",
+        text: "Sorry, a temporary issue occurred while communicating with the assistant service. Please try again in a moment.",
         sender: 'bot',
         timestamp: new Date(),
       };
@@ -119,8 +119,8 @@ function Chatbot({ courseId = null, sessionId = null }) {
       <button
         className={`chatbot-toggle ${isOpen ? 'hidden' : ''}`}
         onClick={() => setIsOpen(true)}
-        title="Ouvrir l'Assistant IA"
-        aria-label="Ouvrir l'Assistant IA"
+        title="Open AI Assistant"
+        aria-label="Open AI Assistant"
       >
         <Bot size={24} />
       </button>
@@ -133,15 +133,15 @@ function Chatbot({ courseId = null, sessionId = null }) {
                 <Bot size={20} />
               </div>
               <div>
-                <span id="chatbot-heading" className="chatbot-name">Assistant Pédagogique IA</span>
-                <span className="chatbot-status">En ligne 24/7</span>
+                <span id="chatbot-heading" className="chatbot-name">AI Pedagogical Assistant</span>
+                <span className="chatbot-status">Online 24/7</span>
               </div>
             </div>
             <button
               className="chatbot-close"
               onClick={() => setIsOpen(false)}
-              title="Fermer la discussion"
-              aria-label="Fermer"
+              title="Close chat"
+              aria-label="Close"
             >
               <X size={20} />
             </button>
@@ -178,7 +178,7 @@ function Chatbot({ courseId = null, sessionId = null }) {
                   {/* Sources Citation */}
                   {message.sources && message.sources.length > 0 && (
                     <div className="chatbot-sources-container">
-                      <span className="sources-label">Sources associées :</span>
+                      <span className="sources-label">Related sources:</span>
                       {message.sources.map((src, idx) => (
                         <span key={idx} className="source-tag">
                           {src.courseTitle} {src.sessionTitle ? `— ${src.sessionTitle}` : ''}
@@ -225,14 +225,14 @@ function Chatbot({ courseId = null, sessionId = null }) {
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Posez une question sur nos formations..."
+              placeholder="Ask a question about our courses..."
               disabled={isTyping}
             />
             <button
               type="submit"
               className="send-button"
               disabled={!inputValue.trim() || isTyping}
-              aria-label="Envoyer"
+              aria-label="Send"
             >
               <Send size={18} />
             </button>

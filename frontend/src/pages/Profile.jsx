@@ -315,8 +315,8 @@ function Profile() {
       if (!isValid) {
         setError(
           isAdmin
-            ? 'Les administrateurs doivent utiliser une adresse officielle @learnova.com ou un fournisseur de confiance (Gmail, Outlook, Yahoo, iCloud).'
-            : 'Seules les adresses email de confiance (Gmail, Outlook, Hotmail, Yahoo, iCloud) sont autorisées.'
+            ? 'Administrators must use an official @learnova.com address or a trusted provider (Gmail, Outlook, Yahoo, iCloud).'
+            : 'Only trusted email addresses (Gmail, Outlook, Hotmail, Yahoo, iCloud) are permitted.'
         );
         return;
       }

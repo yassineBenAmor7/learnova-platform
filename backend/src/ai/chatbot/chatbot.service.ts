@@ -55,86 +55,86 @@ export class ChatbotService {
 
     // 5. Default Intelligent Fallback with Suggested Actions
     return {
-      answer: `Je suis l'assistant pédagogique intelligent de **Learnova**.\n\n` +
-        `Je peux vous aider à :\n` +
-        `- **Explorer nos 108 formations** dans 14 domaines (Informatique, Finance, Management, Design, etc.).\n` +
-        `- **Comprendre un concept** technique abordé dans nos leçons et notes de cours.\n` +
-        `- **Vous orienter sur la plateforme** (mode examen, certificats avec QR code, système de points et badges).\n\n` +
-        `Comment puis-je vous accompagner dans votre parcours aujourd'hui ?`,
+      answer: `I am the intelligent pedagogical assistant of **Learnova**.\n\n` +
+        `I can help you to:\n` +
+        `- **Explore our 108 courses** across 14 domains (Computer Science, Finance, Management, Design, etc.).\n` +
+        `- **Understand technical concepts** covered in our video lessons and lecture notes.\n` +
+        `- **Navigate the platform** (exam mode, certificates with QR code, points and badge system).\n\n` +
+        `How can I assist you with your learning journey today?`,
       intent: 'general',
       confidence: 0.7,
       suggestions: [
-        'Quels cours sont disponibles en Intelligence Artificielle ?',
-        'Comment obtenir un certificat vérifiable ?',
-        'Quelles sont les règles du mode examen ?',
-        'Conseille-moi une formation pour débuter',
+        'Which courses are available in Artificial Intelligence?',
+        'How can I get a verifiable certificate?',
+        'What are the rules of the exam mode?',
+        'Recommend a course for beginners',
       ],
       actions: [
-        { label: 'Explorer le Catalogue', url: '/courses', type: 'link' },
-        { label: 'Voir mon Tableau de Bord', url: '/dashboard', type: 'link' },
+        { label: 'Explore Catalog', url: '/courses', type: 'link' },
+        { label: 'View Dashboard', url: '/dashboard', type: 'link' },
       ],
     };
   }
 
   private detectPlatformNavigation(query: string): ChatbotResponse | null {
     // Certificats & QR Code
-    if (query.includes('certificat') || query.includes('qr code') || query.includes('attestation') || query.includes('diplome')) {
+    if (query.includes('certificat') || query.includes('certificate') || query.includes('qr code') || query.includes('attestation') || query.includes('diplome')) {
       return {
-        answer: `Sur **Learnova**, l'obtention d'un certificat répond à des exigences rigoureuses :\n\n` +
-          `1. **Parcours complet** : Vous devez compléter l'ensemble des sessions pédagogiques du cours.\n` +
-          `2. **Examen Final** : Vous devez réussir l'examen final de 40 questions avec un score minimal de **70%**.\n` +
-          `3. **Authenticité & Code QR** : Chaque certificat délivré comporte un identifiant unique ainsi qu'un **code QR scannable** permettant une vérification publique instantanée sur la page officielle de validation en ligne.`,
+        answer: `On **Learnova**, obtaining an official certificate meets rigorous standards:\n\n` +
+          `1. **Complete Curriculum**: You must complete all learning sessions of the course.\n` +
+          `2. **Final Exam**: You must pass the 40-question final exam with a minimum score of **70%**.\n` +
+          `3. **Authenticity & QR Code**: Every issued certificate features a unique identifier and a **scannable QR code** allowing instant public verification on the official online validation registry.`,
         intent: 'platform_navigation',
         confidence: 0.95,
         actions: [
-          { label: 'Mes Certificats', url: '/certificates', type: 'certificate' },
-          { label: 'Vérifier un Certificat', url: '/certificates/verify/demo', type: 'link' },
+          { label: 'My Certificates', url: '/certificates', type: 'certificate' },
+          { label: 'Verify a Certificate', url: '/certificates/verify/demo', type: 'link' },
         ],
         suggestions: [
-          'Quelles sont les règles du mode examen ?',
-          'Combien de questions comporte l\'examen final ?',
-          'Comment suivre ma progression ?',
+          'What are the rules of the exam mode?',
+          'How many questions are in the final exam?',
+          'How can I track my progress?',
         ],
       };
     }
 
     // Mode Examen
-    if (query.includes('examen') || query.includes('exam mode') || query.includes('chronometre') || query.includes('timer')) {
+    if (query.includes('examen') || query.includes('exam') || query.includes('exam mode') || query.includes('chronometre') || query.includes('timer')) {
       return {
-        answer: `Le **Mode Examen** de Learnova simule les conditions d'une évaluation professionnelle certifiante :\n\n` +
-          `- **Évaluation stricte** : Chaque examen final comporte **40 questions** réparties sur l'ensemble du programme.\n` +
-          `- **Chronomètre intégré** : Le temps est décompté automatiquement.\n` +
-          `- **Seuil d'exigence** : Le score minimal requis pour valider et décrocher le certificat est de **70%**.\n` +
-          `- **Correction détaillée** : À la fin de l'épreuve, un rapport d'analyse vous présente vos points forts et axes d'amélioration.`,
+        answer: `Learnova's **Exam Mode** simulates the conditions of a professional certification assessment:\n\n` +
+          `- **Strict Evaluation**: Each final exam contains **40 questions** covering the entire syllabus.\n` +
+          `- **Built-in Timer**: The time limit is enforced automatically.\n` +
+          `- **Passing Threshold**: The minimum score required to pass and claim your certificate is **70%**.\n` +
+          `- **Detailed Performance Report**: At the end of the test, an analysis breakdown highlights your strengths and areas for improvement.`,
         intent: 'platform_navigation',
         confidence: 0.95,
         actions: [
-          { label: 'Accéder aux Formations', url: '/courses', type: 'link' },
+          { label: 'Browse Courses', url: '/courses', type: 'link' },
         ],
         suggestions: [
-          'Comment obtenir un certificat vérifiable ?',
-          'Comment fonctionne la gamification ?',
+          'How can I get a verifiable certificate?',
+          'How does the gamification system work?',
         ],
       };
     }
 
     // Gamification, Streaks, Badges, Points
-    if (query.includes('point') || query.includes('badge') || query.includes('streak') || query.includes('niveau') || query.includes('gamification')) {
+    if (query.includes('point') || query.includes('badge') || query.includes('streak') || query.includes('niveau') || query.includes('level') || query.includes('gamification')) {
       return {
-        answer: `Le système de **Gamification** de Learnova encourage la régularité et l'engagement continu :\n\n` +
-          `- **Points d'expérience (XP)** : Gagnés à chaque vidéo visionnée, session validée et quiz réussi.\n` +
-          `- **Séries quotidiennes (Streaks)** : Suivi des jours consécutifs d'apprentissage pour renforcer votre persévérance.\n` +
-          `- **Badges d'accomplissement** : 35 badges exclusifs à débloquer selon vos jalons (ex: *Bronze Scholar*, *Quiz Master*, *Fast Learner*).\n` +
-          `- **Niveaux d'apprentissage** : Évolution automatique de Débutant à Légende au fil de votre investissement.`,
+        answer: `Learnova's **Gamification System** promotes continuous learning and consistency:\n\n` +
+          `- **Experience Points (XP)**: Earned for each video watched, session completed, and quiz passed.\n` +
+          `- **Daily Streaks**: Track consecutive active days to reinforce learning habits.\n` +
+          `- **Achievement Badges**: 35 exclusive badges to unlock based on your milestones (e.g., *Bronze Scholar*, *Quiz Master*, *Fast Learner*).\n` +
+          `- **Learner Levels**: Progress automatically from Beginner to Legend as you study.`,
         intent: 'platform_navigation',
         confidence: 0.95,
         actions: [
-          { label: 'Consulter mon Profil & Badges', url: '/profile', type: 'link' },
-          { label: 'Mon Dashboard', url: '/dashboard', type: 'link' },
+          { label: 'View Profile & Badges', url: '/profile', type: 'link' },
+          { label: 'My Dashboard', url: '/dashboard', type: 'link' },
         ],
         suggestions: [
-          'Comment augmenter mon niveau rapidement ?',
-          'Comment sont calculées les séries (streaks) ?',
+          'How to level up quickly?',
+          'How are daily streaks calculated?',
         ],
       };
     }
@@ -171,8 +171,8 @@ export class ChatbotService {
           if (video.content && this.calculateOverlap(lowerMessage, video.content.toLowerCase()) > 0.15) {
             const excerpt = this.extractRelevantExcerpt(video.content, lowerMessage);
             return {
-              answer: `Dans le cadre de la session **"${activeSession.title}"** (Leçon : *${video.title}*) :\n\n${excerpt}\n\n` +
-                `*Ce concept est directement approfondi dans le guide d'étude de cette vidéo.*`,
+              answer: `In session **"${activeSession.title}"** (Lecture: *${video.title}*) :\n\n${excerpt}\n\n` +
+                `*This concept is covered in depth in this video's study guide.*`,
               intent: 'pedagogical_concept',
               confidence: 0.9,
               sources: [{
@@ -182,7 +182,7 @@ export class ChatbotService {
                 courseId: course.id,
               }],
               actions: [
-                { label: 'Ouvrir la Leçon', url: `/courses/${course.id}/learn?session=${activeSession.id}&video=${video.id}`, type: 'course' },
+                { label: 'Open Lecture', url: `/courses/${course.id}/learn?session=${activeSession.id}&video=${video.id}`, type: 'course' },
               ],
             };
           }
@@ -223,11 +223,11 @@ export class ChatbotService {
       const excerpt = bestMatch.content ? this.extractRelevantExcerpt(bestMatch.content, lowerMessage) : bestMatch.description;
 
       return {
-        answer: `Voici ce qu'enseigne le cours **"${bestMatch.session.course.title}"** à propos de votre question :\n\n` +
-          `**Session : ${bestMatch.session.title}**\n` +
-          `**Leçon : ${bestMatch.title}**\n\n` +
+        answer: `Here is what the course **"${bestMatch.session.course.title}"** explains regarding your question:\n\n` +
+          `**Session: ${bestMatch.session.title}**\n` +
+          `**Lecture: ${bestMatch.title}**\n\n` +
           `${excerpt}\n\n` +
-          `Vous pouvez consulter l'intégralité du module et de ses notes de cours interactives sur la plateforme.`,
+          `You can view the full module and its interactive study notes directly on the platform.`,
         intent: 'pedagogical_concept',
         confidence: 0.88,
         sources: matchingVideos.map(v => ({
@@ -237,11 +237,11 @@ export class ChatbotService {
           courseId: v.session.course.id,
         })),
         actions: [
-          { label: `Accéder à "${bestMatch.session.course.title}"`, url: `/courses/${bestMatch.session.course.id}/learn`, type: 'course' },
+          { label: `Go to "${bestMatch.session.course.title}"`, url: `/courses/${bestMatch.session.course.id}/learn`, type: 'course' },
         ],
         suggestions: [
-          'Quels sont les prérequis pour ce cours ?',
-          'Comment se déroule le quiz associé ?',
+          'What are the prerequisites for this course?',
+          'How does the practice quiz work?',
         ],
       };
     }
@@ -281,9 +281,9 @@ export class ChatbotService {
         .join('\n');
 
       return {
-        answer: `J'ai trouvé **${matchedCourses.length} formation(s)** correspondant à votre recherche sur le catalogue Learnova :\n\n` +
+        answer: `I found **${matchedCourses.length} course(s)** matching your query in the Learnova catalog:\n\n` +
           `${courseList}\n\n` +
-          `Souhaitez-vous explorer l'un de ces cours ou adapter les critères selon votre niveau ?`,
+          `Would you like to explore one of these courses or filter by skill level?`,
         intent: 'course_query',
         confidence: 0.9,
         actions: matchedCourses.map(c => ({
@@ -292,8 +292,8 @@ export class ChatbotService {
           type: 'course',
         })),
         suggestions: [
-          'Afficher les cours pour Débutant',
-          'Comment se déroule la certification ?',
+          'Show beginner-friendly courses',
+          'How does certification work?',
         ],
       };
     }

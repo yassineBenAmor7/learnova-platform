@@ -51,7 +51,7 @@ export class UsersController {
   async getProfile(@CurrentUser() user: { id: number }) {
     const profile = await this.usersService.findById(user.id);
     if (!profile) {
-      throw new NotFoundException('Utilisateur introuvable');
+      throw new NotFoundException('User not found');
     }
     return profile;
   }
@@ -64,7 +64,7 @@ export class UsersController {
   ) {
     const profile = await this.usersService.findById(user.id);
     if (!profile) {
-      throw new NotFoundException('Utilisateur introuvable');
+      throw new NotFoundException('User not found');
     }
     return this.usersService.update(user.id, updateProfileDto);
   }

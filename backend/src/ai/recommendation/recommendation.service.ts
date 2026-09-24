@@ -142,19 +142,19 @@ export class RecommendationService {
       // Generate context-aware pedagogical reason
       let reason = '';
       if (course.domain === primaryDomain && course.level === targetLevel) {
-        reason = `Progression naturelle vers le niveau ${course.level} dans votre domaine de prédilection (${course.domain.replace('_', ' ')}).`;
+        reason = `Natural progression to ${course.level} level in your primary domain of interest (${course.domain.replace('_', ' ')}).`;
       } else if (course.domain === primaryDomain) {
-        reason = `Hautement recommandé pour approfondir vos compétences en ${course.domain.replace('_', ' ')}.`;
+        reason = `Highly recommended to deepen your skills in ${course.domain.replace('_', ' ')}.`;
       } else if (domainCounts[course.domain]) {
-        reason = `Aligné avec vos centres d'intérêt récents (${course.domain.replace('_', ' ')}).`;
+        reason = `Aligned with your recent learning interests (${course.domain.replace('_', ' ')}).`;
       } else {
-        reason = `Formation populaire et hautement notée sur la plateforme Learnova.`;
+        reason = `Popular and highly rated course on the Learnova platform.`;
       }
 
       const tags = [
         course.domain.replace('_', ' '),
         course.level,
-        course.isPaid ? 'Certifié Pro' : 'Accès Libre',
+        course.isPaid ? 'Certified Pro' : 'Free Access',
       ];
 
       return {
@@ -181,7 +181,7 @@ export class RecommendationService {
       userId,
       recommendations: topPicks,
       strategy: 'personalized_hybrid',
-      summary: `Recommandations générées sur la base de vos ${userEnrollments.length} cours suivis, de votre affinité pour ${primaryDomain ? primaryDomain.replace('_', ' ') : 'les technologies'} et de votre progression.`,
+      summary: `Recommendations generated based on your ${userEnrollments.length} enrolled courses, affinity for ${primaryDomain ? primaryDomain.replace('_', ' ') : 'technologies'}, and current progression.`,
     };
   }
 
@@ -236,15 +236,15 @@ export class RecommendationService {
       price: course.price,
       isPaid: course.isPaid,
       matchScore: 95 - idx * 2,
-      reason: `Formation phare recommandée pour débuter votre parcours dans le domaine ${course.domain.replace('_', ' ')}.`,
-      tags: [course.domain.replace('_', ' '), course.level, 'Sélection d\'excellence'],
+      reason: `Flagship course recommended to start your learning path in ${course.domain.replace('_', ' ')}.`,
+      tags: [course.domain.replace('_', ' '), course.level, "Editor's Pick"],
       enrollmentCount: course.enrollments.length,
     }));
 
     return {
       recommendations,
       strategy: 'cold_start_popular',
-      summary: `Sélection des formations fondamentales les plus plébiscitées pour démarrer votre apprentissage.`,
+      summary: `Curated selection of our most popular foundational courses to kickstart your learning.`,
     };
   }
 }

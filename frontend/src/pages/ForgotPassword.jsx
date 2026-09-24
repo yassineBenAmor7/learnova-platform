@@ -18,7 +18,7 @@ function ForgotPassword() {
     const trimmedEmail = email?.trim().toLowerCase();
     const trustedRegex = /^[a-zA-Z0-9._%+-]+@(learnova\.com|gmail\.com|outlook\.(com|fr)|hotmail\.(com|fr)|yahoo\.(com|fr)|icloud\.com)$/i;
     if (!trimmedEmail || !trustedRegex.test(trimmedEmail)) {
-      setError('Seules les adresses email de confiance (Gmail, Outlook, Hotmail, Yahoo, iCloud, Learnova) sont autorisées.');
+      setError('Only trusted email providers (Gmail, Outlook, Hotmail, Yahoo, iCloud, Learnova) are permitted.');
       return;
     }
 

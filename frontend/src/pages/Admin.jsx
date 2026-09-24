@@ -505,8 +505,8 @@ const Admin = () => {
     if (!emailRegex.test(emailTrimmed)) {
       toast.error(
         isLearner
-          ? 'Validation failed: Les apprenants doivent avoir une adresse de confiance (Gmail, Outlook, Hotmail, Yahoo, iCloud)'
-          : 'Validation failed: L\'administrateur doit avoir une adresse @learnova.com ou un fournisseur de confiance'
+          ? 'Validation failed: Learners must use a trusted email provider (Gmail, Outlook, Hotmail, Yahoo, iCloud)'
+          : 'Validation failed: Administrators must use an @learnova.com address or a trusted provider (Gmail, Outlook, Yahoo, iCloud)'
       );
       return;
     }
@@ -4796,7 +4796,7 @@ const Admin = () => {
                     type="email"
                     value={newUser.email}
                     onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-                    placeholder={newUser.role === 'ADMIN' ? 'admin@learnova.com' : 'apprenant@gmail.com'}
+                    placeholder={newUser.role === 'ADMIN' ? 'admin@learnova.com' : 'learner@gmail.com'}
                     required
                     autoComplete="off"
                   />

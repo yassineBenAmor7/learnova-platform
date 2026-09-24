@@ -324,7 +324,7 @@ function LearningPath() {
   const handleSessionSelect = (sessionId) => {
     const targetSession = pathData?.sessions?.find((s) => s.id === sessionId);
     if (targetSession && (targetSession.isLocked || !targetSession.canAccess)) {
-      toast.warning('Cette session est verrouillée : terminez les vidéos et réussissez le quiz de la session précédente pour y accéder.');
+      toast.warning('This session is locked: complete the videos and pass the previous session\'s quiz to access it.');
       return;
     }
     setCurrentSessionId(sessionId);
@@ -333,7 +333,7 @@ function LearningPath() {
 
   const handleQuizTabClick = () => {
     if (!canOpenPracticeQuiz()) {
-      toast.warning('Vous devez terminer la lecture de toutes les vidéos avant de pouvoir passer le quiz pratique.');
+      toast.warning('You must finish watching all videos before taking the practice quiz.');
       return;
     }
     setActiveTab('quiz');
@@ -404,19 +404,19 @@ function LearningPath() {
 
       // 3. Immediately switch to next video if available
       if (nextVideo) {
-        toast.success(`Vidéo terminée ! Passage au chapitre suivant : ${nextVideo.title}`);
+        toast.success(`Video completed! Moving to next chapter: ${nextVideo.title}`);
         setActiveVideoId(nextVideo.id);
       } else {
         // Last video in the session completed
-        toast.success('Toutes les vidéos de cette session sont terminées !');
+        toast.success('All videos in this session are completed!');
         if (hasQuiz && !sessionQuizPassed) {
-          toast.info('Passez le quiz pratique (≥ 70%) pour valider cette session.');
+          toast.info('Pass the practice quiz (≥ 70%) to validate this session.');
           setActiveTab('quiz');
         } else if (hasContent && !currentSession?.readingCompleted && !readingMarked) {
-          toast.info('Lisez les notes de cours pour compléter votre apprentissage.');
+          toast.info('Read the course notes to complete your learning.');
           setActiveTab('text');
         } else {
-          toast.success('Toutes les conditions de cette session sont validées !');
+          toast.success('All requirements for this session are completed!');
         }
       }
 
@@ -441,10 +441,10 @@ function LearningPath() {
         await loadLearningPath();
         
         if (hasQuiz && !sessionQuizPassed) {
-          toast.success('Notes de lecture validées ! Vous pouvez maintenant passer le quiz pratique pour débloquer la suite.');
+          toast.success('Reading notes completed! You can now take the practice quiz to unlock the next session.');
           setActiveTab('quiz');
         } else {
-          toast.success('Notes de lecture validées !');
+          toast.success('Reading notes completed!');
         }
       } catch (err) {
         console.error('Failed to track reading completion:', err);
@@ -628,16 +628,16 @@ function LearningPath() {
         onVideoSelect={(vidId) => {
           const targetVid = currentSession?.videos?.find((v) => v.id === vidId);
           if (targetVid && isVideoLockedInSession(targetVid, currentSession)) {
-            toast.warning('Vous devez terminer la vidéo précédente avant d\'accéder à ce chapitre.');
+            toast.warning('You must complete the previous video before accessing this chapter.');
             return;
           }
           setActiveVideoId(vidId);
         }}
         onSessionLockedClick={() => {
-          toast.warning('Cette session est verrouillée : terminez toutes les vidéos et réussissez le quiz de la session précédente.');
+          toast.warning('This session is locked: complete all videos and pass the previous session quiz.');
         }}
         onVideoLockedClick={() => {
-          toast.warning('Ce chapitre est verrouillé : terminez la vidéo précédente pour y accéder.');
+          toast.warning('This chapter is locked: complete the previous video to access it.');
         }}
         quizzes={quizzes}
       />
@@ -783,7 +783,7 @@ function LearningPath() {
                                   setActiveVideoId(nextVideoInSession.id);
                                 }
                               }}
-                              title={!isVideoDone(activeVideo) ? 'Terminez la vidéo pour débloquer le chapitre suivant' : 'Next chapter'}
+                              title={!isVideoDone(activeVideo) ? 'Complete the video to unlock the next chapter' : 'Next chapter'}
                               style={{ marginLeft: 'auto' }}
                             >
                               <span>Next chapter</span>
@@ -797,18 +797,18 @@ function LearningPath() {
                               onClick={() => {
                                 if (!isVideoDone(activeVideo)) return;
                                 if (hasQuiz && !sessionQuizPassed) {
-                                  toast.info('Passez et réussissez le quiz pratique (≥ 70%) pour valider et débloquer la session suivante.');
+                                  toast.info('Pass the practice quiz (≥ 70%) to validate and unlock the next session.');
                                   setActiveTab('quiz');
                                   return;
                                 }
                                 if (hasContent && !currentSession?.readingCompleted && !readingMarked) {
-                                  toast.info('Lisez les notes de cours pour compléter votre apprentissage.');
+                                  toast.info('Read the course notes to complete your learning.');
                                   setActiveTab('text');
                                   return;
                                 }
                                 handleSessionSelect(nextSession.id);
                               }}
-                              title={!isVideoDone(activeVideo) ? 'Terminez la vidéo pour débloquer la session suivante' : 'Next session'}
+                              title={!isVideoDone(activeVideo) ? 'Complete the video to unlock the next session' : 'Next session'}
                               style={{ marginLeft: 'auto' }}
                             >
                               <span>Next session</span>
@@ -822,7 +822,7 @@ function LearningPath() {
                                 onClick={handleQuizTabClick}
                                 style={{ marginLeft: 'auto' }}
                               >
-                                <span>Passer au Quiz pratique de la session →</span>
+                                <span>Proceed to Practice Quiz →</span>
                               </button>
                             ) : hasContent && !currentSession?.readingCompleted ? (
                               <button
@@ -831,7 +831,7 @@ function LearningPath() {
                                 onClick={() => setActiveTab('text')}
                                 style={{ marginLeft: 'auto' }}
                               >
-                                <span>Lire les notes de cours →</span>
+                                <span>Read Course Notes →</span>
                               </button>
                             ) : (pathData?.finalExamUnlocked || finalExamPassed) ? (
                               <button
@@ -868,7 +868,7 @@ function LearningPath() {
                                 className={`playlist-chapter ${vid.id === activeVideoId ? 'active' : ''} ${isLockedVideo ? 'locked' : ''} ${isDone ? 'completed' : ''}`}
                                 onClick={() => {
                                   if (isLockedVideo) {
-                                    toast.warning('Vous devez terminer la lecture de la vidéo précédente avant d\'accéder à ce chapitre.');
+                                    toast.warning('You must complete the previous video before accessing this chapter.');
                                     return;
                                   }
                                   setActiveVideoId(vid.id);
@@ -928,18 +928,18 @@ function LearningPath() {
                               onClick={() => {
                                 if (!isVideoDone(currentSession.videos[0])) return;
                                 if (hasQuiz && !sessionQuizPassed) {
-                                  toast.info('Passez et réussissez le quiz pratique (≥ 70%) pour valider et débloquer la session suivante.');
+                                  toast.info('Pass the practice quiz (≥ 70%) to validate and unlock the next session.');
                                   setActiveTab('quiz');
                                   return;
                                 }
                                 if (hasContent && !currentSession?.readingCompleted && !readingMarked) {
-                                  toast.info('Lisez les notes de cours pour compléter votre apprentissage.');
+                                  toast.info('Read the course notes to complete your learning.');
                                   setActiveTab('text');
                                   return;
                                 }
                                 handleSessionSelect(nextSession.id);
                               }}
-                              title={!isVideoDone(currentSession.videos[0]) ? 'Terminez la vidéo pour débloquer la session suivante' : 'Next session'}
+                              title={!isVideoDone(currentSession.videos[0]) ? 'Complete the video to unlock the next session' : 'Next session'}
                               style={{ marginLeft: 'auto' }}
                             >
                               <span>Next session</span>
@@ -953,7 +953,7 @@ function LearningPath() {
                                 onClick={handleQuizTabClick}
                                 style={{ marginLeft: 'auto' }}
                               >
-                                <span>Passer au Quiz pratique de la session →</span>
+                                <span>Proceed to Practice Quiz →</span>
                               </button>
                             ) : hasContent && !currentSession?.readingCompleted ? (
                               <button
@@ -962,7 +962,7 @@ function LearningPath() {
                                 onClick={() => setActiveTab('text')}
                                 style={{ marginLeft: 'auto' }}
                               >
-                                <span>Lire les notes de cours →</span>
+                                <span>Read Course Notes →</span>
                               </button>
                             ) : (pathData?.finalExamUnlocked || finalExamPassed) ? (
                               <button
@@ -999,7 +999,7 @@ function LearningPath() {
                                 className={`playlist-chapter ${vid.id === activeVideoId ? 'active' : ''} ${isLockedVideo ? 'locked' : ''} ${isDone ? 'completed' : ''}`}
                                 onClick={() => {
                                   if (isLockedVideo) {
-                                    toast.warning('Vous devez terminer la lecture de la vidéo précédente avant d\'accéder à ce chapitre.');
+                                    toast.warning('You must complete the previous video before accessing this chapter.');
                                     return;
                                   }
                                   setActiveVideoId(vid.id);
@@ -1164,12 +1164,12 @@ function LearningPath() {
                   className="btn btn-primary enroll-btn-large"
                   disabled={enrolling}
                 >
-                  {enrolling ? 'Inscription en cours...' : 'S\'inscrire au cours pour sauvegarder sa progression'}
+                  {enrolling ? 'Enrolling...' : 'Enroll in course to track your progress'}
                 </button>
               ) : (currentSession.isCompleted || (areAllVideosCompleted() && sessionQuizPassed)) ? (
                 <div className="completion-controls">
                   <div className="tag tag-success session-complete-tag">
-                    <CheckCircle size={18} /> Chapitre validé avec succès (+10 XP)
+                    <CheckCircle size={18} /> Chapter completed successfully (+10 XP)
                   </div>
                   {nextSession && (!nextSession.isLocked && nextSession.canAccess) ? (
                     <button
@@ -1177,7 +1177,7 @@ function LearningPath() {
                       onClick={() => handleSessionSelect(nextSession.id)}
                       className="btn btn-secondary next-session-btn"
                     >
-                      Session suivante ({nextSession.title}) →
+                      Next session ({nextSession.title}) →
                     </button>
                   ) : pathData?.finalExamUnlocked && pathData?.quizzes?.some(q => q.isExamMode) ? (
                     <button
@@ -1188,25 +1188,25 @@ function LearningPath() {
                       }}
                       className="btn btn-primary final-quiz-btn"
                     >
-                      Passer l'Examen Final Certifiant →
+                      Take Final Certification Exam →
                     </button>
                   ) : null}
                 </div>
               ) : (
                 <div className="session-progress-hint">
-                  <p>Conditions requises pour débloquer la session suivante :</p>
+                  <p>Requirements to unlock the next session:</p>
                   <div className="chapter-checklist">
                     <span className={areAllVideosCompleted() ? 'done' : 'pending'}>
-                      {areAllVideosCompleted() ? '✓' : '○'} Toutes les vidéos visionnées ({currentSession.videos?.filter(v => isVideoDone(v)).length || 0}/{currentSession.videos?.length || 0})
+                      {areAllVideosCompleted() ? '✓' : '○'} All videos watched ({currentSession.videos?.filter(v => isVideoDone(v)).length || 0}/{currentSession.videos?.length || 0})
                     </span>
                     {hasContent && (
                       <span className={(currentSession.readingCompleted || readingMarked) ? 'done' : 'pending'}>
-                        {(currentSession.readingCompleted || readingMarked) ? '✓' : '○'} Notes de lecture
+                        {(currentSession.readingCompleted || readingMarked) ? '✓' : '○'} Reading notes
                       </span>
                     )}
                     {hasQuiz && (
                       <span className={sessionQuizPassed ? 'done' : 'pending'}>
-                        {sessionQuizPassed ? '✓' : '○'} Quiz pratique validé avec succès (≥ 70%)
+                        {sessionQuizPassed ? '✓' : '○'} Practice quiz passed successfully (≥ 70%)
                       </span>
                     )}
                   </div>
@@ -1217,7 +1217,7 @@ function LearningPath() {
                       className="btn btn-primary start-quiz-cta-btn"
                       style={{ marginTop: '0.85rem' }}
                     >
-                      Passer le Quiz Pratique pour débloquer la suite →
+                      Take Practice Quiz to unlock next session →
                     </button>
                   )}
                 </div>

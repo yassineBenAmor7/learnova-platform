@@ -122,16 +122,16 @@ const Certificate = ({ certificate, user, course }) => {
                         ? `${window.location.origin}/certificates/verify/${certNumber}`
                         : `https://learnova.com/certificates/verify/${certNumber}`
                     )}`}
-                    alt="QR Code de Vérification Officielle"
+                    alt="Official Verification QR Code"
                     className="verification-qr"
                     loading="lazy"
                   />
                   <div className="verification-info">
                     <div className="verification-status-tag">
                       <ShieldCheck size={14} className="verification-icon" />
-                      <span>OFFICIEL & VÉRIFIABLE</span>
+                      <span>OFFICIAL & VERIFIABLE</span>
                     </div>
-                    <span className="verification-label">ID Certificat:</span>
+                    <span className="verification-label">Certificate ID:</span>
                     <strong className="verification-code">{certNumber}</strong>
                     <span className="verification-url">verify.learnova.com/{certNumber}</span>
                   </div>

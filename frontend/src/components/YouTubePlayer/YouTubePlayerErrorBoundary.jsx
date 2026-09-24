@@ -28,15 +28,15 @@ class YouTubePlayerErrorBoundary extends Component {
         <div className="youtube-player-card">
           <div className="youtube-error-box">
             <AlertTriangle size={32} className="error-icon" />
-            <p className="error-title">Erreur d'affichage du lecteur vidéo</p>
-            <p className="error-subtitle">Un incident technique est survenu dans le composant vidéo.</p>
+            <p className="error-title">Video Player Display Error</p>
+            <p className="error-subtitle">A technical error occurred in the video playback component.</p>
             <div className="youtube-actions-bar">
               <button
                 type="button"
                 className="btn btn-primary action-btn"
                 onClick={() => this.setState({ hasError: false, error: null })}
               >
-                <RotateCw size={16} /> Recharger la vidéo
+                <RotateCw size={16} /> Reload Video
               </button>
               {this.props.onVideoEnded && (
                 <button
@@ -47,7 +47,7 @@ class YouTubePlayerErrorBoundary extends Component {
                     this.props.onVideoEnded();
                   }}
                 >
-                  Passer au chapitre suivant
+                  Proceed to next chapter
                 </button>
               )}
             </div>
