@@ -485,19 +485,27 @@ function Dashboard() {
                 <div className="ai-sub-card prescriptive-card">
                   <h4 className="sub-card-title">Prescriptive Next Steps</h4>
                   <div className="prescriptions-list">
-                    {aiPerformanceReport.prescriptiveRecommendations.map((action, idx) => (
-                      <div key={idx} className={`prescription-item priority-${action.priority?.toLowerCase()}`}>
-                        <div className="prescription-top">
-                          <span className="prescription-priority">{action.priority} PRIORITY</span>
-                          <h5 className="prescription-title">{action.title}</h5>
+                    {aiPerformanceReport.prescriptiveRecommendations.slice(0, 1).map((action, idx) => {
+                      const isString = typeof action === 'string';
+                      const priority = isString ? 'HIGH' : (action.priority || 'HIGH');
+                      const title = isString ? 'Recommended Action' : (action.title || 'Recommended Action');
+                      const desc = isString ? action : (action.description || action.title || '');
+                      const route = isString ? '/courses' : (action.actionRoute || '/courses');
+
+                      return (
+                        <div key={idx} className={`prescription-item priority-${priority.toLowerCase()}`}>
+                          <div className="prescription-top">
+                            <span className="prescription-priority">{priority} PRIORITY</span>
+                            <h5 className="prescription-title">{title}</h5>
+                          </div>
+                          {desc && <p className="prescription-desc">{desc}</p>}
+                          <Link to={route} className="prescription-link">
+                            <span>Take Action</span>
+                            <ArrowRight size={14} />
+                          </Link>
                         </div>
-                        <p className="prescription-desc">{action.description}</p>
-                        <Link to={action.actionRoute || '/courses'} className="prescription-link">
-                          <span>Take Action</span>
-                          <ArrowRight size={14} />
-                        </Link>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               )}

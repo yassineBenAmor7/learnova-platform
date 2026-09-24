@@ -20,6 +20,13 @@ export interface DetectedDifficulty {
   recommendedAction: string;
 }
 
+export interface PrescriptiveRecommendation {
+  priority: 'HIGH' | 'MEDIUM' | 'LOW';
+  title: string;
+  description: string;
+  actionRoute: string;
+}
+
 export interface PerformanceAnalysisReport {
   userId: number;
   userName: string;
@@ -33,7 +40,7 @@ export interface PerformanceAnalysisReport {
   retentionRiskReason: string;
   domainsAnalysis: DomainPerformance[];
   detectedDifficulties: DetectedDifficulty[];
-  prescriptiveRecommendations: string[];
+  prescriptiveRecommendations: PrescriptiveRecommendation[];
   generatedAt: Date;
 }
 
@@ -176,35 +183,37 @@ export class PerformanceAnalysisService {
       retentionRiskReason = `Slowing study pace. Risk of breaking daily learning streak.`;
     }
 
-    // 4. Prescriptive AI Recommendations
-    const prescriptiveRecommendations: string[] = [];
+    // 4. Prescriptive AI Recommendation (Single Highest-Priority Next Step)
+    const prescriptiveRecommendations: PrescriptiveRecommendation[] = [];
 
     if (overallSuccessRate >= 80) {
-      prescriptiveRecommendations.push(
-        'Your performance demonstrates strong conceptual mastery. You are ready to tackle the 40-question Final Certification Exams directly.',
-      );
+      prescriptiveRecommendations.push({
+        priority: 'HIGH',
+        title: 'Take Final Certification Exam',
+        description: 'Your performance demonstrates strong conceptual mastery. You are ready to tackle the 40-question Final Certification Exams directly.',
+        actionRoute: '/courses',
+      });
     } else if (overallSuccessRate >= 70) {
-      prescriptiveRecommendations.push(
-        'You consistently pass the 70% benchmark. To maximize your score, review real-world case studies and methodology sections.',
-      );
+      prescriptiveRecommendations.push({
+        priority: 'MEDIUM',
+        title: 'Deepen Applied Skills',
+        description: 'You consistently pass the 70% benchmark. To maximize your score, review real-world case studies and methodology sections.',
+        actionRoute: '/courses',
+      });
     } else if (totalQuizzesTaken > 0) {
-      prescriptiveRecommendations.push(
-        'Some concepts require consolidation. Take time to read the study notes under each video before starting a quiz attempt.',
-      );
+      prescriptiveRecommendations.push({
+        priority: 'HIGH',
+        title: 'Review Course Notes',
+        description: 'Some concepts require consolidation. Take time to read the study notes under each video before starting a quiz attempt.',
+        actionRoute: '/courses',
+      });
     } else {
-      prescriptiveRecommendations.push(
-        'Welcome to Learnova! Complete your first session and validate your learning with the 3-question practice quiz.',
-      );
-    }
-
-    if (currentStreakDays >= 3) {
-      prescriptiveRecommendations.push(
-        `Great consistency with a ${currentStreakDays}-day learning streak! Keep it up to unlock the Streak Guardian badge.`,
-      );
-    } else {
-      prescriptiveRecommendations.push(
-        'Studying 15 minutes each day significantly enhances long-term retention and unlocks experience points faster.',
-      );
+      prescriptiveRecommendations.push({
+        priority: 'HIGH',
+        title: 'Start Your First Course',
+        description: 'Welcome to Learnova! Complete your first session and validate your learning with the 3-question practice quiz.',
+        actionRoute: '/courses',
+      });
     }
 
     return {
