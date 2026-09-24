@@ -1,6 +1,7 @@
+import { CheckCircle2, Lock } from 'lucide-react';
 import './Badge.css';
 
-function Badge({ badge, size = 'medium', showLabel = true }) {
+function Badge({ badge, size = 'medium', showLabel = true, showDescription = true }) {
   const getSizeClass = () => {
     switch (size) {
       case 'small':
@@ -12,8 +13,8 @@ function Badge({ badge, size = 'medium', showLabel = true }) {
     }
   };
 
-  const getBadgeIconUrl = (badge) => {
-    if (badge.iconUrl) return badge.iconUrl;
+  const getBadgeIconUrl = (b) => {
+    if (b.iconUrl) return b.iconUrl;
     
     // Map badge IDs to SVG files
     const badgeIconMap = {
@@ -47,23 +48,53 @@ function Badge({ badge, size = 'medium', showLabel = true }) {
       'perfect_student': '/badges/perfect_student.svg',
     };
     
-    return badgeIconMap[badge.id] || '/badges/first_steps.svg';
+    return badgeIconMap[b.id] || '/badges/first_steps.svg';
   };
 
   if (!badge) return null;
 
+  const isUnlocked = badge.unlocked !== false;
+
   return (
-    <div className={`badge ${getSizeClass()} ${badge.unlocked === false ? 'badge-locked' : ''}`}>
-      <div className="badge-icon">
-        <img 
-          src={getBadgeIconUrl(badge)} 
-          alt={badge.name} 
-          className="badge-artwork-img" 
-        />
+    <div 
+      className={`badge ${getSizeClass()} ${!isUnlocked ? 'badge-locked' : 'badge-unlocked'}`}
+      title={`${badge.name || 'Achievement'}: ${badge.description || ''}`}
+    >
+      <div className="badge-emblem-wrapper">
+        <div className="badge-icon-medallion">
+          <img 
+            src={getBadgeIconUrl(badge)} 
+            alt={badge.name || 'Achievement Badge'} 
+            className="badge-artwork-img" 
+          />
+        </div>
+        <div className={`badge-status-ring ${isUnlocked ? 'ring-unlocked' : 'ring-locked'}`}>
+          {isUnlocked ? <CheckCircle2 size={13} /> : <Lock size={13} />}
+        </div>
       </div>
+
       {showLabel && (
         <div className="badge-info">
-          <div className="badge-tier" style={{ color: '#1e40af' }}>{badge.tier}</div>
+          {badge.tier && (
+            <span className="badge-tier-pill">
+              {badge.tier}
+            </span>
+          )}
+          <h4 className="badge-name">{badge.name || 'Achievement'}</h4>
+          {showDescription && badge.description && (
+            <p className="badge-description">{badge.description}</p>
+          )}
+          <div className="badge-verified-seal">
+            {isUnlocked ? (
+              <span className="seal-unlocked">
+                <CheckCircle2 size={11} /> Verified Honor
+              </span>
+            ) : (
+              <span className="seal-locked">
+                <Lock size={11} /> In Progress
+              </span>
+            )}
+          </div>
         </div>
       )}
     </div>

@@ -721,7 +721,7 @@ function Profile() {
               <Award size={24} style={{ color: 'var(--primary, #1e40af)' }} /> Earned Badges & Achievements
             </h3>
             {userBadges && userBadges.filter(b => b.unlocked !== false).length > 0 ? (
-              <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: '2rem', width: '100%' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'stretch', gap: '1.5rem', width: '100%' }}>
                 {userBadges.filter(b => b.unlocked !== false).map((badge) => (
                   <Badge key={badge.id || badge.name} badge={badge} size="medium" />
                 ))}

@@ -636,8 +636,8 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  align-items: center;
-  gap: 2rem;
+  align-items: stretch;
+  gap: 1.5rem;
   width: 100%;
 }
 
@@ -646,20 +646,8 @@
   margin: 0;
   font-size: 0.9rem;
   line-height: 1.5;
-}
-
-.badge-name {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #ffffff;
-  letter-spacing: -0.01em;
-}
-
-.badge-description {
-  font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.7);
-  font-weight: 400;
-  margin-left: 0.5rem;
+  text-align: center;
+  padding: 1.5rem 0;
 }
 
 @keyframes slideInUp {
@@ -1224,28 +1212,36 @@
 .domain-level-badge {
   font-size: 0.72rem;
   font-weight: 700;
-  padding: 0.2rem 0.55rem;
-  border-radius: 6px;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
-.domain-level-badge.level-novice {
-  background: rgba(148, 163, 184, 0.15);
-  color: #475569;
+.domain-level-badge.level-novice,
+.domain-level-badge.level-needs_attention {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.2);
 }
 
 .domain-level-badge.level-developing {
   background: rgba(59, 130, 246, 0.12);
   color: #2563eb;
+  border: 1px solid rgba(59, 130, 246, 0.2);
 }
 
 .domain-level-badge.level-proficient {
   background: rgba(16, 185, 129, 0.12);
   color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.2);
 }
 
-.domain-level-badge.level-expert {
-  background: linear-gradient(135deg, rgba(234, 179, 8, 0.2), rgba(245, 158, 11, 0.2));
-  color: #b45309;
+.domain-level-badge.level-expert,
+.domain-level-badge.level-excellent {
+  background: #eff6ff;
+  color: #1e40af;
+  border: 1px solid #bfdbfe;
 }
 
 .domain-progress-bar {
