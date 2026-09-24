@@ -3,7 +3,7 @@
 Le pipeline de peuplement garantit une base de données de niveau production, avec **100% de données réelles et vérifiées** (aucune donnée fictive / zéro mock data).
 
 ### Données Actuelles en Base :
-- **Utilisateurs & Rôles** : Administrateur (`admin@learnova.com`) et Apprenant (`learner@learnova.com`).
+- **Utilisateurs & Rôles** : Administrateur (`admin@learnova.com`) et Apprenant (`learner@gmail.com`).
 - **108 Formations Professionnelles** réparties sur 14 domaines d'apprentissage (Informatique, IA & Data, Ingénierie Logicielle, Marketing, Finance & Business, Management, Design & Création, Langues, etc.).
 - **142 Sessions Pédagogiques**.
 - **568 Vidéos de Cours** validées avec le protocole officiel oEmbed de YouTube (100% fonctionnelles, intégrables sans blocage).

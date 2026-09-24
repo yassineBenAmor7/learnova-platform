@@ -185,7 +185,7 @@ learnova-platform/
 | Rôle | Email | Mot de passe | Permissions |
 | :--- | :--- | :--- | :--- |
 | **Administrateur** | `admin@learnova.com` | `admin123` | Gestion complète, statistiques, administration |
-| **Apprenant** | `learner@learnova.com` | `learner123` | Inscriptions, visionnage, quiz, examens, certificats |
+| **Apprenant** | `learner@gmail.com` | `learner123` | Inscriptions, visionnage, quiz, examens, certificats |
 
 ---
 
