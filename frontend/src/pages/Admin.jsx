@@ -1979,17 +1979,13 @@ const Admin = () => {
       <div className="section-header">
         <h2>Quiz Management</h2>
         <div className="header-actions">
-          <button className="btn btn-secondary" onClick={() => setShowQuizFilterModal(true)}>
-            <Filter size={18} />
-            Filter
-          </button>
-          <button className="btn btn-secondary" onClick={() => setShowCreateQuizModal(true)}>
-            <Plus size={18} />
-            Create Quiz
-          </button>
           <button className="btn btn-primary" onClick={() => setActiveTab('ai-quiz-studio')}>
             <Sparkles size={18} />
             Generate with AI
+          </button>
+          <button className="btn btn-secondary" onClick={() => setShowQuizFilterModal(true)}>
+            <Filter size={18} />
+            Filter
           </button>
         </div>
       </div>
@@ -2335,10 +2331,6 @@ const Admin = () => {
             <Filter size={18} />
             Filter
           </button>
-          <button className="btn btn-primary" onClick={() => setShowCreateVideoModal(true)}>
-            <Plus size={18} />
-            Add Video
-          </button>
         </div>
       </div>
 
@@ -2566,10 +2558,6 @@ const Admin = () => {
             <Filter size={18} />
             Filter
           </button>
-          <button className="btn btn-primary" onClick={() => setShowCreateSessionModal(true)}>
-            <Plus size={18} />
-            Create Session
-          </button>
         </div>
       </div>
 
@@ -2720,10 +2708,6 @@ const Admin = () => {
           <button className="btn btn-secondary" onClick={() => setShowCourseFilterModal(true)}>
             <Filter size={18} />
             Filter
-          </button>
-          <button className="btn btn-primary" onClick={() => handleStartCourseBuilder()}>
-            <Plus size={18} />
-            Create Course
           </button>
         </div>
       </div>
