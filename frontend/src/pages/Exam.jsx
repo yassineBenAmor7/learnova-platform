@@ -1,21 +1,23 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { quizService } from '../services/quiz.service';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../contexts/ToastContext';
+import { Clock, AlertTriangle } from 'lucide-react';
 import './Exam.css';
 
 function Exam() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { error: toastError } = useToast();
+  const { error: toastError, success: toastSuccess, warning: toastWarning } = useToast();
   const [quiz, setQuiz] = useState(null);
   const [attempt, setAttempt] = useState(null);
   const [answers, setAnswers] = useState({});
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [timeLeft, setTimeLeft] = useState(0);
+  const [totalDuration, setTotalDuration] = useState(0);
   const [examStarted, setExamStarted] = useState(false);
   const [result, setResult] = useState(null);
   const [showReview, setShowReview] = useState(false);
@@ -23,25 +25,43 @@ function Exam() {
   const [blockReason, setBlockReason] = useState(null);
   const [generatingCert, setGeneratingCert] = useState(false);
 
+  const endTimeRef = useRef(null);
+  const hasAutoSubmittedRef = useRef(false);
+  const handleSubmitRef = useRef();
+
   useEffect(() => {
     loadExam();
   }, [id]);
 
+  // Keep handleSubmitRef current to avoid stale closures
+  handleSubmitRef.current = () => handleSubmit();
+
+  // Rock-solid drift-proof countdown timer
   useEffect(() => {
-    let timer;
-    if (examStarted && timeLeft > 0 && !result) {
-      timer = setInterval(() => {
-        setTimeLeft(prev => {
-          if (prev <= 1) {
-            handleSubmit();
-            return 0;
+    if (!examStarted || result || !endTimeRef.current) return;
+
+    const tick = () => {
+      const now = Date.now();
+      const remaining = Math.max(0, Math.round((endTimeRef.current - now) / 1000));
+      setTimeLeft(remaining);
+
+      if (remaining <= 0) {
+        if (!hasAutoSubmittedRef.current) {
+          hasAutoSubmittedRef.current = true;
+          if (toastWarning) {
+            toastWarning('Time has expired! Submitting your exam automatically...', 6000);
           }
-          return prev - 1;
-        });
-      }, 1000);
-    }
-    return () => clearInterval(timer);
-  }, [examStarted, timeLeft, result]);
+          if (handleSubmitRef.current) {
+            handleSubmitRef.current();
+          }
+        }
+      }
+    };
+
+    tick();
+    const intervalId = setInterval(tick, 1000);
+    return () => clearInterval(intervalId);
+  }, [examStarted, result]);
 
   const loadExam = async () => {
     try {
@@ -52,10 +72,10 @@ function Exam() {
       console.log('Exam ID:', id);
       console.log('Exam Data:', quizData);
       console.log('Is Exam Mode:', quizData.isExamMode);
-      console.log('User ID:', user.id);
+      console.log('User ID:', user?.id);
       
       // Check attempt limit for final exams BEFORE loading the exam
-      if (quizData.isExamMode) {
+      if (quizData.isExamMode && user?.id) {
         try {
           const validation = await quizService.validateExamAttempts(quizData.id, user.id);
           console.log('Exam Attempt Validation:', validation);
@@ -78,9 +98,9 @@ function Exam() {
         setQuiz(quizData);
       }
       
-      if (quizData.timeLimitMinutes) {
-        setTimeLeft(quizData.timeLimitMinutes * 60);
-      }
+      const initialDuration = (quizData.timeLimitMinutes || 60) * 60;
+      setTimeLeft(initialDuration);
+      setTotalDuration(initialDuration);
     } catch (err) {
       toastError(err.message || 'Failed to load exam', 5000);
       console.error(err);
@@ -95,6 +115,20 @@ function Exam() {
       setLoading(true);
       const attemptData = await quizService.startAttempt(id, user.id);
       setAttempt(attemptData);
+
+      // Determine accurate deadline from backend attempt or quiz duration
+      let durationSec = (quiz?.timeLimitMinutes || 60) * 60;
+      if (attemptData?.expiresAt) {
+        const diffSec = Math.round((new Date(attemptData.expiresAt).getTime() - Date.now()) / 1000);
+        if (diffSec > 0) {
+          durationSec = diffSec;
+        }
+      }
+
+      setTimeLeft(durationSec);
+      setTotalDuration(durationSec);
+      endTimeRef.current = Date.now() + durationSec * 1000;
+      hasAutoSubmittedRef.current = false;
       setExamStarted(true);
       
       if (document.documentElement.requestFullscreen) {
@@ -116,10 +150,11 @@ function Exam() {
   };
 
   const handleSubmit = async () => {
-    if (!attempt?.id) return;
+    if (!attempt?.id || submitting) return;
     
     try {
       setSubmitting(true);
+      endTimeRef.current = null;
       const payload = Object.entries(answers).map(([questionId, optionId]) => ({
         questionId: Number(questionId),
         optionId: Number(optionId),
@@ -156,8 +191,13 @@ function Exam() {
   };
 
   const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60);
+    if (!seconds || seconds <= 0) return '00:00';
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
+    if (hrs > 0) {
+      return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
@@ -340,6 +380,14 @@ function Exam() {
     );
   }
 
+  const totalQuestions = quiz?.questions?.length || 0;
+  const answeredCount = quiz?.questions
+    ? quiz.questions.filter(q => answers[q.id] !== undefined).length
+    : 0;
+  const progressPercent = totalQuestions > 0 ? (answeredCount / totalQuestions) * 100 : 0;
+  const isCritical = timeLeft < 300;
+  const isWarning = timeLeft >= 300 && timeLeft < 600;
+
   if (!examStarted) {
     return (
       <div className="exam-container">
@@ -350,26 +398,26 @@ function Exam() {
           <div className="exam-info">
             <div className="info-item">
               <span className="info-label">Questions:</span>
-              <span className="info-value">{quiz.questions?.length || 0}</span>
+              <span className="info-value">{totalQuestions}</span>
             </div>
             <div className="info-item">
               <span className="info-label">Time Limit:</span>
-              <span className="info-value">{quiz.timeLimitMinutes} minutes</span>
+              <span className="info-value">{quiz.timeLimitMinutes || 60} minutes</span>
             </div>
             <div className="info-item">
               <span className="info-label">Passing Score:</span>
-              <span className="info-value">{quiz.passingScore}%</span>
+              <span className="info-value">{quiz.passingScore || 70}%</span>
             </div>
           </div>
 
           <div className="exam-warning">
-            <h3>Important Instructions</h3>
+            <h3>Important Exam Rules</h3>
             <ul>
-              <li>Once started, the exam timer cannot be paused</li>
-              <li>You must complete all questions before the time runs out</li>
-              <li>The exam will be in fullscreen mode</li>
-              <li>Do not refresh the page during the exam</li>
-              <li>Make sure you have a stable internet connection</li>
+              <li>Once you click <strong>Start Exam</strong>, the official countdown timer begins immediately and cannot be paused</li>
+              <li>A real-time countdown timer will remain pinned at the top of your screen throughout the session</li>
+              <li>When the timer expires, all answered questions are automatically submitted</li>
+              <li>Make sure you select an answer for all {totalQuestions} questions to enable submission</li>
+              <li>The exam will run in fullscreen mode; avoid reloading or navigating away</li>
             </ul>
           </div>
 
@@ -383,13 +431,69 @@ function Exam() {
 
   return (
     <div className="exam-container exam-mode">
-      <div className="exam-header">
-        <div className="exam-timer">
-          <span className={`timer-display ${timeLeft < 300 ? 'timer-warning' : ''}`}>
-            {formatTime(timeLeft)}
-          </span>
+      {/* Professional Sticky Topbar */}
+      <div className="pro-exam-topbar">
+        <div className="pro-exam-topbar-inner">
+          <div className="pro-topbar-left">
+            <div className="pro-live-pill">
+              <span className="live-dot" />
+              <span>LIVE CERTIFICATION EXAM</span>
+            </div>
+            <h1 className="pro-topbar-title" title={quiz.title}>
+              {quiz.title}
+            </h1>
+          </div>
+
+          <div className="pro-topbar-center">
+            <div className="pro-progress-header">
+              <span className="pro-progress-label">Live Progress</span>
+              <span className="pro-progress-count">
+                <strong>{answeredCount}</strong> of {totalQuestions} answered ({Math.round(progressPercent)}%)
+              </span>
+            </div>
+            <div className="pro-progress-bar-track">
+              <div
+                className="pro-progress-bar-fill"
+                style={{ width: `${progressPercent}%` }}
+              />
+            </div>
+          </div>
+
+          <div className="pro-topbar-right">
+            <div
+              className={`pro-timer-card ${
+                isCritical ? 'timer-critical' : isWarning ? 'timer-warning' : 'timer-normal'
+              }`}
+            >
+              <Clock className="pro-timer-icon" size={20} />
+              <div className="pro-timer-details">
+                <span className="pro-timer-caption">TIME REMAINING</span>
+                <span className="pro-timer-digits">{formatTime(timeLeft)}</span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={!isComplete() || submitting}
+              className="pro-topbar-submit-btn"
+              title={
+                !isComplete()
+                  ? `Answer all questions to submit (${totalQuestions - answeredCount} remaining)`
+                  : 'Submit your exam now'
+              }
+            >
+              {submitting ? 'Submitting...' : 'Submit Exam'}
+            </button>
+          </div>
         </div>
-        <h1 className="exam-title">{quiz.title}</h1>
+
+        {isCritical && timeLeft > 0 && (
+          <div className="pro-exam-alert-strip">
+            <AlertTriangle size={16} />
+            <span>Urgent: Less than 5 minutes remaining! Ensure all questions are answered before time runs out.</span>
+          </div>
+        )}
       </div>
 
       <div className="exam-content">
@@ -431,6 +535,13 @@ function Exam() {
         )}
 
         <div className="exam-actions">
+          <div className="exam-bottom-summary">
+            <span>
+              {answeredCount === totalQuestions
+                ? 'All questions answered. Ready to submit!'
+                : `${totalQuestions - answeredCount} question(s) remaining`}
+            </span>
+          </div>
           <button
             onClick={handleSubmit}
             disabled={!isComplete() || submitting}
