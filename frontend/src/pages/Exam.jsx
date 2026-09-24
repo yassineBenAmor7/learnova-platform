@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { quizService } from '../services/quiz.service';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../contexts/ToastContext';
-import { Clock, AlertTriangle } from 'lucide-react';
+import { Clock, AlertTriangle, Flame, Award } from 'lucide-react';
 import './Exam.css';
 
 function Exam() {
@@ -32,6 +32,18 @@ function Exam() {
   useEffect(() => {
     loadExam();
   }, [id]);
+
+  // Manage body class for Coursera/Udemy distraction-free exam mode
+  useEffect(() => {
+    if (examStarted && !result) {
+      document.body.classList.add('exam-session-active');
+    } else {
+      document.body.classList.remove('exam-session-active');
+    }
+    return () => {
+      document.body.classList.remove('exam-session-active');
+    };
+  }, [examStarted, result]);
 
   // Keep handleSubmitRef current to avoid stale closures
   handleSubmitRef.current = () => handleSubmit();
@@ -431,45 +443,79 @@ function Exam() {
 
   return (
     <div className="exam-container exam-mode">
-      {/* Professional Sticky Topbar */}
-      <div className="pro-exam-topbar">
+      {/* Coursera / Udemy Grade Unified Assessment Header */}
+      <header className="pro-exam-topbar">
         <div className="pro-exam-topbar-inner">
-          <div className="pro-topbar-left">
-            <div className="pro-live-pill">
-              <span className="live-dot" />
-              <span>LIVE CERTIFICATION EXAM</span>
-            </div>
-            <h1 className="pro-topbar-title" title={quiz.title}>
-              {quiz.title}
-            </h1>
-          </div>
-
-          <div className="pro-topbar-center">
-            <div className="pro-progress-header">
-              <span className="pro-progress-label">Live Progress</span>
-              <span className="pro-progress-count">
-                <strong>{answeredCount}</strong> of {totalQuestions} answered ({Math.round(progressPercent)}%)
+          {/* Brand & Exam Title (Left) */}
+          <div className="pro-topbar-brand-section">
+            <Link to="/dashboard" className="navbar-logo pro-brand-logo" title="Learnova Platform">
+              <img src="/logo.svg" alt="Learnova Logo" className="navbar-brand-img" />
+              <span>Learnova</span>
+            </Link>
+            <div className="pro-brand-divider" />
+            <div className="pro-exam-badge-group">
+              <span className="pro-exam-status-tag">
+                <span className="live-dot" />
+                FINAL EXAM
               </span>
-            </div>
-            <div className="pro-progress-bar-track">
-              <div
-                className="pro-progress-bar-fill"
-                style={{ width: `${progressPercent}%` }}
-              />
+              <h1 className="pro-topbar-title" title={quiz.title}>
+                {quiz.title}
+              </h1>
             </div>
           </div>
 
-          <div className="pro-topbar-right">
+          {/* Central Cockpit: Countdown Timer & Live Question Progress (Center) */}
+          <div className="pro-topbar-center-cockpit">
+            {/* Live Countdown Timer */}
             <div
               className={`pro-timer-card ${
                 isCritical ? 'timer-critical' : isWarning ? 'timer-warning' : 'timer-normal'
               }`}
             >
-              <Clock className="pro-timer-icon" size={20} />
+              <Clock className="pro-timer-icon" size={18} />
               <div className="pro-timer-details">
                 <span className="pro-timer-caption">TIME REMAINING</span>
                 <span className="pro-timer-digits">{formatTime(timeLeft)}</span>
               </div>
+            </div>
+
+            {/* Live Progress Bar */}
+            <div className="pro-topbar-progress-box">
+              <div className="pro-progress-header">
+                <span className="pro-progress-label">Live Progress</span>
+                <span className="pro-progress-count">
+                  <strong>{answeredCount}</strong> of {totalQuestions} answered ({Math.round(progressPercent)}%)
+                </span>
+              </div>
+              <div className="pro-progress-bar-track">
+                <div
+                  className="pro-progress-bar-fill"
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Learner Profile Section & Submit Action (Right) */}
+          <div className="pro-topbar-user-section">
+            {user?.gamification && (
+              <div className="navbar-gamification pro-exam-gamification">
+                <div className="gamification-item" title="Consecutive learning days">
+                  <Flame size={16} className="icon-streak" />
+                  <span>{user.gamification.currentStreak || 0}d</span>
+                </div>
+                <div className="gamification-item" title="Current level">
+                  <Award size={16} className="icon-points" />
+                  <span>Lvl. {user.gamification.level || 1}</span>
+                </div>
+              </div>
+            )}
+
+            <div className="navbar-user-info pro-exam-user-info" title="Current Candidate">
+              <div className="user-avatar-mini">
+                {user?.firstName?.[0]}{user?.lastName?.[0]}
+              </div>
+              <span className="user-name">{user?.firstName} {user?.lastName}</span>
             </div>
 
             <button
@@ -488,13 +534,14 @@ function Exam() {
           </div>
         </div>
 
+        {/* Urgent Alert Banner (< 5 min remaining) */}
         {isCritical && timeLeft > 0 && (
           <div className="pro-exam-alert-strip">
-            <AlertTriangle size={16} />
-            <span>Urgent: Less than 5 minutes remaining! Ensure all questions are answered before time runs out.</span>
+            <AlertTriangle size={15} />
+            <span>Urgent: Less than 5 minutes remaining! Complete your answers before the timer runs out.</span>
           </div>
         )}
-      </div>
+      </header>
 
       <div className="exam-content">
         {quiz.questions && quiz.questions.length > 0 ? (
