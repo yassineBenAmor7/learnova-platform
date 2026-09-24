@@ -260,7 +260,7 @@ const CheckoutModal = ({ course, onClose, onSuccess }) => {
 
                 {paymentMethod === 'STRIPE' && (
                   <div className="stripe-info-box">
-                    <p>⚡ Fast 1-Click Instant Checkout via Stripe SSL Secure Sandbox.</p>
+                    <p>Fast 1-Click Instant Checkout via Stripe SSL Secure Sandbox.</p>
                   </div>
                 )}
 

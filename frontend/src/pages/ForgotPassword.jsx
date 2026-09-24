@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { CheckCircle } from 'lucide-react';
 import { authService } from '../services/auth.service';
 import './ForgotPassword.css';
 
@@ -47,7 +48,7 @@ function ForgotPassword() {
           </div>
 
           <div className="forgot-password-success">
-            <div className="success-icon">✓</div>
+            <div className="success-icon"><CheckCircle size={36} color="#10b981" /></div>
             <p>
               In production, this link would be sent via email. For development, click the link below:
             </p>
@@ -93,7 +94,7 @@ function ForgotPassword() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              placeholder="votre.email@gmail.com"
+              placeholder="your.email@gmail.com"
             />
           </div>
 

@@ -832,8 +832,8 @@ function Profile() {
               onChange={(e) => handlePreferenceChange('language', e.target.value)}
             >
               <option value="en">English</option>
-              <option value="fr">Français</option>
-              <option value="ar">العربية</option>
+              <option value="fr">French</option>
+              <option value="ar">Arabic</option>
             </select>
           </div>
           <div className="setting-item">

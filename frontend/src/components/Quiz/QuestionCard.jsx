@@ -51,8 +51,8 @@ export const QuestionCard = ({
                 />
                 <span className="option-letter">{String.fromCharCode(65 + optIdx)}</span>
                 <span className="option-text">{typeof option === 'object' ? option.text : option}</span>
-                {showResult && isCorrect && <span className="option-badge correct-badge">✓ Correct</span>}
-                {showResult && isSelected && !isCorrect && <span className="option-badge error-badge">✗ Incorrect</span>}
+                {showResult && isCorrect && <span className="option-badge correct-badge">Correct</span>}
+                {showResult && isSelected && !isCorrect && <span className="option-badge error-badge">Incorrect</span>}
               </label>
             );
           })}

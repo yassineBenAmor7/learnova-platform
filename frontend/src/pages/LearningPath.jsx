@@ -9,7 +9,7 @@ import { useToast } from '../contexts/ToastContext';
 import VideoPlayer from '../components/VideoPlayer/VideoPlayer';
 import YouTubePlayer from '../components/YouTubePlayer/YouTubePlayer';
 import Sidebar from '../components/Sidebar/Sidebar';
-import { Award, CheckCircle, HelpCircle, Clock, Lock, PlayCircle, Info, BookOpen, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Award, CheckCircle, HelpCircle, Clock, Lock, PlayCircle, Info, BookOpen, ChevronLeft, ChevronRight, Circle } from 'lucide-react';
 import './LearningPath.css';
 
 // Helper to extract clean embeddable URLs for YouTube and Vimeo
@@ -1208,16 +1208,16 @@ function LearningPath() {
                   <p>Requirements to unlock the next session:</p>
                   <div className="chapter-checklist">
                     <span className={areAllVideosCompleted() ? 'done' : 'pending'}>
-                      {areAllVideosCompleted() ? '✓' : '○'} All videos watched ({currentSession.videos?.filter(v => isVideoDone(v)).length || 0}/{currentSession.videos?.length || 0})
+                      {areAllVideosCompleted() ? <CheckCircle size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> : <Circle size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />} All videos watched ({currentSession.videos?.filter(v => isVideoDone(v)).length || 0}/{currentSession.videos?.length || 0})
                     </span>
                     {hasContent && (
                       <span className={(currentSession.readingCompleted || readingMarked) ? 'done' : 'pending'}>
-                        {(currentSession.readingCompleted || readingMarked) ? '✓' : '○'} Reading notes
+                        {(currentSession.readingCompleted || readingMarked) ? <CheckCircle size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> : <Circle size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />} Reading notes
                       </span>
                     )}
                     {hasQuiz && (
                       <span className={sessionQuizPassed ? 'done' : 'pending'}>
-                        {sessionQuizPassed ? '✓' : '○'} Practice quiz passed successfully (≥ 70%)
+                        {sessionQuizPassed ? <CheckCircle size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} /> : <Circle size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />} Practice quiz passed successfully (≥ 70%)
                       </span>
                     )}
                   </div>

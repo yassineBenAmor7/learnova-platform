@@ -22,11 +22,11 @@ function Certificates() {
       setLoading(true);
       console.log('=== LOADING CERTIFICATES ===');
       
-      // Charger les certificats depuis l'API uniquement
+      // Load certificates from API only
       const apiCertificates = await certificateService.getMyCertificates();
       console.log('API Certificates data:', apiCertificates);
       
-      // Nettoyer le localStorage pour supprimer les certificats incorrects
+      // Clean legacy localStorage certificates if any
       localStorage.removeItem('userCertificates');
       
       console.log('Certificates length:', apiCertificates?.length);

@@ -27,8 +27,8 @@ const ConfirmModal = ({
             <AlertTriangle size={28} />
           </div>
           <h3 className="confirm-modal-title">{title}</h3>
-          <button className="btn-close-modal" onClick={onClose}>
-            ✕
+          <button className="btn-close-modal" onClick={onClose} aria-label="Close">
+            <X size={18} />
           </button>
         </div>
         

@@ -5,7 +5,7 @@ import {
   Users, BookOpen, FileText, Award, TrendingUp, 
   Activity, Settings, LogOut, Search, Plus, 
   Edit, Trash2, MoreVertical, Filter, Download, HelpCircle, ChevronUp, ChevronDown,
-  Sparkles, CheckCircle2, RefreshCw
+  Sparkles, CheckCircle2, RefreshCw, X
 } from 'lucide-react';
 import { aiService } from '../services/ai.service';
 import { useToast } from '../contexts/ToastContext';
@@ -2062,9 +2062,7 @@ const Admin = () => {
               <button 
                 className="btn-icon"
                 onClick={() => setShowCreateQuizModal(false)}
-              >
-                ✕
-              </button>
+              ><X size={18} /></button>
             </div>
             <form onSubmit={handleCreateQuiz}>
               <div className="form-group">
@@ -2395,9 +2393,7 @@ const Admin = () => {
               <button 
                 className="btn-icon"
                 onClick={() => setShowCreateVideoModal(false)}
-              >
-                ✕
-              </button>
+              ><X size={18} /></button>
             </div>
             <form onSubmit={handleCreateVideo}>
               <div className="form-group">
@@ -2622,9 +2618,7 @@ const Admin = () => {
               <button 
                 className="btn-icon"
                 onClick={() => setShowCreateSessionModal(false)}
-              >
-                ✕
-              </button>
+              ><X size={18} /></button>
             </div>
             <form onSubmit={handleCreateSession}>
               <div className="form-group">
@@ -3188,7 +3182,7 @@ const Admin = () => {
           <div className="modal-content professional-content course-builder-modal">
             <div className="modal-header professional-header">
               <h3>Course Builder - Step {builderStep} of 5</h3>
-              <button className="btn-close-modal" onClick={handleBuilderCloseDirect}>✕</button>
+              <button className="btn-close-modal" onClick={handleBuilderCloseDirect}><X size={18} /></button>
             </div>
             
             {/* Progress Steps */}
@@ -3818,7 +3812,7 @@ const Admin = () => {
                           <div className="question-options-preview">
                             {question.options.map((opt, idx) => (
                               <div key={idx} className={`option-preview ${opt.isCorrect ? 'correct' : ''}`}>
-                                <span className="option-marker">{opt.isCorrect ? '✓' : '○'}</span>
+                                <span className="option-marker">{opt.isCorrect ? <CheckCircle2 size={15} color="#10b981" /> : <span className="option-bullet" />}</span>
                                 <span className="option-text">{opt.text || '(empty)'}</span>
                               </div>
                             ))}
@@ -3888,9 +3882,7 @@ const Admin = () => {
           <div className="modal-content professional-content">
             <div className="modal-header professional-header">
               <h3>Edit Course</h3>
-              <button className="btn-close-modal" onClick={() => setShowEditCourseModal(false)}>
-                ✕
-              </button>
+              <button className="btn-close-modal" onClick={() => setShowEditCourseModal(false)}><X size={18} /></button>
             </div>
             <div className="modal-body professional-body">
               <form onSubmit={(e) => { e.preventDefault(); handleSaveCourseEdit(); }}>
@@ -3932,8 +3924,8 @@ const Admin = () => {
                       price: e.target.value === 'free' ? 0 : editCourseFormData.price || 29.99
                     })}
                   >
-                    <option value="free">🌱 Free Course</option>
-                    <option value="paid">💎 Paid / Premium Course</option>
+                    <option value="free">Free Course</option>
+                    <option value="paid">Paid / Premium Course</option>
                   </select>
                 </div>
                 {editCourseFormData.isPaid && (
@@ -3976,9 +3968,7 @@ const Admin = () => {
           <div className="modal-content professional-content">
             <div className="modal-header professional-header">
               <h3>Edit Session</h3>
-              <button className="btn-close-modal" onClick={() => setShowEditSessionModal(false)}>
-                ✕
-              </button>
+              <button className="btn-close-modal" onClick={() => setShowEditSessionModal(false)}><X size={18} /></button>
             </div>
             <div className="modal-body professional-body">
               <form onSubmit={(e) => { e.preventDefault(); handleSaveSessionEdit(); }}>
@@ -4050,9 +4040,7 @@ const Admin = () => {
           <div className="modal-content professional-content">
             <div className="modal-header professional-header">
               <h3>Edit Video</h3>
-              <button className="btn-close-modal" onClick={() => setShowEditVideoModal(false)}>
-                ✕
-              </button>
+              <button className="btn-close-modal" onClick={() => setShowEditVideoModal(false)}><X size={18} /></button>
             </div>
             <div className="modal-body professional-body">
               <form onSubmit={(e) => { e.preventDefault(); handleSaveVideoEdit(); }}>
@@ -4127,9 +4115,7 @@ const Admin = () => {
           <div className="modal-content professional-content">
             <div className="modal-header professional-header">
               <h3>Edit Quiz</h3>
-              <button className="btn-close-modal" onClick={() => setShowEditQuizModal(false)}>
-                ✕
-              </button>
+              <button className="btn-close-modal" onClick={() => setShowEditQuizModal(false)}><X size={18} /></button>
             </div>
             <div className="modal-body professional-body">
               <form onSubmit={(e) => { e.preventDefault(); handleSaveQuizEdit(); }}>
@@ -4226,9 +4212,7 @@ const Admin = () => {
           <div className="modal-content professional-content">
             <div className="modal-header professional-header">
               <h3>Filter Courses</h3>
-              <button className="btn-close-modal" onClick={() => setShowCourseFilterModal(false)}>
-                ✕
-              </button>
+              <button className="btn-close-modal" onClick={() => setShowCourseFilterModal(false)}><X size={18} /></button>
             </div>
             <div className="modal-body professional-body">
               <div className="form-group">
@@ -4286,9 +4270,7 @@ const Admin = () => {
           <div className="modal-content professional-content">
             <div className="modal-header professional-header">
               <h3>Filter Sessions</h3>
-              <button className="btn-close-modal" onClick={() => setShowSessionFilterModal(false)}>
-                ✕
-              </button>
+              <button className="btn-close-modal" onClick={() => setShowSessionFilterModal(false)}><X size={18} /></button>
             </div>
             <div className="modal-body professional-body">
               <div className="form-group">
@@ -4328,9 +4310,7 @@ const Admin = () => {
           <div className="modal-content professional-content">
             <div className="modal-header professional-header">
               <h3>Filter Videos</h3>
-              <button className="btn-close-modal" onClick={() => setShowVideoFilterModal(false)}>
-                ✕
-              </button>
+              <button className="btn-close-modal" onClick={() => setShowVideoFilterModal(false)}><X size={18} /></button>
             </div>
             <div className="modal-body professional-body">
               <div className="form-group">
@@ -4370,9 +4350,7 @@ const Admin = () => {
           <div className="modal-content professional-content">
             <div className="modal-header professional-header">
               <h3>Filter Quizzes</h3>
-              <button className="btn-close-modal" onClick={() => setShowQuizFilterModal(false)}>
-                ✕
-              </button>
+              <button className="btn-close-modal" onClick={() => setShowQuizFilterModal(false)}><X size={18} /></button>
             </div>
             <div className="modal-body professional-body">
               <div className="form-group">
@@ -4435,9 +4413,7 @@ const Admin = () => {
           <div className="modal-content professional-content">
             <div className="modal-header professional-header">
               <h3>Filter Certificates</h3>
-              <button className="btn-close-modal" onClick={() => setShowCertificateFilterModal(false)}>
-                ✕
-              </button>
+              <button className="btn-close-modal" onClick={() => setShowCertificateFilterModal(false)}><X size={18} /></button>
             </div>
             <div className="modal-body professional-body">
               <div className="form-group">
@@ -4476,9 +4452,7 @@ const Admin = () => {
           <div className="modal-content professional-content">
             <div className="modal-header professional-header">
               <h3>Platform Statistics</h3>
-              <button className="btn-close-modal" onClick={() => setShowStatsModal(false)}>
-                ✕
-              </button>
+              <button className="btn-close-modal" onClick={() => setShowStatsModal(false)}><X size={18} /></button>
             </div>
             <div className="modal-body professional-body">
               <div className="stats-summary">
@@ -4522,9 +4496,7 @@ const Admin = () => {
                 <h3>Quiz Questions</h3>
                 <span className="questions-count">{questions.length} questions</span>
               </div>
-              <button className="btn-close-modal" onClick={() => setShowQuestionsModal(false)}>
-                ✕
-              </button>
+              <button className="btn-close-modal" onClick={() => setShowQuestionsModal(false)}><X size={18} /></button>
             </div>
 
             <div className="questions-modal-body">
@@ -4558,7 +4530,7 @@ const Admin = () => {
                           <div key={idx} className={`option-badge ${option.isCorrect ? 'correct' : ''}`}>
                             <span className="option-letter">{String.fromCharCode(65 + idx)}</span>
                             <span className="option-text">{option.text}</span>
-                            {option.isCorrect && <span className="correct-indicator">✓</span>}
+                            {option.isCorrect && <span className="correct-indicator"><CheckCircle2 size={14} /></span>}
                           </div>
                         ))}
                       </div>
@@ -4665,9 +4637,7 @@ const Admin = () => {
           <div className="modal-content professional-content">
             <div className="modal-header professional-header">
               <h3>Edit User</h3>
-              <button className="btn-close-modal" onClick={() => setShowEditModal(false)}>
-                ✕
-              </button>
+              <button className="btn-close-modal" onClick={() => setShowEditModal(false)}><X size={18} /></button>
             </div>
             <div className="modal-body professional-body">
               <form onSubmit={(e) => { e.preventDefault(); handleSaveUserEdit(); }}>
@@ -4718,9 +4688,7 @@ const Admin = () => {
           <div className="modal-content professional-content">
             <div className="modal-header professional-header">
               <h3>Filter Users</h3>
-              <button className="btn-close-modal" onClick={() => setShowFilterModal(false)}>
-                ✕
-              </button>
+              <button className="btn-close-modal" onClick={() => setShowFilterModal(false)}><X size={18} /></button>
             </div>
             <div className="modal-body professional-body">
               <div className="form-group">
@@ -4762,9 +4730,7 @@ const Admin = () => {
           <div className="modal-content professional-content">
             <div className="modal-header professional-header">
               <h3>Create New User</h3>
-              <button className="btn-close-modal" onClick={() => setShowCreateUserModal(false)}>
-                ✕
-              </button>
+              <button className="btn-close-modal" onClick={() => setShowCreateUserModal(false)}><X size={18} /></button>
             </div>
             <div className="modal-body professional-body">
               <form onSubmit={handleCreateUser}>
@@ -4842,9 +4808,7 @@ const Admin = () => {
           <div className="modal-content professional-content">
             <div className="modal-header professional-header">
               <h3>Course Details</h3>
-              <button className="btn-close-modal" onClick={handleCloseCourseDetail}>
-                ✕
-              </button>
+              <button className="btn-close-modal" onClick={handleCloseCourseDetail}><X size={18} /></button>
             </div>
             <div className="modal-body professional-body">
               <div className="course-detail-section">

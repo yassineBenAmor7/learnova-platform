@@ -39,7 +39,7 @@ const Navbar = () => {
                     <span>Certificates</span>
                   </Link>
                   <Link to="/chatbot" className="navbar-link" onClick={handleAssistantClick}>
-                    <span>Assistant IA</span>
+                    <span>AI Assistant</span>
                   </Link>
                 </>
               )}
@@ -52,7 +52,7 @@ const Navbar = () => {
           ) : (
             <>
               <Link to="/" className="navbar-link">Home</Link>
-              <Link to="/chatbot" className="navbar-link" onClick={handleAssistantClick}>Assistant IA</Link>
+              <Link to="/chatbot" className="navbar-link" onClick={handleAssistantClick}>AI Assistant</Link>
             </>
           )}
         </div>

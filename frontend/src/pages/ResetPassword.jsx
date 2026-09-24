@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { CheckCircle } from 'lucide-react';
 import { authService } from '../services/auth.service';
 import './ResetPassword.css';
 
@@ -65,7 +66,7 @@ function ResetPassword() {
           </div>
 
           <div className="reset-password-success">
-            <div className="success-icon">✓</div>
+            <div className="success-icon"><CheckCircle size={36} color="#10b981" /></div>
             <p>You can now log in with your new password.</p>
           </div>
 

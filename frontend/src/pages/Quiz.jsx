@@ -86,7 +86,7 @@ function Quiz() {
           
           if (passedAttempt || hasCertificate) {
             console.log('BLOCKING: User already passed this exam');
-            setError('🎉 Congratulations! You have already passed this final exam and earned your certificate. No further attempts are needed.');
+            setError('Congratulations! You have already passed this final exam and earned your certificate. No further attempts are needed.');
             setLoading(false);
             return;
           }
@@ -210,7 +210,7 @@ function Quiz() {
           const { toast } = await import('../contexts/ToastContext');
           
           if (certResult.message === 'Certificate generated successfully' || certResult.success) {
-            toast.success('🎉 Congratulations! Your certificate has been generated successfully!', {
+            toast.success('Congratulations! Your certificate has been generated successfully!', {
               duration: 5000,
             });
           } else if (certResult.message === 'Certificate already exists') {
@@ -218,7 +218,7 @@ function Quiz() {
               duration: 3000,
             });
           } else {
-            toast.success('🎉 Congratulations! You have earned your certificate!', {
+            toast.success('Congratulations! You have earned your certificate!', {
               duration: 5000,
             });
           }
@@ -426,7 +426,7 @@ function Quiz() {
                     <div className="question-header">
                       <span className="question-number-icon">{index + 1}</span>
                       <span className="question-points" style={{ color: isCorrect ? '#10b981' : '#ef4444' }}>
-                        {isCorrect ? '✓ Correct' : '✗ Incorrect'}
+                        {isCorrect ? 'Correct' : 'Incorrect'}
                       </span>
                     </div>
                     
@@ -445,8 +445,8 @@ function Quiz() {
                         }}>
                           <span className="option-text">
                             {option.text}
-                            {option.isCorrect && ' ✓'}
-                            {option.id === userAnswer && !option.isCorrect && ' ✗'}
+                            {option.isCorrect && ' (Correct)'}
+                            {option.id === userAnswer && !option.isCorrect && ' (Your Choice)'}
                           </span>
                           {quiz?.showExplanationAfterAnswer && option.explanation && (
                             <div style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: '#6b7280' }}>

@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { quizService } from '../services/quiz.service';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../contexts/ToastContext';
-import { Clock, AlertTriangle, Flame, Award } from 'lucide-react';
+import { Clock, AlertTriangle, Flame, Award, FileQuestion } from 'lucide-react';
 import './Exam.css';
 
 function Exam() {
@@ -239,7 +239,9 @@ function Exam() {
     return (
       <div className="exam-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div className="card" style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center', padding: '2.5rem 2rem' }}>
-          <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>📋</div>
+          <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '72px', height: '72px', borderRadius: '50%', background: '#f1f5f9', color: '#64748b', margin: '0 auto 1.25rem' }}>
+            <FileQuestion size={40} />
+          </div>
           <h2 style={{ fontSize: '1.75rem', fontWeight: 800, marginBottom: '1rem' }}>Exam Not Found</h2>
           <p style={{ color: '#64748b', lineHeight: '1.6' }}>The exam you're looking for doesn't exist or you don't have access to it.</p>
           <Link to="/dashboard" className="btn btn-primary" style={{ marginTop: '1.5rem', display: 'inline-block' }}>
@@ -336,7 +338,7 @@ function Exam() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', fontWeight: 700, alignItems: 'center' }}>
                   <span className="question-number-icon">{index + 1}</span>
                   <span style={{ color: isCorrect ? '#059669' : '#dc2626' }}>
-                    {isCorrect ? '✓ Correct' : '✗ Incorrect'}
+                    {isCorrect ? 'Correct' : 'Incorrect'}
                   </span>
                 </div>
 
@@ -372,8 +374,8 @@ function Exam() {
                       }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <span>{option.text}</span>
-                          {isRightOption && <span style={{ fontWeight: 800, color: '#059669' }}>✓ Correct Answer</span>}
-                          {isSelected && !isRightOption && <span style={{ fontWeight: 800, color: '#dc2626' }}>✗ Your Choice</span>}
+                          {isRightOption && <span style={{ fontWeight: 800, color: '#059669' }}>Correct Answer</span>}
+                          {isSelected && !isRightOption && <span style={{ fontWeight: 800, color: '#dc2626' }}>Your Choice</span>}
                         </div>
                         {option.explanation && (
                           <div style={{ marginTop: '0.5rem', fontSize: '0.85rem', opacity: 0.9 }}>

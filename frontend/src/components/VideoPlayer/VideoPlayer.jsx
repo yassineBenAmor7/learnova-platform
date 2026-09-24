@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { Play, Pause, Volume2, VolumeX, Check } from 'lucide-react';
 import './VideoPlayer.css';
 
 function VideoPlayer({ video, onProgressUpdate, onVideoEnded }) {
@@ -161,9 +162,9 @@ function VideoPlayer({ video, onProgressUpdate, onVideoEnded }) {
               type="button"
               className="retry-button"
               onClick={onVideoEnded}
-              style={{ marginTop: '1rem', background: '#10b981' }}
+              style={{ marginTop: '1rem', background: '#10b981', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
             >
-              ✓ Mark as completed and continue
+              <Check size={16} /> Mark as completed and continue
             </button>
           )}
         </div>
@@ -199,8 +200,8 @@ function VideoPlayer({ video, onProgressUpdate, onVideoEnded }) {
         </div>
 
         <div className="controls-row">
-          <button onClick={togglePlay} className="control-btn">
-            {isPlaying ? '⏸' : '▶'}
+          <button onClick={togglePlay} className="control-btn" aria-label={isPlaying ? 'Pause' : 'Play'}>
+            {isPlaying ? <Pause size={16} /> : <Play size={16} />}
           </button>
 
           <div className="time-display">
@@ -210,8 +211,8 @@ function VideoPlayer({ video, onProgressUpdate, onVideoEnded }) {
           </div>
 
           <div className="volume-controls">
-            <button onClick={toggleMute} className="control-btn">
-              {isMuted ? '🔇' : '🔊'}
+            <button onClick={toggleMute} className="control-btn" aria-label={isMuted ? 'Unmute' : 'Mute'}>
+              {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
             </button>
             <input
               type="range"
