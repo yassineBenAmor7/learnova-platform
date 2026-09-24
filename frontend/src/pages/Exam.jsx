@@ -191,7 +191,7 @@ function Exam() {
     return (
       <div className="exam-container">
         <div className="card" style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center', padding: '2.5rem 2rem' }}>
-          <h2 style={{ fontSize: '1.75rem', fontWeight: 800 }}>{result.passed ? 'Exam Passed!' : '❌ Exam Not Passed'}</h2>
+          <h2 style={{ fontSize: '1.75rem', fontWeight: 800 }}>{result.passed ? 'Exam Passed!' : 'Exam Not Passed'}</h2>
           <p className="subtitle" style={{ color: '#64748b', marginTop: '0.5rem' }}>
             {result.passed ? 'Congratulations! You reached the passing score for this exam.' : 'Your score is below the passing threshold.'}
           </p>
@@ -222,7 +222,7 @@ function Exam() {
                 className="btn btn-primary"
                 style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#ffffff', border: 'none', fontWeight: 800, padding: '0.75rem 1.5rem', borderRadius: '12px' }}
               >
-                🎓 Obtenir mon Certificat Officiel →
+                Get Official Certificate →
               </button>
             )}
             <Link to={quiz?.courseId ? `/learning-path/${quiz.courseId}` : "/courses"} className="btn btn-secondary">
