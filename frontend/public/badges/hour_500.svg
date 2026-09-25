@@ -1,43 +1,81 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="100%" height="100%">
   <defs>
-    <linearGradient id="badgeGradient19" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#1e40af;stop-opacity:1" />
-      <stop offset="50%" style="stop-color:#3b82f6;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#2563eb;stop-opacity:1" />
+    <!-- Core Learnova Royal Blue Gradients -->
+    <linearGradient id="shieldBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a1945" />
+      <stop offset="50%" stop-color="#1e3a8a" />
+      <stop offset="100%" stop-color="#1d4ed8" />
     </linearGradient>
-    <linearGradient id="blueAccent19" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#60a5fa;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
+    <linearGradient id="shieldHighlight" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#60a5fa" stop-opacity="0.5" />
+      <stop offset="100%" stop-color="#1e3a8a" stop-opacity="0" />
     </linearGradient>
-    <filter id="shadow19" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="6" stdDeviation="12" flood-color="#1e40af" flood-opacity="0.25"/>
+    <!-- Metallic Tier Gradients -->
+    <linearGradient id="tierRim" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="45%" stop-color="#e0f2fe" />
+      <stop offset="70%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#0284c7" />
+    </linearGradient>
+    <linearGradient id="tierAccent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#7dd3fc" />
+    </linearGradient>
+    <!-- Premium Drop Shadow & Glow -->
+    <filter id="badgeShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#0a1945" flood-opacity="0.35"/>
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#38bdf8" flood-opacity="0.25"/>
     </filter>
-    <filter id="glow19" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+    <filter id="iconGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="2.5" result="blur" />
       <feMerge>
-        <feMergeNode in="coloredBlur"/>
-        <feMergeNode in="SourceGraphic"/>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
   </defs>
-  
-  <circle cx="100" cy="100" r="95" fill="url(#badgeGradient19)" filter="url(#shadow19)" />
-  <circle cx="100" cy="100" r="90" fill="none" stroke="url(#blueAccent19)" stroke-width="4" />
-  <circle cx="100" cy="100" r="75" fill="#ffffff" />
-  
-  <!-- Clock with crown -->
-  <g transform="translate(100, 100)" filter="url(#glow19)">
-    <circle cx="0" cy="0" r="35" fill="none" stroke="url(#badgeGradient19)" stroke-width="4" />
-    <circle cx="0" cy="0" r="5" fill="url(#badgeGradient19)" />
-    <line x1="0" y1="0" x2="0" y2="-25" stroke="url(#badgeGradient19)" stroke-width="3" />
-    <line x1="0" y1="0" x2="18" y2="12" stroke="#60a5fa" stroke-width="3" />
-    <path d="M-8,-45 L-4,-40 L0,-42 L4,-40 L8,-45 L6,-38 L0,-35 L-6,-38 Z" fill="#60a5fa" />
+  <!-- Outer Hexagonal Medallion -->
+  <g filter="url(#badgeShadow)">
+    <polygon points="120,8 184,28 224,84 224,156 184,212 120,232 56,212 16,156 16,84 56,28" 
+             fill="url(#tierRim)" />
+    <!-- Inner Dark Sapphire Shield -->
+    <polygon points="120,16 178,34 214,86 214,154 178,206 120,224 62,206 26,154 26,86 62,34" 
+             fill="url(#shieldBg)" />
+    <!-- Fine Inner Line Accent -->
+    <polygon points="120,24 172,40 204,88 204,152 172,200 120,216 68,200 36,152 36,88 68,40" 
+             fill="none" stroke="url(#tierAccent)" stroke-width="1.75" stroke-opacity="0.75" stroke-dasharray="8 4" />
+    <!-- Radial Top Bevel Sheen -->
+    <path d="M62,34 L120,16 L178,34 L204,86 L36,86 Z" fill="url(#shieldHighlight)" opacity="0.6" />
   </g>
-  
-  <circle cx="50" cy="50" r="4" fill="#3b82f6" />
-  <circle cx="150" cy="50" r="4" fill="#3b82f6" />
-  <circle cx="50" cy="150" r="4" fill="#3b82f6" />
-  <circle cx="150" cy="150" r="4" fill="#3b82f6" />
-  
-  <ellipse cx="100" cy="70" rx="30" ry="15" fill="rgba(255,255,255,0.3)" />
+  <!-- Elegant Golden Laurels -->
+  <g fill="url(#tierAccent)" opacity="0.9">
+    <!-- Left Laurel -->
+    <path d="M60,165 C68,175 80,185 96,192 C94,188 92,182 92,176 C80,172 70,162 60,165 Z" />
+    <path d="M50,145 C55,152 64,160 74,163 C74,158 72,152 70,147 C62,146 55,142 50,145 Z" />
+    <path d="M45,122 C48,130 55,136 65,138 C66,133 65,127 63,122 C56,122 50,119 45,122 Z" />
+    <!-- Right Laurel -->
+    <path d="M180,165 C172,175 160,185 144,192 C146,188 148,182 148,176 C160,172 170,162 180,165 Z" />
+    <path d="M190,145 C185,152 176,160 166,163 C166,158 168,152 170,147 C178,146 185,142 190,145 Z" />
+    <path d="M195,122 C192,130 185,136 175,138 C174,133 175,127 177,122 C184,122 190,119 195,122 Z" />
+    <!-- Central Laurel Star -->
+    <polygon points="120,196 122.5,203 130,203 124,207.5 126,214.5 120,210.5 114,214.5 116,207.5 110,203 117.5,203" fill="url(#tierAccent)" />
+  </g>
+  <!-- High-Precision Chronometer -->
+  <g transform="translate(120, 106)" filter="url(#iconGlow)">
+    <!-- Stopwatch Top Button -->
+    <rect x="-5" y="-44" width="10" height="8" rx="2" fill="url(#tierAccent)" />
+    <rect x="-8" y="-36" width="16" height="4" rx="1" fill="url(#tierRim)" />
+    <!-- Watch Body -->
+    <circle cx="0" cy="0" r="34" fill="#ffffff" stroke="url(#tierAccent)" stroke-width="4" />
+    <circle cx="0" cy="0" r="28" fill="#1e3a8a" />
+    <!-- Dial Marks -->
+    <line x1="0" y1="-24" x2="0" y2="-20" stroke="url(#tierAccent)" stroke-width="2.5" />
+    <line x1="24" y1="0" x2="20" y2="0" stroke="url(#tierAccent)" stroke-width="2.5" />
+    <line x1="0" y1="24" x2="0" y2="20" stroke="url(#tierAccent)" stroke-width="2.5" />
+    <line x1="-24" y1="0" x2="-20" y2="0" stroke="url(#tierAccent)" stroke-width="2.5" />
+    <!-- Watch Hands -->
+    <line x1="0" y1="0" x2="0" y2="-16" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
+    <line x1="0" y1="0" x2="12" y2="0" stroke="url(#tierAccent)" stroke-width="2.5" stroke-linecap="round" />
+    <circle cx="0" cy="0" r="4" fill="#ffffff" />
+  </g>
 </svg>
