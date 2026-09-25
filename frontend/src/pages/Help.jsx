@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Search, BookOpen, Video, MessageCircle, ArrowRight, ChevronDown, ChevronUp } from 'lucide-react';
+import { filterAndRankByPrefix } from '../utils/searchHelper';
 import './Help.css';
 
 const Help = () => {
@@ -46,10 +47,10 @@ const Help = () => {
 
   const filteredCategories = categories.map(category => ({
     ...category,
-    articles: category.articles.filter(article =>
-      article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      article.content.toLowerCase().includes(searchQuery.toLowerCase())
-    )
+    articles: filterAndRankByPrefix(category.articles, searchQuery, [
+      a => a.title,
+      a => a.content
+    ])
   })).filter(category => category.articles.length > 0);
 
   return (

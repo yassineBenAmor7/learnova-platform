@@ -3,8 +3,9 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { courseService } from '../services/course.service';
 import { aiService } from '../services/ai.service';
-import { Search, Filter, ChevronLeft, ChevronRight, Sparkles, ArrowRight } from 'lucide-react';
+import { Search, Filter, ChevronLeft, ChevronRight, Sparkles, ArrowRight, X } from 'lucide-react';
 import { getCourseThumbnail, handleThumbnailError } from '../utils/thumbnailHelper';
+import { filterAndRankByPrefix } from '../utils/searchHelper';
 import './Courses.css';
 
 function Courses() {
@@ -41,14 +42,6 @@ function Courses() {
   const applyFilters = () => {
     let filtered = [...courses];
 
-    // Apply search
-    if (searchTerm) {
-      filtered = filtered.filter(course =>
-        course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        course.description.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
     // Apply level filter
     if (filters.level !== 'all') {
       filtered = filtered.filter(course => 
@@ -75,6 +68,15 @@ function Courses() {
       filtered = filtered.filter(course => course.sessions?.length > 0);
     } else if (filters.sessions === 'no-sessions') {
       filtered = filtered.filter(course => !course.sessions || course.sessions.length === 0);
+    }
+
+    // Apply intelligent prefix-first search (Exact title prefix -> Word prefix in title -> Domain prefix)
+    if (searchTerm && searchTerm.trim()) {
+      filtered = filterAndRankByPrefix(filtered, searchTerm, [
+        course => course.title,
+        course => course.domain,
+        course => course.description
+      ]);
     }
 
     setFilteredCourses(filtered);
@@ -233,8 +235,19 @@ function Courses() {
             placeholder="Search courses by title, keywords, or description..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="search-input"
+            className={`search-input ${searchTerm ? 'search-input-has-clear' : ''}`}
           />
+          {searchTerm && (
+            <button
+              type="button"
+              className="search-clear-btn"
+              onClick={() => setSearchTerm('')}
+              title="Clear search"
+              aria-label="Clear search"
+            >
+              <X size={15} />
+            </button>
+          )}
         </div>
         <div className="filter-wrapper">
           <button 

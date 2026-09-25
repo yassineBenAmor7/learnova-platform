@@ -5,11 +5,12 @@ import {
   Users, BookOpen, FileText, Award, TrendingUp, 
   Activity, Settings, LogOut, Search, Plus, 
   Edit, Trash2, MoreVertical, Filter, Download, HelpCircle, ChevronUp, ChevronDown,
-  Sparkles, CheckCircle2, RefreshCw, X
+  Sparkles, CheckCircle2, RefreshCw, X, Eye
 } from 'lucide-react';
 import { aiService } from '../services/ai.service';
 import { useToast } from '../contexts/ToastContext';
 import { useConfirm } from '../contexts/ConfirmContext';
+import { filterAndRankByPrefix } from '../utils/searchHelper';
 import './Admin.css';
 
 const Admin = () => {
@@ -460,17 +461,21 @@ const Admin = () => {
     window.URL.revokeObjectURL(url);
   };
 
-  const filteredUsers = allUsers.filter((user) => {
-    const searchTerm = appliedUserSearch.toLowerCase();
-    const matchesSearch = 
-      user.firstName?.toLowerCase().includes(searchTerm) ||
-      user.lastName?.toLowerCase().includes(searchTerm) ||
-      user.email?.toLowerCase().includes(searchTerm);
-    
-    const matchesRole = appliedRoleFilter ? user.role?.name === appliedRoleFilter : true;
-    
-    return matchesSearch && matchesRole;
-  });
+  const filteredUsers = (() => {
+    let list = allUsers;
+    if (appliedRoleFilter) {
+      list = list.filter(user => user.role?.name === appliedRoleFilter);
+    }
+    const query = (userSearch || appliedUserSearch).trim();
+    if (query) {
+      return filterAndRankByPrefix(list, query, [
+        u => u.firstName,
+        u => u.lastName,
+        u => u.email
+      ]);
+    }
+    return list;
+  })();
 
   const handleApplyUserFilter = () => {
     setAppliedUserSearch(userSearch);
@@ -619,20 +624,29 @@ const Admin = () => {
     }
   };
 
-  const filteredCourses = courses.filter((course) => {
-    const searchTerm = appliedCourseSearch.toLowerCase();
-    const matchesSearch = course.title?.toLowerCase().includes(searchTerm);
-    
-    const sessionCount = course.sessions?.length || 0;
-    const quizCount = course.quizzes?.length || 0;
-    
-    const matchesMinSessions = !appliedCourseFilterMinSessions || sessionCount >= parseInt(appliedCourseFilterMinSessions);
-    const matchesMaxSessions = !appliedCourseFilterMaxSessions || sessionCount <= parseInt(appliedCourseFilterMaxSessions);
-    const matchesMinQuizzes = !appliedCourseFilterMinQuizzes || quizCount >= parseInt(appliedCourseFilterMinQuizzes);
-    const matchesMaxQuizzes = !appliedCourseFilterMaxQuizzes || quizCount <= parseInt(appliedCourseFilterMaxQuizzes);
-    
-    return matchesSearch && matchesMinSessions && matchesMaxSessions && matchesMinQuizzes && matchesMaxQuizzes;
-  });
+  const filteredCourses = (() => {
+    let list = courses.filter((course) => {
+      const sessionCount = course.sessions?.length || 0;
+      const quizCount = course.quizzes?.length || 0;
+      
+      const matchesMinSessions = !appliedCourseFilterMinSessions || sessionCount >= parseInt(appliedCourseFilterMinSessions);
+      const matchesMaxSessions = !appliedCourseFilterMaxSessions || sessionCount <= parseInt(appliedCourseFilterMaxSessions);
+      const matchesMinQuizzes = !appliedCourseFilterMinQuizzes || quizCount >= parseInt(appliedCourseFilterMinQuizzes);
+      const matchesMaxQuizzes = !appliedCourseFilterMaxQuizzes || quizCount <= parseInt(appliedCourseFilterMaxQuizzes);
+      
+      return matchesMinSessions && matchesMaxSessions && matchesMinQuizzes && matchesMaxQuizzes;
+    });
+
+    const query = (courseSearch || appliedCourseSearch).trim();
+    if (query) {
+      return filterAndRankByPrefix(list, query, [
+        c => c.title,
+        c => c.domain,
+        c => c.description
+      ]);
+    }
+    return list;
+  })();
 
   const handleApplyCourseFilters = () => {
     setAppliedCourseSearch(courseSearch);
@@ -744,17 +758,24 @@ const Admin = () => {
     }
   };
 
-  const filteredSessions = sessions.filter((session) => {
-    const searchTerm = appliedSessionSearch.toLowerCase();
+  const filteredSessions = (() => {
+    const rawSearch = (sessionSearch || appliedSessionSearch).trim();
     
     // Check if filtering by course
-    if (searchTerm.startsWith('course:')) {
-      const courseId = parseInt(searchTerm.split(':')[1]);
-      return session.courseId === courseId;
+    if (rawSearch.toLowerCase().startsWith('course:')) {
+      const courseId = parseInt(rawSearch.split(':')[1]);
+      return sessions.filter(session => session.courseId === courseId);
     }
     
-    return session.title?.toLowerCase().includes(searchTerm);
-  });
+    if (rawSearch) {
+      return filterAndRankByPrefix(sessions, rawSearch, [
+        s => s.title,
+        s => s.description
+      ]);
+    }
+    
+    return sessions;
+  })();
 
   const handleApplySessionFilters = () => {
     setAppliedSessionSearch(sessionSearch);
@@ -881,18 +902,22 @@ const Admin = () => {
     }
   };
 
-  const filteredVideos = videos.filter((video) => {
-    const searchTerm = appliedVideoSearch.toLowerCase();
+  const filteredVideos = (() => {
+    const rawSearch = (videoSearch || appliedVideoSearch).trim();
     
     // Check if filtering by session
-    if (searchTerm.startsWith('session:')) {
-      const sessionId = parseInt(searchTerm.split(':')[1]);
-      return video.sessionId === sessionId;
+    if (rawSearch.toLowerCase().startsWith('session:')) {
+      const sessionId = parseInt(rawSearch.split(':')[1]);
+      return videos.filter(video => video.sessionId === sessionId);
     }
     
-    // Regular text search
-    return video.title?.toLowerCase().includes(searchTerm);
-  });
+    // Regular text search with prefix prioritization
+    if (rawSearch) {
+      return filterAndRankByPrefix(videos, rawSearch, [v => v.title]);
+    }
+    
+    return videos;
+  })();
 
   const handleApplyVideoFilters = () => {
     setAppliedVideoSearch(videoSearch);
@@ -1569,38 +1594,44 @@ const Admin = () => {
     }
   };
 
-  const filteredQuizzes = quizzes.filter((quiz) => {
-    const searchTerm = appliedQuizSearch.toLowerCase();
+  const filteredQuizzes = (() => {
+    const rawSearch = (quizSearch || appliedQuizSearch).trim();
     
     let filterMode = null;
     let filterCourseId = null;
+    let textQuery = rawSearch;
     
     // Parse combined filters (e.g., "mode:exam,course:1")
-    const filters = searchTerm.split(',');
-    
-    filters.forEach(filter => {
-      if (filter.startsWith('mode:')) {
-        filterMode = filter.split(':')[1];
-      }
-      if (filter.startsWith('course:')) {
-        filterCourseId = parseInt(filter.split(':')[1]);
-      }
-    });
-    
-    // Apply mode filter
-    if (filterMode === 'exam' && !quiz.isExamMode) return false;
-    if (filterMode === 'practice' && quiz.isExamMode) return false;
-    
-    // Apply course filter
-    if (filterCourseId && quiz.courseId !== filterCourseId) return false;
-    
-    // Regular text search (only if no specific filters)
-    if (!filterMode && !filterCourseId) {
-      return quiz.title?.toLowerCase().includes(searchTerm);
+    if (rawSearch.includes('mode:') || rawSearch.includes('course:')) {
+      const filters = rawSearch.split(',');
+      filters.forEach(filter => {
+        if (filter.startsWith('mode:')) {
+          filterMode = filter.split(':')[1];
+        }
+        if (filter.startsWith('course:')) {
+          filterCourseId = parseInt(filter.split(':')[1]);
+        }
+      });
+      textQuery = '';
     }
     
-    return true;
-  });
+    let list = quizzes.filter(quiz => {
+      // Apply mode filter
+      if (filterMode === 'exam' && !quiz.isExamMode) return false;
+      if (filterMode === 'practice' && quiz.isExamMode) return false;
+      
+      // Apply course filter
+      if (filterCourseId && quiz.courseId !== filterCourseId) return false;
+      return true;
+    });
+    
+    // Regular text search with prefix prioritization
+    if (textQuery) {
+      return filterAndRankByPrefix(list, textQuery, [q => q.title, q => q.description]);
+    }
+    
+    return list;
+  })();
 
   const handleApplyQuizFilters = () => {
     setAppliedQuizSearch(quizSearch);
@@ -1664,21 +1695,27 @@ const Admin = () => {
     }
   };
 
-  const filteredCertificates = certificates.filter((certificate) => {
-    const searchTerm = certificateSearch.toLowerCase();
+  const filteredCertificates = (() => {
+    const rawSearch = (certificateSearch || '').trim();
     
     // Check if filtering by course
-    if (searchTerm.startsWith('course:')) {
-      const courseId = parseInt(searchTerm.split(':')[1]);
-      return certificate.courseId === courseId;
+    if (rawSearch.toLowerCase().startsWith('course:')) {
+      const courseId = parseInt(rawSearch.split(':')[1]);
+      return certificates.filter(c => c.courseId === courseId);
     }
     
-    // Regular text search
-    return (
-      certificate.certificateNumber?.toLowerCase().includes(searchTerm) ||
-      certificate.course?.title?.toLowerCase().includes(searchTerm)
-    );
-  });
+    // Regular text search with prefix prioritization
+    if (rawSearch) {
+      return filterAndRankByPrefix(certificates, rawSearch, [
+        c => c.certificateNumber,
+        c => c.course?.title,
+        c => c.user?.firstName,
+        c => c.user?.lastName
+      ]);
+    }
+    
+    return certificates;
+  })();
 
   if (!isAdmin) {
     return (
@@ -1954,12 +1991,18 @@ const Admin = () => {
                 </td>
                 <td>
                   <div className="action-buttons">
-                    <button className="btn-icon" title="Edit" onClick={() => handleEditCertificate(certificate.id)}>
-                      <Edit size={18} />
-                    </button>
+                    <a 
+                      href={`/certificates/verify/${certificate.certificateNumber}`} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="btn-icon" 
+                      title="View & Verify Certificate"
+                    >
+                      <Eye size={18} />
+                    </a>
                     <button 
                       className="btn-icon danger" 
-                      title="Delete"
+                      title="Revoke Certificate" 
                       onClick={() => handleDeleteCertificate(certificate.id)}
                     >
                       <Trash2 size={18} />

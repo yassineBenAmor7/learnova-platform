@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Search, ChevronDown, ChevronUp, ChevronRight, BookOpen, User, CreditCard, Shield, HelpCircle } from 'lucide-react';
+import { filterAndRankByPrefix } from '../utils/searchHelper';
 import './FAQ.css';
 
 const FAQ = () => {
@@ -172,10 +173,10 @@ const FAQ = () => {
 
   const filteredFAQ = faqData.map(category => ({
     ...category,
-    questions: category.questions.filter(q =>
-      q.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      q.answer.toLowerCase().includes(searchQuery.toLowerCase())
-    )
+    questions: filterAndRankByPrefix(category.questions, searchQuery, [
+      q => q.question,
+      q => q.answer
+    ])
   })).filter(category => category.questions.length > 0);
 
   return (
