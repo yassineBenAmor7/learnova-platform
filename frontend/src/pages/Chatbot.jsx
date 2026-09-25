@@ -121,7 +121,7 @@ function ChatbotPage() {
         <div className="chatbot-page-sidebar">
           <button className="back-btn" onClick={() => navigate(-1)}>
             <ArrowLeft size={16} />
-            <span>Retour</span>
+            <span>Back</span>
           </button>
 
           <div className="sidebar-header">

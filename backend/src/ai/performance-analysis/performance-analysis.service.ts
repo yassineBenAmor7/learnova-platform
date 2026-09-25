@@ -202,9 +202,15 @@ export class PerformanceAnalysisService {
       ? Math.floor((now.getTime() - new Date(lastActivity).getTime()) / (1000 * 60 * 60 * 24))
       : 999;
 
-    if (daysSinceActivity > 14 || (totalQuizzesTaken > 0 && overallSuccessRate < 40)) {
+    if (daysSinceActivity > 14 && totalQuizzesTaken > 0 && overallSuccessRate < 40) {
       retentionRisk = 'HIGH';
-      retentionRiskReason = `No activity recorded for ${daysSinceActivity} days and notable assessment failure rate.`;
+      retentionRiskReason = `Prolonged inactivity (${daysSinceActivity} days) combined with high assessment failure rate (${overallSuccessRate}% pass rate).`;
+    } else if (daysSinceActivity > 14) {
+      retentionRisk = 'HIGH';
+      retentionRiskReason = `Prolonged absence of ${daysSinceActivity} days detected. Risk of learning disengagement.`;
+    } else if (totalQuizzesTaken > 0 && overallSuccessRate < 40) {
+      retentionRisk = 'HIGH';
+      retentionRiskReason = `High assessment failure rate (${overallSuccessRate}% pass rate across ${totalQuizzesTaken} attempts) indicates conceptual difficulties.`;
     } else if (daysSinceActivity > 5 || currentStreakDays === 0) {
       retentionRisk = 'MODERATE';
       retentionRiskReason = `Slowing study pace. Risk of breaking daily learning streak.`;
